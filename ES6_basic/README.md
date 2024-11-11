@@ -333,6 +333,58 @@ module.exports = {
 
 ## Finally…
 Don’t forget to run `npm install` from the terminal of your project folder to install all necessary project dependencies. Do not push on your repository the folder node_modules that has been created.
+
+etape `npm install`
+```bash
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# npm install
+npm error code EISDIR
+npm error syscall read
+npm error errno -21
+npm error Could not read package.json: Error: EISDIR: illegal operation on a directory, read
+npm error A complete log of this run can be found in: /root/.npm/_logs/2024-11-11T12_09_02_468Z-debug-0.log
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# npm install
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated urix@0.1.0: Please see https://github.com/lydell/urix#deprecated
+npm warn deprecated har-validator@5.1.5: this library is no longer supported
+npm warn deprecated source-map-resolve@0.5.3: See https://github.com/lydell/source-map-resolve#deprecated
+npm warn deprecated resolve-url@0.2.1: https://github.com/lydell/resolve-url#deprecated
+npm warn deprecated source-map-url@0.4.1: See https://github.com/lydell/source-map-url#deprecated
+npm warn deprecated request-promise-native@1.0.9: request-promise-native has been deprecated because it extends the now deprecated request package, see https://github.com/request/request/issues/3142
+npm warn deprecated abab@2.0.6: Use your platform's native atob() and btoa() methods instead
+npm warn deprecated left-pad@1.3.0: use String.prototype.padStart()
+npm warn deprecated w3c-hr-time@1.0.2: Use your platform's native performance.now() and performance.timeOrigin.
+npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated domexception@1.0.1: Use your platform's native DOMException instead
+npm warn deprecated sane@4.1.0: some dependency vulnerabilities fixed, support for node < 10 dropped, and newer ECMAScript syntax/features added
+npm warn deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+npm warn deprecated request@2.88.2: request has been deprecated, see https://github.com/request/request/issues/3142
+npm warn deprecated eslint@6.8.0: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 731 packages, and audited 732 packages in 1m
+
+87 packages are looking for funding
+  run `npm fund` for details
+
+37 vulnerabilities (31 moderate, 6 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# nodejs -v
+v20.18.0
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# npm -v
+10.8.2
+```
+
 root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
 sic# nodejs -v
 v20.18.0
@@ -349,7 +401,21 @@ root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertons
 asses# npm -v
 8.5.1
 
+Résultat installation mais erreur 2ème tentative:
+```bash
+$ nodejs -v
+v20.15.1
+$ npm -v
+10.7.0
+```
 
+Résultat installation mais erreur 2ème tentative:
+```bash
+$ nodejs -v
+v20.18.0
+$ npm -v
+10.8.2
+```
 
 ## Tasks
 0. Const or let?
@@ -2175,3 +2241,74 @@ sic# npm -v
 10.8.2
 root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
 sic#
+
+
+Solution Task
+1. Task1
+To modify the taskFirst and taskNext functions to use const and let where appropriate, follow these steps:
+
+Task Description:
+
+- taskFirst: Use const to declare variables that do not change after their initial assignment.
+
+- taskNext: Use let to declare variables that will be modified (in this case, combination).
+
+Code Implementation
+You need to update the 0-constants.js file with the changes:
+
+```js
+// 0-constants.js
+
+export function taskFirst() {
+  const task = 'I prefer const when I can.';  // Using const since the variable does not change
+  return task;
+}
+
+export function getLast() {
+  return ' is okay';
+}
+
+export function taskNext() {
+  let combination = 'But sometimes let';  // Using let because we modify the variable
+  combination += getLast();  // Concatenating a string to combination
+
+  return combination;
+}
+```
+Explanation of Changes:
+
+- In taskFirst(), I replaced var with const because the task variable is not reassigned, making const the appropriate choice.
+
+- In taskNext(), I replaced var with let because the combination variable is reassigned when concatenating the string returned by getLast().
+Testing the Code
+Make sure to test the code using 0-main.js:
+
+```js
+// 0-main.js
+
+import { taskFirst, taskNext } from './0-constants.js';
+
+console.log(`${taskFirst()} ${taskNext()}`);
+```
+Expected Output:
+When you run the following command:
+
+```bash
+npm run dev 0-main.js
+```
+The output should be:
+
+```plaintext
+I prefer const when I can. But sometimes let is okay
+```
+Directory Structure:
+Ensure the structure is like this:
+
+```css
+holbertonschool-web_back_end
+└── ES6_basic
+    ├── 0-constants.js
+    └── 0-main.js
+```
+This will complete the task.
+

@@ -1,3 +1,5 @@
+// 3-main.js
+
 import getSumOfHoods from './3-default-parameter.js';
 
 console.log(getSumOfHoods(34));
