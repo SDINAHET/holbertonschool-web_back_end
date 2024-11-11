@@ -6,15 +6,15 @@
 ## Resources (Read or watch):
 	- `ECMAScript 6 - ECMAScript 2015` https://www.w3schools.com/js/js_es6.asp
 
-	- `Statements and declarations` https://intranet.hbtn.io/rltoken/OHkTGVz-DLmzmrpDuWDYBw
+	- `Statements and declarations` https://intranet.hbtn.io/rltoken/OHkTGVz-DLmzmrpDuWDYBw https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements
 
-	- `Arrow functions` https://intranet.hbtn.io/rltoken/5FxmFLP2qwTEo0puWUVHsQ
+	- `Arrow functions` https://intranet.hbtn.io/rltoken/5FxmFLP2qwTEo0puWUVHsQ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
 
-	- `Default parameters` https://intranet.hbtn.io/rltoken/qZm6g37BqHVD9G96MLsnsg
+	- `Default parameters` https://intranet.hbtn.io/rltoken/qZm6g37BqHVD9G96MLsnsg https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters
 
-	- `Rest parameters` https://intranet.hbtn.io/rltoken/qD9tUS00akyWTDU7MKUAuA
+	- `Rest parameters` https://intranet.hbtn.io/rltoken/qD9tUS00akyWTDU7MKUAuA https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters
 
-	- `Javascript ES6 — Iterables and Iterators` https://intranet.hbtn.io/rltoken/oeJc6rHh9gd0zAJKkpVhhg
+	- `Javascript ES6 — Iterables and Iterators` https://intranet.hbtn.io/rltoken/oeJc6rHh9gd0zAJKkpVhhg https://towardsdatascience.com/javascript-es6-iterables-and-iterators-de18b54f4d4
 
 ## Learning Objectives
 At the end of this project, you are expected to be able to explain to anyone, without the help of Google:
