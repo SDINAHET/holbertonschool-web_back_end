@@ -4,17 +4,17 @@
 - **Your score will be updated as you progress.**
 
 ## Resources (Read or watch):
-	- `ECMAScript 6 - ECMAScript 2015` https://www.w3schools.com/js/js_es6.asp
+- `ECMAScript 6 - ECMAScript 2015` https://www.w3schools.com/js/js_es6.asp
 
-	- `Statements and declarations` https://intranet.hbtn.io/rltoken/OHkTGVz-DLmzmrpDuWDYBw https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements
+- `Statements and declarations` https://intranet.hbtn.io/rltoken/OHkTGVz-DLmzmrpDuWDYBw https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements
 
-	- `Arrow functions` https://intranet.hbtn.io/rltoken/5FxmFLP2qwTEo0puWUVHsQ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+- `Arrow functions` https://intranet.hbtn.io/rltoken/5FxmFLP2qwTEo0puWUVHsQ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
 
-	- `Default parameters` https://intranet.hbtn.io/rltoken/qZm6g37BqHVD9G96MLsnsg https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters
+- `Default parameters` https://intranet.hbtn.io/rltoken/qZm6g37BqHVD9G96MLsnsg https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters
 
-	- `Rest parameters` https://intranet.hbtn.io/rltoken/qD9tUS00akyWTDU7MKUAuA https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters
+- `Rest parameters` https://intranet.hbtn.io/rltoken/qD9tUS00akyWTDU7MKUAuA https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters
 
-	- `Javascript ES6 — Iterables and Iterators` https://intranet.hbtn.io/rltoken/oeJc6rHh9gd0zAJKkpVhhg https://towardsdatascience.com/javascript-es6-iterables-and-iterators-de18b54f4d4
+- `Javascript ES6 — Iterables and Iterators` https://intranet.hbtn.io/rltoken/oeJc6rHh9gd0zAJKkpVhhg https://towardsdatascience.com/javascript-es6-iterables-and-iterators-de18b54f4d4
 
 ## Learning Objectives
 At the end of this project, you are expected to be able to explain to anyone, without the help of Google:
@@ -203,6 +203,13 @@ v20.15.1
 $ npm -v
 10.7.0
 ```
+après résolution problème installation node js
+```bash
+$ nodejs -v
+v20.15.1
+$ npm -v
+10.7.0
+```
 
 installation error:
 ```bash
@@ -234,12 +241,688 @@ Click to show/hide file contents
 
 `.eslintrc.js`
 Click to show/hide file contents
+_______________________________________
+`package.json`
+Click to show/hide file contents
+```json
+
+{
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint",
+    "check-lint": "lint [0-9]*.js",
+    "dev": "npx babel-node",
+    "test": "jest",
+    "full-test": "./node_modules/.bin/eslint [0-9]*.js && jest"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "@babel/node": "^7.8.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^22.17.0",
+    "jest": "^24.9.0"
+  }
+}
+```
+
+`babel.config.js`
+Click to show/hide file contents
+```js
+
+module.exports = {
+  presets: [
+    [
+      '@babel/preset-env',
+      {
+        targets: {
+          node: 'current',
+        },
+      },
+    ],
+  ],
+};
+
+```
+
+
+`.eslintrc.js`
+Click to show/hide file contents
+```js
+
+module.exports = {
+  env: {
+    browser: false,
+    es6: true,
+    jest: true,
+  },
+  extends: [
+    'airbnb-base',
+    'plugin:jest/all',
+  ],
+  globals: {
+    Atomics: 'readonly',
+    SharedArrayBuffer: 'readonly',
+  },
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+  },
+  plugins: ['jest'],
+  rules: {
+    'max-classes-per-file': 'off',
+    'no-underscore-dangle': 'off',
+    'no-console': 'off',
+    'no-shadow': 'off',
+    'no-restricted-syntax': [
+      'error',
+      'LabeledStatement',
+      'WithStatement',
+    ],
+  },
+  overrides:[
+    {
+      files: ['*.js'],
+      excludedFiles: 'babel.config.js',
+    }
+  ]
+};
+
+```
 
 ## Finally…
 Don’t forget to run `npm install` from the terminal of your project folder to install all necessary project dependencies. Do not push on your repository the folder node_modules that has been created.
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# nodejs -v
+v20.18.0
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# npm -v
+10.8.2
 
 
+Résultat installation mais erreur 1ère tentative:
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_cl
+asses# nodejs -v
+v12.22.9
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_cl
+asses# npm -v
+8.5.1
+
+
+
+## Tasks
+0. Const or let?
+
+***mandatory***
+
+Modify
+
+	- function `taskFirst` to instantiate variables using `const`
+
+	- function `taskNext` to instantiate variables using `let`
+
+```js
+export function taskFirst() {
+  var task = 'I prefer const when I can.';
+  return task;
+}
+
+export function getLast() {
+  return ' is okay';
+}
+
+export function taskNext() {
+  var combination = 'But sometimes let';
+  combination += getLast();
+
+  return combination;
+}
+```
+
+Execution example:
+
+```bash
+bob@dylan:~$ cat 0-main.js
+import { taskFirst, taskNext } from './0-constants.js';
+
+console.log(`${taskFirst()} ${taskNext()}`);
+
+bob@dylan:~$
+bob@dylan:~$ npm run dev 0-main.js
+I prefer const when I can. But sometimes let is okay
+bob@dylan:~$
+```
+
+***Repo:***
+
+GitHub repository: `holbertonschool-web_back_end`
+
+Directory: `ES6_basic`
+
+File: `0-constants.js`
+
+1. Block Scope
+
+***mandatory***
+
+Given what you’ve read about `var` and hoisting, modify the variables inside the function `taskBlock` so that the variables aren’t overwritten inside the conditional block.
+
+```js
+export default function taskBlock(trueOrFalse) {
+  var task = false;
+  var task2 = true;
+
+  if (trueOrFalse) {
+    var task = true;
+    var task2 = false;
+  }
+
+  return [task, task2];
+}
+```
+Execution:
+```bash
+bob@dylan:~$ cat 1-main.js
+import taskBlock from './1-block-scoped.js';
+
+console.log(taskBlock(true));
+console.log(taskBlock(false));
+bob@dylan:~$
+bob@dylan:~$ npm run dev 1-main.js
+[ false, true ]
+[ false, true ]
+bob@dylan:~$
+```
+***Repo:***
+
+GitHub repository: `holbertonschool-web_back_end`
+
+Directory: `ES6_basic`
+
+File: `1-block-scoped.js`
+
+
+2. Arrow functions
+
+***mandatory***
+
+Rewrite the following standard function to use ES6’s arrow syntax of the function `add` (it will be an anonymous function after)
+
+```js
+export default function getNeighborhoodsList() {
+  this.sanFranciscoNeighborhoods = ['SOMA', 'Union Square'];
+
+  const self = this;
+  this.addNeighborhood = function add(newNeighborhood) {
+    self.sanFranciscoNeighborhoods.push(newNeighborhood);
+    return self.sanFranciscoNeighborhoods;
+  };
+}
+```
+Execution:
+```bash
+bob@dylan:~$ cat 2-main.js
+import getNeighborhoodsList from './2-arrow.js';
+
+const neighborhoodsList = new getNeighborhoodsList();
+const res = neighborhoodsList.addNeighborhood('Noe Valley');
+console.log(res);
+bob@dylan:~$
+bob@dylan:~$ npm run dev 2-main.js
+[ 'SOMA', 'Union Square', 'Noe Valley' ]
+bob@dylan:~$
+```
+***Repo:***
+
+GitHub repository: `holbertonschool-web_back_end`
+
+Directory: `ES6_basic`
+
+File: `2-arrow.js`
+
+
+3. Parameter defaults
+
+***mandatory***
+
+Condense the internals of the following function to 1 line - without changing the name of each function/variable.
+
+Hint: The key here to define default parameter values for the function parameters.
+
+```js
+export default function getSumOfHoods(initialNumber, expansion1989, expansion2019) {
+  if (expansion1989 === undefined) {
+    expansion1989 = 89;
+  }
+
+  if (expansion2019 === undefined) {
+    expansion2019 = 19;
+  }
+  return initialNumber + expansion1989 + expansion2019;
+}
+```
+Execution:
+```bash
+bob@dylan:~$ cat 3-main.js
+import getSumOfHoods from './3-default-parameter.js';
+
+console.log(getSumOfHoods(34));
+console.log(getSumOfHoods(34, 3));
+console.log(getSumOfHoods(34, 3, 4));
+bob@dylan:~$
+bob@dylan:~$ npm run dev 3-main.js
+142
+56
+41
+bob@dylan:~$
+```
+***Repo:***
+
+GitHub repository: `holbertonschool-web_back_end`
+
+Directory: `ES6_basic`
+
+File: `3-default-parameter.js`
+
+
+4. Rest parameter syntax for functions
+
+***mandatory***
+
+Modify the following function to return the number of arguments passed to it using the rest parameter syntax
+```js
+export default function returnHowManyArguments() {
+
+}
+Example:
+
+> returnHowManyArguments("Hello", "Holberton", 2020);
+3
+>
+```
+Execution:
+```bash
+bob@dylan:~$ cat 4-main.js
+import returnHowManyArguments from './4-rest-parameter.js';
+
+console.log(returnHowManyArguments("one"));
+console.log(returnHowManyArguments("one", "two", 3, "4th"));
+bob@dylan:~$
+bob@dylan:~$ npm run dev 4-main.js
+1
+4
+bob@dylan:~$
+```
+**Repo:**
+
+GitHub `repository: holbertonschool-web_back_end`
+
+Directory: `ES6_basic`
+
+File: `4-rest-parameter.js`
+
+
+5. The wonders of spread syntax
+
+***mandatory***
+
+Using spread syntax, concatenate 2 arrays and each character of a string by modifying the function below. Your function body should be one line long.
+
+```js
+export default function concatArrays(array1, array2, string) {
+}
+```
+Execution:
+```bash
+bob@dylan:~$ cat 5-main.js
+import concatArrays from './5-spread-operator.js';
+
+console.log(concatArrays(['a', 'b'], ['c', 'd'], 'Hello'));
+
+bob@dylan:~$
+bob@dylan:~$ npm run dev 5-main.js
+[
+  'a', 'b', 'c',
+  'd', 'H', 'e',
+  'l', 'l', 'o'
+]
+bob@dylan:~$
+```
+***Repo:***
+
+GitHub repository: `holbertonschool-web_back_end`
+
+Directory: `ES6_basic`
+
+File: `5-spread-operator.js`
+
+
+6. Take advantage of template literals
+
+***mandatory***
+
+Rewrite the return statement to use a template literal so you can the substitute the variables you’ve defined.
+
+```js
+export default function getSanFranciscoDescription() {
+  const year = 2017;
+  const budget = {
+    income: '$119,868',
+    gdp: '$154.2 billion',
+    capita: '$178,479',
+  };
+
+  return 'As of ' + year + ', it was the seventh-highest income county in the United States'
+        / ', with a per capita personal income of ' + budget.income + '. As of 2015, San Francisco'
+        / ' proper had a GDP of ' + budget.gdp + ', and a GDP per capita of ' + budget.capita + '.';
+}
+```
+Execution:
+```bash
+bob@dylan:~$ cat 6-main.js
+import getSanFranciscoDescription from './6-string-interpolation.js';
+
+console.log(getSanFranciscoDescription());
+
+bob@dylan:~$
+bob@dylan:~$ npm run dev 6-main.js
+As of 2017, it was the seventh-highest income county in the United States, with a per capita personal income of $119,868. As of 2015, San Francisco proper had a GDP of $154.2 billion, and a GDP per capita of $178,479.
+bob@dylan:~$
+```
+
+***Repo:***
+
+GitHub repository: `holbertonschool-web_back_end`
+
+Directory: `ES6_basic`
+
+File: `6-string-interpolation.js`
+
+
+7. Object property value shorthand syntax
+
+***mandatory***
+
+Notice how the keys and the variable names are the same?
+
+Modify the following function’s `budget` object to simply use the object property value shorthand syntax instead.
+
+```js
+export default function getBudgetObject(income, gdp, capita) {
+  const budget = {
+    income: income,
+    gdp: gdp,
+    capita: capita,
+  };
+
+  return budget;
+}
+```
+Execution:
+
+```bash
+bob@dylan:~$ cat 7-main.js
+import getBudgetObject from './7-getBudgetObject.js';
+
+console.log(getBudgetObject(400, 700, 900));
+
+bob@dylan:~$
+bob@dylan:~$ npm run dev 7-main.js
+{ income: 400, gdp: 700, capita: 900 }
+bob@dylan:~$
+```
+***Repo:***
+
+GitHub repository: `holbertonschool-web_back_end`
+
+Directory: `ES6_basic`
+
+File: `7-getBudgetObject.js`
+
+
+8. No need to create empty objects before adding in properties
+
+***mandatory***
+
+Rewrite the `getBudgetForCurrentYear` function to use ES6 computed property names on the `budget` object
+
+```js
+function getCurrentYear() {
+  const date = new Date();
+  return date.getFullYear();
+}
+
+export default function getBudgetForCurrentYear(income, gdp, capita) {
+  const budget = {};
+
+  budget[`income-${getCurrentYear()}`] = income;
+  budget[`gdp-${getCurrentYear()}`] = gdp;
+  budget[`capita-${getCurrentYear()}`] = capita;
+
+  return budget;
+}
+```
+Execution:
+```bash
+bob@dylan:~$ cat 8-main.js
+import getBudgetForCurrentYear from './8-getBudgetCurrentYear.js';
+
+console.log(getBudgetForCurrentYear(2100, 5200, 1090));
+
+bob@dylan:~$
+bob@dylan:~$ npm run dev 8-main.js
+{ 'income-2021': 2100, 'gdp-2021': 5200, 'capita-2021': 1090 }
+bob@dylan:~$
+```
+***Repo:***
+
+GitHub repository: `holbertonschool-web_back_end`
+
+Directory: `ES6_basic`
+
+File: `8-getBudgetCurrentYear.js`
+
+
+9. ES6 method properties
+
+***mandatory***
+
+Rewrite `getFullBudgetObject` to use ES6 method properties in the `fullBudget` object
+
+```js
+import getBudgetObject from './7-getBudgetObject.js';
+
+export default function getFullBudgetObject(income, gdp, capita) {
+  const budget = getBudgetObject(income, gdp, capita);
+  const fullBudget = {
+    ...budget,
+    getIncomeInDollars: function (income) {
+      return `$${income}`;
+    },
+    getIncomeInEuros: function (income) {
+      return `${income} euros`;
+    },
+  };
+
+  return fullBudget;
+}
+```
+Execution:
+```bash
+bob@dylan:~$ cat 9-main.js
+import getFullBudgetObject from './9-getFullBudget.js';
+
+const fullBudget = getFullBudgetObject(20, 50, 10);
+
+console.log(fullBudget.getIncomeInDollars(fullBudget.income));
+console.log(fullBudget.getIncomeInEuros(fullBudget.income));
+
+bob@dylan:~$
+bob@dylan:~$ npm run dev 9-main.js
+$20
+20 euros
+bob@dylan:~$
+```
+***Repo:***
+
+GitHub repository: `holbertonschool-web_back_end`
+
+Directory: `ES6_basic`
+
+File: `9-getFullBudget.js`
+
+
+10. For...of Loops
+
+***mandatory***
+
+Rewrite the function `appendToEachArrayValue` to use ES6’s `for...of` operator. And don’t forget that `var` is not ES6-friendly.
+
+```js
+export default function appendToEachArrayValue(array, appendString) {
+  for (var idx in array) {
+    var value = array[idx];
+    array[idx] = appendString + value;
+  }
+
+  return array;
+}
+```
+Execution:
+```bash
+bob@dylan:~$ cat 10-main.js
+import appendToEachArrayValue from './10-loops.js';
+
+console.log(appendToEachArrayValue(['appended', 'fixed', 'displayed'], 'correctly-'));
+
+bob@dylan:~$
+bob@dylan:~$ npm run dev 10-main.js
+[ 'correctly-appended', 'correctly-fixed', 'correctly-displayed' ]
+bob@dylan:~$
+```
+***Repo:***
+
+GitHub repository: `holbertonschool-web_back_end`
+
+Directory: `ES6_basic`
+
+File: `10-loops.js`
+
+
+11. Iterator
+
+***mandatory***
+
+Write a function named `createEmployeesObject` that will receive two arguments:
+
+   - `departmentName` (String)
+
+   - `employees` (Array of Strings)
+```js
+export default function createEmployeesObject(departmentName, employees) {
+
+}
+The function should return an object with the following format:
+
+{
+     $departmentName: [
+          $employees,
+     ],
+}
+```
+Execution:
+```bash
+bob@dylan:~$ cat 11-main.js
+import createEmployeesObject from './11-createEmployeesObject.js';
+
+console.log(createEmployeesObject("Software", [ "Bob", "Sylvie" ]));
+
+bob@dylan:~$
+bob@dylan:~$ npm run dev 11-main.js
+{ Software: [ 'Bob', 'Sylvie' ] }
+bob@dylan:~$
+```
+***Repo:***
+
+GitHub repository: `holbertonschool-web_back_end`
+
+Directory: `ES6_basic`
+
+File: `11-createEmployeesObject.js`
+
+
+12. Let's create a report object
+
+***mandatory***
+
+Write a function named `createReportObject` whose parameter, `employeesList`, is the return value of the previous function `createEmployeesObject`.
+
+```js
+export default function createReportObject(employeesList) {
+
+}
+createReportObject should return an object containing the key `allEmployees` and a method property called `getNumberOfDepartments`.
+
+`allEmployees` is a key that maps to an object containing the department name and a list of all the employees in that department. If you’re having trouble, use the spread syntax.
+
+The method property receives `employeesList` and returns the number of departments. I would suggest suggest thinking back to the ES6 method property syntax.
+
+{
+  allEmployees: {
+     engineering: [
+          'John Doe',
+          'Guillaume Salva',
+     ],
+  },
+};
+```
+Execution:
+```bash
+bob@dylan:~$ cat 12-main.js
+import createEmployeesObject from './11-createEmployeesObject.js';
+import createReportObject from './12-createReportObject.js';
+
+const employees = {
+    ...createEmployeesObject('engineering', ['Bob', 'Jane']),
+    ...createEmployeesObject('marketing', ['Sylvie'])
+};
+
+const report = createReportObject(employees);
+console.log(report.allEmployees);
+console.log(report.getNumberOfDepartments(report.allEmployees));
+
+bob@dylan:~$
+bob@dylan:~$ npm run dev 12-main.js
+{ engineering: [ 'Bob', 'Jane' ], marketing: [ 'Sylvie' ] }
+2
+bob@dylan:~$
+```
+***Repo:***
+
+GitHub repository: `holbertonschool-web_back_end`
+
+Directory: `ES6_basic`
+
+File: `12-createReportObject.js`
+
+
+```bash
+curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh
+sudo bash nodesource_setup.sh
+sudo apt install nodejs -y
+```
+
+```bash
+$ nodejs -v
+v12.22.9
+$ npm -v
+8.5.1
+```
+
+## Problème installation:
 erreur installation:
+```bash
 root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_classes#
  cd ..
 root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end# ls
@@ -974,547 +1657,521 @@ npm ERR! EISDIR: illegal operation on a directory, open '/mnt/c/Users/steph/Docu
 
 npm ERR! A complete log of this run can be found in:
 npm ERR!     /root/.npm/_logs/2024-11-11T00_38_33_104Z-debug-0.log
+```
 
 
-Résultat installation:
-root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_cl
-asses# nodejs -v
+
+
+```bash
+curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh
+sudo bash nodesource_setup.sh
+sudo apt install nodejs -y
+```
+
+```bash
+$ nodejs -v
+v20.15.1
+$ npm -v
+10.7.0
+```
+## Résolution installation:
+sic# curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh
+sudo bash nodesource_setup.sh
+2024-11-11 12:32:09 - Installing pre-requisites
+Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+Get:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+Get:4 http://security.ubuntu.com/ubuntu xenial-security InRelease [106 kB]
+Hit:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
+Get:6 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [1930 kB]
+Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [2148 kB]
+Get:8 http://security.ubuntu.com/ubuntu jammy-security/main Translation-en [308 kB]
+Get:9 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [2569 kB]
+Get:10 http://security.ubuntu.com/ubuntu jammy-security/restricted Translation-en [444 kB]
+Err:4 http://security.ubuntu.com/ubuntu xenial-security InRelease
+  The following signatures couldn't be verified because the public key is not available: NO_PUBKEY 40976EAF437D05B5 NO_PUBKEY 3B4FE6ACC0B21F32
+Get:11 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [913 kB]
+Get:12 http://security.ubuntu.com/ubuntu jammy-security/universe Translation-en [181 kB]
+Get:13 http://archive.ubuntu.com/ubuntu jammy-updates/main Translation-en [367 kB]
+Get:14 http://archive.ubuntu.com/ubuntu jammy-updates/restricted Translation-en [455 kB]
+Reading package lists... Done
+W: GPG error: http://security.ubuntu.com/ubuntu xenial-security InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY 40976EAF437D05B5 NO_PUBKEY 3B4FE6ACC0B21F32
+E: The repository 'http://security.ubuntu.com/ubuntu xenial-security InRelease' is not signed.
+N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+W: GPG error: http://security.ubuntu.com/ubuntu xenial-security InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY 40976EAF437D05B5 NO_PUBKEY 3B4FE6ACC0B21F32
+E: The repository 'http://security.ubuntu.com/ubuntu xenial-security InRelease' is not signed.
+W: GPG error: http://security.ubuntu.com/ubuntu xenial-security InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY 40976EAF437D05B5 NO_PUBKEY 3B4FE6ACC0B21F32
+W: GPG error: http://security.ubuntu.com/ubuntu xenial-security InRelease: The following signatures coulW: GPG error: http://security.ubuntu.com/ubuntu xenial-security InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY 40976EAF437D05B5 NO_PUBKEY 3B4FE6ACC0B21F32
+E: The repository 'http://security.ubuntu.com/ubuntu xenial-security InRelease' is not signed.
+N: Updating from such a repository can't be done securely, and is therefore disabled by default.
+N: See apt-secure(8) manpage for repository creation and user configuration details.
+2024-11-11 12:32:13 - Error: Failed to run 'apt-get update' (Exit Code: 0)
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
+Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead (see apt-key(8)).
+Executing: /tmp/apt-key-gpghome.QpAiLoIWb9/gpg.1.sh --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5
+gpg: key 40976EAF437D05B5: public key "Ubuntu Archive Automatic Signing Key <ftpmaster@ubuntu.com>" imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead (see apt-key(8)).
+Executing: /tmp/apt-key-gpghome.RRPIOWTt36/gpg.1.sh --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
+gpg: key 3B4FE6ACC0B21F32: public key "Ubuntu Archive Automatic Signing Key (2012) <ftpmaster@ubuntu.com>" imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# sudo apt update
+Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu jammy-security InRelease
+Get:5 http://security.ubuntu.com/ubuntu xenial-security InRelease [106 kB]
+Get:6 http://security.ubuntu.com/ubuntu xenial-security/main amd64 Packages [913 kB]
+Get:7 http://security.ubuntu.com/ubuntu xenial-security/main Translation-en [211 kB]
+Fetched 1230 kB in 1s (856 kB/s)
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+5 packages can be upgraded. Run 'apt list --upgradable' to see them.
+W: http://security.ubuntu.com/ubuntu/dists/xenial-security/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# node -v
 v12.22.9
-root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_cl
-asses# npm -v
-8.5.1
-
-
-
-
-## Tasks
-0. Const or let?
-***mandatory***
-
-Modify
-
-	- function `taskFirst` to instantiate variables using `const`
-
-	- function `taskNext` to instantiate variables using `let`
-
-```js
-export function taskFirst() {
-  var task = 'I prefer const when I can.';
-  return task;
-}
-
-export function getLast() {
-  return ' is okay';
-}
-
-export function taskNext() {
-  var combination = 'But sometimes let';
-  combination += getLast();
-
-  return combination;
-}
-```
-
-Execution example:
-
-```bash
-bob@dylan:~$ cat 0-main.js
-import { taskFirst, taskNext } from './0-constants.js';
-
-console.log(`${taskFirst()} ${taskNext()}`);
-
-bob@dylan:~$
-bob@dylan:~$ npm run dev 0-main.js
-I prefer const when I can. But sometimes let is okay
-bob@dylan:~$
-```
-
-***Repo:***
-
-GitHub repository: `holbertonschool-web_back_end`
-
-Directory: `ES6_basic`
-
-File: `0-constants.js`
-
-1. Block Scope
-***mandatory***
-
-Given what you’ve read about `var` and hoisting, modify the variables inside the function `taskBlock` so that the variables aren’t overwritten inside the conditional block.
-
-```js
-export default function taskBlock(trueOrFalse) {
-  var task = false;
-  var task2 = true;
-
-  if (trueOrFalse) {
-    var task = true;
-    var task2 = false;
-  }
-
-  return [task, task2];
-}
-```
-Execution:
-```bash
-bob@dylan:~$ cat 1-main.js
-import taskBlock from './1-block-scoped.js';
-
-console.log(taskBlock(true));
-console.log(taskBlock(false));
-bob@dylan:~$
-bob@dylan:~$ npm run dev 1-main.js
-[ false, true ]
-[ false, true ]
-bob@dylan:~$
-```
-***Repo:***
-
-GitHub repository: `holbertonschool-web_back_end`
-
-Directory: `ES6_basic`
-
-File: `1-block-scoped.js`
-
-
-2. Arrow functions
-***mandatory***
-Rewrite the following standard function to use ES6’s arrow syntax of the function `add` (it will be an anonymous function after)
-
-```js
-export default function getNeighborhoodsList() {
-  this.sanFranciscoNeighborhoods = ['SOMA', 'Union Square'];
-
-  const self = this;
-  this.addNeighborhood = function add(newNeighborhood) {
-    self.sanFranciscoNeighborhoods.push(newNeighborhood);
-    return self.sanFranciscoNeighborhoods;
-  };
-}
-```
-Execution:
-```bash
-bob@dylan:~$ cat 2-main.js
-import getNeighborhoodsList from './2-arrow.js';
-
-const neighborhoodsList = new getNeighborhoodsList();
-const res = neighborhoodsList.addNeighborhood('Noe Valley');
-console.log(res);
-bob@dylan:~$
-bob@dylan:~$ npm run dev 2-main.js
-[ 'SOMA', 'Union Square', 'Noe Valley' ]
-bob@dylan:~$
-```
-***Repo:***
-
-GitHub repository: `holbertonschool-web_back_end`
-
-Directory: `ES6_basic`
-
-File: `2-arrow.js`
-
-
-3. Parameter defaults
-***mandatory***
-Condense the internals of the following function to 1 line - without changing the name of each function/variable.
-
-Hint: The key here to define default parameter values for the function parameters.
-
-```js
-export default function getSumOfHoods(initialNumber, expansion1989, expansion2019) {
-  if (expansion1989 === undefined) {
-    expansion1989 = 89;
-  }
-
-  if (expansion2019 === undefined) {
-    expansion2019 = 19;
-  }
-  return initialNumber + expansion1989 + expansion2019;
-}
-```
-Execution:
-```bash
-bob@dylan:~$ cat 3-main.js
-import getSumOfHoods from './3-default-parameter.js';
-
-console.log(getSumOfHoods(34));
-console.log(getSumOfHoods(34, 3));
-console.log(getSumOfHoods(34, 3, 4));
-bob@dylan:~$
-bob@dylan:~$ npm run dev 3-main.js
-142
-56
-41
-bob@dylan:~$
-```
-***Repo:***
-
-GitHub repository: `holbertonschool-web_back_end`
-
-Directory: `ES6_basic`
-
-File: `3-default-parameter.js`
-
-
-4. Rest parameter syntax for functions
-***mandatory***
-Modify the following function to return the number of arguments passed to it using the rest parameter syntax
-```js
-export default function returnHowManyArguments() {
-
-}
-Example:
-
-> returnHowManyArguments("Hello", "Holberton", 2020);
-3
->
-```
-Execution:
-```bash
-bob@dylan:~$ cat 4-main.js
-import returnHowManyArguments from './4-rest-parameter.js';
-
-console.log(returnHowManyArguments("one"));
-console.log(returnHowManyArguments("one", "two", 3, "4th"));
-bob@dylan:~$
-bob@dylan:~$ npm run dev 4-main.js
-1
-4
-bob@dylan:~$
-```
-**Repo:**
-
-GitHub `repository: holbertonschool-web_back_end`
-
-Directory: `ES6_basic`
-
-File: `4-rest-parameter.js`
-
-
-5. The wonders of spread syntax
-***mandatory***
-Using spread syntax, concatenate 2 arrays and each character of a string by modifying the function below. Your function body should be one line long.
-
-```js
-export default function concatArrays(array1, array2, string) {
-}
-```
-Execution:
-```bash
-bob@dylan:~$ cat 5-main.js
-import concatArrays from './5-spread-operator.js';
-
-console.log(concatArrays(['a', 'b'], ['c', 'd'], 'Hello'));
-
-bob@dylan:~$
-bob@dylan:~$ npm run dev 5-main.js
-[
-  'a', 'b', 'c',
-  'd', 'H', 'e',
-  'l', 'l', 'o'
-]
-bob@dylan:~$
-```
-***Repo:***
-
-GitHub repository: `holbertonschool-web_back_end`
-
-Directory: `ES6_basic`
-
-File: `5-spread-operator.js`
-
-
-6. Take advantage of template literals
-***mandatory***
-Rewrite the return statement to use a template literal so you can the substitute the variables you’ve defined.
-
-```js
-export default function getSanFranciscoDescription() {
-  const year = 2017;
-  const budget = {
-    income: '$119,868',
-    gdp: '$154.2 billion',
-    capita: '$178,479',
-  };
-
-  return 'As of ' + year + ', it was the seventh-highest income county in the United States'
-        / ', with a per capita personal income of ' + budget.income + '. As of 2015, San Francisco'
-        / ' proper had a GDP of ' + budget.gdp + ', and a GDP per capita of ' + budget.capita + '.';
-}
-```
-Execution:
-```bash
-bob@dylan:~$ cat 6-main.js
-import getSanFranciscoDescription from './6-string-interpolation.js';
-
-console.log(getSanFranciscoDescription());
-
-bob@dylan:~$
-bob@dylan:~$ npm run dev 6-main.js
-As of 2017, it was the seventh-highest income county in the United States, with a per capita personal income of $119,868. As of 2015, San Francisco proper had a GDP of $154.2 billion, and a GDP per capita of $178,479.
-bob@dylan:~$
-```
-
-***Repo:***
-
-GitHub repository: `holbertonschool-web_back_end`
-
-Directory: `ES6_basic`
-
-File: `6-string-interpolation.js`
-
-
-7. Object property value shorthand syntax
-***mandatory***
-Notice how the keys and the variable names are the same?
-
-Modify the following function’s `budget` object to simply use the object property value shorthand syntax instead.
-
-```js
-export default function getBudgetObject(income, gdp, capita) {
-  const budget = {
-    income: income,
-    gdp: gdp,
-    capita: capita,
-  };
-
-  return budget;
-}
-```
-Execution:
-
-```bash
-bob@dylan:~$ cat 7-main.js
-import getBudgetObject from './7-getBudgetObject.js';
-
-console.log(getBudgetObject(400, 700, 900));
-
-bob@dylan:~$
-bob@dylan:~$ npm run dev 7-main.js
-{ income: 400, gdp: 700, capita: 900 }
-bob@dylan:~$
-```
-***Repo:***
-
-GitHub repository: `holbertonschool-web_back_end`
-
-Directory: `ES6_basic`
-
-File: `7-getBudgetObject.js`
-
-
-8. No need to create empty objects before adding in properties
-***mandatory***
-Rewrite the `getBudgetForCurrentYear` function to use ES6 computed property names on the `budget` object
-
-```js
-function getCurrentYear() {
-  const date = new Date();
-  return date.getFullYear();
-}
-
-export default function getBudgetForCurrentYear(income, gdp, capita) {
-  const budget = {};
-
-  budget[`income-${getCurrentYear()}`] = income;
-  budget[`gdp-${getCurrentYear()}`] = gdp;
-  budget[`capita-${getCurrentYear()}`] = capita;
-
-  return budget;
-}
-```
-Execution:
-```bash
-bob@dylan:~$ cat 8-main.js
-import getBudgetForCurrentYear from './8-getBudgetCurrentYear.js';
-
-console.log(getBudgetForCurrentYear(2100, 5200, 1090));
-
-bob@dylan:~$
-bob@dylan:~$ npm run dev 8-main.js
-{ 'income-2021': 2100, 'gdp-2021': 5200, 'capita-2021': 1090 }
-bob@dylan:~$
-```
-***Repo:***
-
-GitHub repository: `holbertonschool-web_back_end`
-
-Directory: `ES6_basic`
-
-File: `8-getBudgetCurrentYear.js`
-
-
-9. ES6 method properties
-***mandatory***
-Rewrite `getFullBudgetObject` to use ES6 method properties in the `fullBudget` object
-
-```js
-import getBudgetObject from './7-getBudgetObject.js';
-
-export default function getFullBudgetObject(income, gdp, capita) {
-  const budget = getBudgetObject(income, gdp, capita);
-  const fullBudget = {
-    ...budget,
-    getIncomeInDollars: function (income) {
-      return `$${income}`;
-    },
-    getIncomeInEuros: function (income) {
-      return `${income} euros`;
-    },
-  };
-
-  return fullBudget;
-}
-```
-Execution:
-```bash
-bob@dylan:~$ cat 9-main.js
-import getFullBudgetObject from './9-getFullBudget.js';
-
-const fullBudget = getFullBudgetObject(20, 50, 10);
-
-console.log(fullBudget.getIncomeInDollars(fullBudget.income));
-console.log(fullBudget.getIncomeInEuros(fullBudget.income));
-
-bob@dylan:~$
-bob@dylan:~$ npm run dev 9-main.js
-$20
-20 euros
-bob@dylan:~$
-```
-***Repo:***
-
-GitHub repository: `holbertonschool-web_back_end`
-
-Directory: `ES6_basic`
-
-File: `9-getFullBudget.js`
-
-
-10. For...of Loops
-***mandatory***
-Rewrite the function `appendToEachArrayValue` to use ES6’s `for...of` operator. And don’t forget that `var` is not ES6-friendly.
-
-```js
-export default function appendToEachArrayValue(array, appendString) {
-  for (var idx in array) {
-    var value = array[idx];
-    array[idx] = appendString + value;
-  }
-
-  return array;
-}
-```
-Execution:
-```bash
-bob@dylan:~$ cat 10-main.js
-import appendToEachArrayValue from './10-loops.js';
-
-console.log(appendToEachArrayValue(['appended', 'fixed', 'displayed'], 'correctly-'));
-
-bob@dylan:~$
-bob@dylan:~$ npm run dev 10-main.js
-[ 'correctly-appended', 'correctly-fixed', 'correctly-displayed' ]
-bob@dylan:~$
-```
-***Repo:***
-
-GitHub repository: `holbertonschool-web_back_end`
-
-Directory: `ES6_basic`
-
-File: `10-loops.js`
-
-
-11. Iterator
-***mandatory***
-Write a function named `createEmployeesObject` that will receive two arguments:
-
-	- `departmentName` (String)
-
-	- `employees` (Array of Strings)
-```js
-export default function createEmployeesObject(departmentName, employees) {
-
-}
-The function should return an object with the following format:
-
-{
-     $departmentName: [
-          $employees,
-     ],
-}
-```
-Execution:
-```bash
-bob@dylan:~$ cat 11-main.js
-import createEmployeesObject from './11-createEmployeesObject.js';
-
-console.log(createEmployeesObject("Software", [ "Bob", "Sylvie" ]));
-
-bob@dylan:~$
-bob@dylan:~$ npm run dev 11-main.js
-{ Software: [ 'Bob', 'Sylvie' ] }
-bob@dylan:~$
-```
-***Repo:***
-
-GitHub repository: `holbertonschool-web_back_end`
-
-Directory: `ES6_basic`
-
-File: `11-createEmployeesObject.js`
-
-
-12. Let's create a report object
-***mandatory***
-Write a function named `createReportObject` whose parameter, `employeesList`, is the return value of the previous function `createEmployeesObject`.
-
-```js
-export default function createReportObject(employeesList) {
-
-}
-createReportObject should return an object containing the key `allEmployees` and a method property called `getNumberOfDepartments`.
-
-`allEmployees` is a key that maps to an object containing the department name and a list of all the employees in that department. If you’re having trouble, use the spread syntax.
-
-The method property receives `employeesList` and returns the number of departments. I would suggest suggest thinking back to the ES6 method property syntax.
-
-{
-  allEmployees: {
-     engineering: [
-          'John Doe',
-          'Guillaume Salva',
-     ],
-  },
-};
-```
-Execution:
-```bash
-bob@dylan:~$ cat 12-main.js
-import createEmployeesObject from './11-createEmployeesObject.js';
-import createReportObject from './12-createReportObject.js';
-
-const employees = {
-    ...createEmployeesObject('engineering', ['Bob', 'Jane']),
-    ...createEmployeesObject('marketing', ['Sylvie'])
-};
-
-const report = createReportObject(employees);
-console.log(report.allEmployees);
-console.log(report.getNumberOfDepartments(report.allEmployees));
-
-bob@dylan:~$
-bob@dylan:~$ npm run dev 12-main.js
-{ engineering: [ 'Bob', 'Jane' ], marketing: [ 'Sylvie' ] }
-2
-bob@dylan:~$
-```
-***Repo:***
-
-GitHub repository: `holbertonschool-web_back_end`
-
-Directory: `ES6_basic`
-
-File: `12-createReportObject.js`
-
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# sudo bash nodesource_setup.sh
+sudo apt install nodejs -y
+2024-11-11 12:38:57 - Installing pre-requisites
+Hit:1 http://security.ubuntu.com/ubuntu jammy-security InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
+Hit:4 http://security.ubuntu.com/ubuntu xenial-security InRelease
+Hit:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
+Reading package lists... Done
+W: http://security.ubuntu.com/ubuntu/dists/xenial-security/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+ca-certificates is already the newest version (20240203~22.04.1).
+ca-certificates set to manually installed.
+curl is already the newest version (7.81.0-1ubuntu1.18).
+gnupg is already the newest version (2.2.27-3ubuntu2.1).
+gnupg set to manually installed.
+The following package was automatically installed and is no longer required:
+  htop
+Use 'sudo apt autoremove' to remove it.
+The following NEW packages will be installed:
+  apt-transport-https
+0 upgraded, 1 newly installed, 0 to remove and 5 not upgraded.
+Need to get 1510 B of archives.
+After this operation, 170 kB of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 apt-transport-https all 2.4.13 [1510 B]
+Fetched 1510 B in 0s (6520 B/s)
+Selecting previously unselected package apt-transport-https.
+(Reading database ... 103553 files and directories currently installed.)
+Preparing to unpack .../apt-transport-https_2.4.13_all.deb ...
+Unpacking apt-transport-https (2.4.13) ...
+Setting up apt-transport-https (2.4.13) ...
+Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+Hit:2 http://security.ubuntu.com/ubuntu jammy-security InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
+Hit:4 http://security.ubuntu.com/ubuntu xenial-security InRelease
+Hit:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
+Get:6 https://deb.nodesource.com/node_20.x nodistro InRelease [12.1 kB]
+Get:7 https://deb.nodesource.com/node_20.x nodistro/main amd64 Packages [9577 B]
+Fetched 21.7 kB in 1s (41.5 kB/s)
+Reading package lists... Done
+W: http://security.ubuntu.com/ubuntu/dists/xenial-security/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+2024-11-11 12:39:02 - Repository configured successfully.
+2024-11-11 12:39:02 - To install Node.js, run: apt-get install nodejs -y
+2024-11-11 12:39:02 - You can use N|solid Runtime as a node.js alternative
+2024-11-11 12:39:02 - To install N|solid Runtime, run: apt-get install nsolid -y
+
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following packages were automatically installed and are no longer required:
+  gyp htop libjs-events libjs-highlight.js libjs-inherits libjs-is-typedarray libjs-psl
+  libjs-source-map libjs-sprintf-js libjs-typedarray-to-buffer libnode-dev libnode72 libnotify-bin
+  libnotify4 libuv1-dev node-abab node-abbrev node-agent-base node-ansi-regex node-ansi-styles
+  node-ansistyles node-aproba node-archy node-are-we-there-yet node-argparse node-arrify node-asap
+  node-asynckit node-balanced-match node-brace-expansion node-builtins node-chalk node-chownr
+  node-clean-yaml-object node-cli-table node-clone node-color-convert node-color-name node-colors
+  node-columnify node-combined-stream node-commander node-console-control-strings node-core-util-is
+  node-cssom node-cssstyle node-debug node-decompress-response node-defaults node-delayed-stream
+  node-delegates node-depd node-diff node-encoding node-end-of-stream node-err-code
+  node-escape-string-regexp node-events node-fancy-log node-foreground-child
+  node-fs-write-stream-atomic node-fs.realpath node-function-bind node-gauge node-get-stream node-glob
+Removing npm (8.5.1~ds-1) ...
+Removing node-cacache (15.0.5+~cs13.9.21-3) ...
+Removing node-move-concurrently (1.0.1-4) ...
+Removing node-copy-concurrently (1.0.5-8) ...
+Removing node-coveralls (3.1.1-1) ...
+Removing node-tap (12.0.1+ds-4) ...
+Removing node-tap-mocha-reporter (3.0.7+ds-2) ...
+Removing node-tap-parser (7.0.0+ds1-6) ...
+Removing node-js-yaml (4.1.0+dfsg+~4.0.5-6) ...
+Removing node-esprima (4.0.1+ds+~4.0.3-2) ...
+Removing node-fetch (2.6.7+~2.5.12-1) ...
+Removing node-jsdom (19.0.0+~cs90.11.27-1) ...
+Removing node-form-data (3.0.1-1) ...
+Removing node-gyp (8.4.1-1) ...
+Removing node-mime-types (2.1.33-1) ...
+Removing node-mime (3.0.0+dfsg+~cs3.96.1-1) ...
+Removing node-tar (6.1.11+ds1+~cs6.0.6-1) ...
+Removing node-mkdirp (1.0.4+~1.0.2-1) ...
+Removing node-nopt (5.0.0-2) ...
+Removing node-opener (1.5.2+~1.4.0-1) ...
+Removing node-which (2.0.2+~cs1.3.2-2) ...
+Removing node-ws (8.5.0+~cs13.3.3-2) ...
+Removing nodejs-doc (12.22.9~dfsg-1ubuntu3.6) ...
+(Reading database ... 101319 files and directories currently installed.)
+Preparing to unpack .../nodejs_20.18.0-1nodesource1_amd64.deb ...
+Unpacking nodejs (20.18.0-1nodesource1) over (12.22.9~dfsg-1ubuntu3.6) ...
+dpkg: error processing archive /var/cache/apt/archives/nodejs_20.18.0-1nodesource1_amd64.deb (--unpack):
+ trying to overwrite '/usr/include/node/common.gypi', which is also in package libnode-dev 12.22.9~dfsg-1ubuntu3.6
+dpkg-deb: error: paste subprocess was killed by signal (Broken pipe)
+Errors were encountered while processing:
+ /var/cache/apt/archives/nodejs_20.18.0-1nodesource1_amd64.deb
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# node -v
+v12.22.9
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# sudo apt-get remove --purge nodejs npm -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following packages were automatically installed and are no longer required:
+  gyp htop libjs-events libjs-highlight.js libjs-inherits libjs-is-typedarray libjs-psl
+  libjs-source-map libjs-sprintf-js libjs-typedarray-to-buffer libnode-dev libnode72 libnotify-bin
+  libnotify4 libuv1-dev node-abbrev node-ansi-regex node-ansi-styles node-ansistyles
+  node-are-we-there-yet node-arrify node-asap node-asynckit node-balanced-match node-brace-expansion
+  node-chownr node-clean-yaml-object node-color-convert node-color-name node-commander
+  node-core-util-is node-decompress-response node-delayed-stream node-delegates node-depd node-diff
+  node-encoding node-end-of-stream node-err-code node-escape-string-regexp node-fancy-log
+  node-foreground-child node-fs.realpath node-function-bind node-get-stream node-glob node-growl
+  node-has-flag node-has-unicode node-hosted-git-info node-iconv-lite node-iferr node-imurmurhash
+  node-indent-string node-inflight node-inherits node-ini node-ip node-ip-regex node-is-buffer
+  node-is-plain-obj node-is-typedarray node-isarray node-isexe node-json-parse-better-errors
+  node-jsonparse node-kind-of node-lodash-packages node-lowercase-keys node-lru-cache
+  node-mimic-response node-minimatch node-minimist node-minipass node-mute-stream node-negotiator
+  node-npm-bundled node-once node-osenv node-p-cancelable node-p-map node-path-is-absolute
+  node-process-nextick-args node-promise-inflight node-promise-retry node-promzard node-pump
+  node-quick-lru node-read node-readable-stream node-resolve node-retry node-safe-buffer
+  node-set-blocking node-signal-exit node-slash node-slice-ansi node-source-map node-spdx-correct
+  node-spdx-exceptions node-spdx-expression-parse node-spdx-license-ids node-sprintf-js
+  node-stealthy-require node-string-decoder node-supports-color node-text-table node-time-stamp
+  node-tmatch node-typedarray-to-buffer node-universalify node-util-deprecate
+  node-validate-npm-package-license node-webidl-conversions node-whatwg-fetch node-wrappy node-yallist
+Use 'sudo apt autoremove' to remove them.
+The following packages will be REMOVED:
+  node-abab* node-agent-base* node-aproba* node-archy* node-argparse* node-builtins* node-chalk*
+  node-cli-table* node-clone* node-colors* node-columnify* node-combined-stream*
+  node-console-control-strings* node-cssom* node-cssstyle* node-debug* node-defaults* node-events*
+  node-fs-write-stream-atomic* node-gauge* node-got* node-graceful-fs* node-https-proxy-agent*
+  node-json-buffer* node-lcov-parse* node-log-driver* node-ms* node-normalize-package-data*
+  node-npm-package-arg* node-npmlog* node-object-assign* node-psl* node-punycode*
+  node-read-package-json* node-rimraf* node-run-queue* node-semver* node-source-map-support*
+  node-ssri* node-stack-utils* node-string-width* node-strip-ansi* node-tough-cookie*
+  node-unique-filename* node-validate-npm-package-name* node-wcwidth.js* node-wide-align*
+  node-write-file-atomic* nodejs* npm*
+0 upgraded, 0 newly installed, 50 to remove and 5 not upgraded.
+After this operation, 3996 kB disk space will be freed.
+(Reading database ... 101319 files and directories currently installed.)
+Removing node-abab (2.0.5-2) ...
+Removing node-https-proxy-agent (5.0.0+~cs8.0.0-3) ...
+Removing node-agent-base (6.0.2+~cs5.4.2-1) ...
+Removing node-run-queue (2.0.0-2) ...
+Removing node-npmlog (6.0.1+~4.1.4-1) ...
+Removing node-gauge (4.0.2-1) ...
+Removing node-aproba (2.0.0-2) ...
+Removing node-archy (1.0.0-4) ...
+Removing node-argparse (2.0.1-2) ...
+Removing node-npm-package-arg (8.1.5-1) ...
+Removing node-validate-npm-package-name (3.0.0-4) ...
+Removing node-builtins (4.0.0-1) ...
+Removing node-chalk (4.1.2-1) ...
+Removing node-cli-table (0.3.11+~cs0.13.3-1) ...
+Removing node-columnify (1.5.4+~1.5.1-1) ...
+Removing node-wide-align (1.1.3-4) ...
+Removing node-string-width (4.2.3+~cs13.2.3-1) ...
+Removing node-wcwidth.js (1.0.2-1) ...
+Removing node-defaults (1.0.3+~1.0.3-1) ...
+Removing node-clone (2.1.2-3) ...
+Removing node-colors (1.4.0-3) ...
+Removing node-combined-stream (1.0.8+~1.0.3-1) ...
+Removing node-console-control-strings (1.1.0-2) ...
+Removing node-cssstyle (2.3.0-2) ...
+Removing node-cssom (0.4.4-3) ...
+Removing node-debug (4.3.2+~cs4.1.7-1) ...
+Removing node-events (3.3.0+~3.0.0-2) ...
+Removing node-fs-write-stream-atomic (1.0.10-5) ...
+Removing node-got (11.8.3+~cs58.7.37-1) ...
+Removing node-graceful-fs (4.2.4+repack-1) ...
+Removing node-json-buffer (3.0.1-1) ...
+Removing node-lcov-parse (1.0.0+20170612git80d039574ed9-5) ...
+Removing node-log-driver (1.2.7+git+20180219+bba1761737-7) ...
+Removing node-ms (2.1.3+~cs0.7.31-2) ...
+Removing node-read-package-json (4.1.1-1) ...
+Removing node-normalize-package-data (3.0.3+~2.4.1-1) ...
+Removing node-object-assign (4.1.1-6) ...
+Removing node-tough-cookie (4.0.0-2) ...
+Removing node-psl (1.8.0+ds-6) ...
+Removing node-punycode (2.1.1-5) ...
+Removing node-rimraf (3.0.2-1) ...
+Removing node-semver (7.3.5+~7.3.8-1) ...
+Removing node-source-map-support (0.5.21+ds+~0.5.4-1) ...
+Removing node-ssri (8.0.1-2) ...
+Removing node-stack-utils (2.0.5+~2.0.1-1) ...
+Removing node-strip-ansi (6.0.1-1) ...
+Removing node-unique-filename (1.1.1+ds-1) ...
+Removing node-write-file-atomic (3.0.3+~3.0.2-1) ...
+Removing nodejs (12.22.9~dfsg-1ubuntu3.6) ...
+Processing triggers for man-db (2.10.2-1) ...
+(Reading database ... 100294 files and directories currently installed.)
+Purging configuration files for npm (8.5.1~ds-1) ...
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# sudo apt-get autoremove -y
+sudo apt-get autoclean
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following packages will be REMOVED:
+  gyp htop libjs-events libjs-highlight.js libjs-inherits libjs-is-typedarray libjs-psl
+  libjs-source-map libjs-sprintf-js libjs-typedarray-to-buffer libnode-dev libnode72 libnotify-bin
+  libnotify4 libuv1-dev node-abbrev node-ansi-regex node-ansi-styles node-ansistyles
+  node-are-we-there-yet node-arrify node-asap node-asynckit node-balanced-match node-brace-expansion
+  node-chownr node-clean-yaml-object node-color-convert node-color-name node-commander
+  node-core-util-is node-decompress-response node-delayed-stream node-delegates node-depd node-diff
+  node-encoding node-end-of-stream node-err-code node-escape-string-regexp node-fancy-log
+  node-foreground-child node-fs.realpath node-function-bind node-get-stream node-glob node-growl
+  node-has-flag node-has-unicode node-hosted-git-info node-iconv-lite node-iferr node-imurmurhash
+  node-indent-string node-inflight node-inherits node-ini node-ip node-ip-regex node-is-buffer
+  node-is-plain-obj node-is-typedarray node-isarray node-isexe node-json-parse-better-errors
+  node-jsonparse node-kind-of node-lodash-packages node-lowercase-keys node-lru-cache
+  node-mimic-response node-minimatch node-minimist node-minipass node-mute-stream node-negotiator
+  node-npm-bundled node-once node-osenv node-p-cancelable node-p-map node-path-is-absolute
+  node-process-nextick-args node-promise-inflight node-promise-retry node-promzard node-pump
+  node-quick-lru node-read node-readable-stream node-resolve node-retry node-safe-buffer
+  node-set-blocking node-signal-exit node-slash node-slice-ansi node-source-map node-spdx-correct
+  node-spdx-exceptions node-spdx-expression-parse node-spdx-license-ids node-sprintf-js
+  node-stealthy-require node-string-decoder node-supports-color node-text-table node-time-stamp
+  node-tmatch node-typedarray-to-buffer node-universalify node-util-deprecate
+  node-validate-npm-package-license node-webidl-conversions node-whatwg-fetch node-wrappy node-yallist
+0 upgraded, 0 newly installed, 117 to remove and 5 not upgraded.
+After this operation, 67.1 MB disk space will be freed.
+(Reading database ... 100294 files and directories currently installed.)
+Removing gyp (0.1+20210831gitd6c5dd5-5) ...
+Removing htop (3.0.5-7build2) ...
+Removing libjs-events (3.3.0+~3.0.0-2) ...
+Removing libjs-highlight.js (9.18.5+dfsg1-1) ...
+Removing node-are-we-there-yet (3.0.0+~1.1.0-1) ...
+Removing node-readable-stream (3.6.0+~cs3.0.0-1) ...
+Removing node-glob (7.2.1+~cs7.6.15-1) ...
+Removing node-inherits (2.0.4-4) ...
+Removing libjs-inherits (2.0.4-4) ...
+Removing node-typedarray-to-buffer (4.0.0-2) ...
+Removing node-is-typedarray (1.0.0-4) ...
+Removing libjs-is-typedarray (1.0.0-4) ...
+Removing libjs-psl (1.8.0+ds-6) ...
+Removing node-source-map (0.7.0++dfsg2+really.0.6.1-9) ...
+Removing libjs-source-map (0.7.0++dfsg2+really.0.6.1-9) ...
+Removing node-sprintf-js (1.1.2+ds1+~1.1.2-1) ...
+Removing libjs-sprintf-js (1.1.2+ds1+~1.1.2-1) ...
+Removing libjs-typedarray-to-buffer (4.0.0-2) ...
+Removing libnode-dev (12.22.9~dfsg-1ubuntu3.6) ...
+Removing libnode72:amd64 (12.22.9~dfsg-1ubuntu3.6) ...
+Removing node-growl (1.10.5-4) ...
+Removing libnotify-bin (0.7.9-3ubuntu5.22.04.1) ...
+Removing libnotify4:amd64 (0.7.9-3ubuntu5.22.04.1) ...
+Removing libuv1-dev:amd64 (1.43.0-1ubuntu0.1) ...
+Removing node-abbrev (1.1.1+~1.1.2-1) ...
+Removing node-ansi-regex (5.0.1-1) ...
+Removing node-slice-ansi (5.0.0+~cs9.0.0-4) ...
+Removing node-ansi-styles (4.3.0+~4.2.0-1) ...
+Removing node-ansistyles (0.1.3-5) ...
+Removing node-minimist (1.2.5+~cs5.3.2-1) ...
+Removing node-arrify (2.0.1-2) ...
+Removing node-asap (2.0.6+~2.0.0-1) ...
+Removing node-asynckit (0.4.0-4) ...
+Removing node-minimatch (3.1.1+~3.0.5-1) ...
+Removing node-brace-expansion (2.0.1-1) ...
+Removing node-balanced-match (2.0.0-1) ...
+Removing node-chownr (2.0.0-1) ...
+Removing node-clean-yaml-object (0.1.0-5) ...
+Removing node-color-convert (2.0.1-1) ...
+Removing node-color-name (1.1.4+~1.1.1-2) ...
+Removing node-commander (9.0.0-2) ...
+Removing node-core-util-is (1.0.3-1) ...
+Removing node-decompress-response (6.0.0-2) ...
+Removing node-delayed-stream (1.0.0-5) ...
+Removing node-delegates (1.0.0-3) ...
+Removing node-depd (2.0.0-2) ...
+Removing node-diff (5.0.0~dfsg+~5.0.1-3) ...
+Removing node-minipass (3.1.6+~cs8.7.18-1) ...
+Removing node-encoding (0.1.13-2) ...
+Removing node-get-stream (6.0.1-1) ...
+Removing node-pump (3.0.0-5) ...
+Removing node-end-of-stream (1.4.4+~1.4.1-1) ...
+Removing node-promise-retry (2.0.1-2) ...
+Removing node-err-code (2.0.3+dfsg-3) ...
+Removing node-p-map (4.0.0+~3.1.0+~3.0.1-1) ...
+Removing node-escape-string-regexp (4.0.0-2) ...
+Removing node-fancy-log (1.3.3+~cs1.3.1-2) ...
+Removing node-foreground-child (2.0.0-3) ...
+Removing node-fs.realpath (1.0.0-2) ...
+Removing node-resolve (1.20.0+~cs5.27.9-1) ...
+Removing node-function-bind (1.1.1+repacked+~1.0.3-1) ...
+Removing node-supports-color (8.1.1+~8.1.1-1) ...
+Removing node-has-flag (4.0.0-2) ...
+Removing node-has-unicode (2.0.1-4) ...
+Removing node-hosted-git-info (4.0.2-1) ...
+Removing node-iconv-lite (0.6.3-2) ...
+Removing node-iferr (1.0.2+~1.0.2-1) ...
+Removing node-imurmurhash (0.1.4+dfsg+~0.1.1-1) ...
+Removing node-indent-string (4.0.0-2) ...
+Removing node-inflight (1.0.6-2) ...
+Removing node-ini (2.0.1-1) ...
+Removing node-ip (1.1.5+~1.1.0-1) ...
+Removing node-ip-regex (4.3.0+~4.1.1-1) ...
+Removing node-kind-of (6.0.3+dfsg-2) ...
+Removing node-is-buffer (2.0.5-2) ...
+Removing node-is-plain-obj (3.0.0-2) ...
+Removing node-isarray (2.0.5-3) ...
+Removing node-isexe (2.0.0+~2.0.1-4) ...
+Removing node-json-parse-better-errors (1.0.2+~cs3.3.1-1) ...
+Removing node-jsonparse (1.3.1-10) ...
+Removing node-lodash-packages (4.17.21+dfsg+~cs8.31.198.20210220-5) ...
+Removing node-lowercase-keys (2.0.0-2) ...
+Removing node-lru-cache (6.0.0+~5.1.1-1) ...
+Removing node-mimic-response (3.1.0-7) ...
+Removing node-promzard (0.3.0-2) ...
+Removing node-read (1.0.7-3) ...
+Removing node-mute-stream (0.0.8+~0.0.1-1) ...
+Removing node-negotiator (0.6.2+~0.6.1-1) ...
+Removing node-npm-bundled (1.1.2-1) ...
+Removing node-once (1.4.0-4) ...
+Removing node-osenv (0.1.5+~0.1.0-1) ...
+Removing node-p-cancelable (2.1.1-1) ...
+Removing node-path-is-absolute (2.0.0-2) ...
+Removing node-process-nextick-args (2.0.1-2) ...
+Removing node-promise-inflight (1.0.1+~1.0.0-1) ...
+Removing node-quick-lru (5.1.1-1) ...
+Removing node-retry (0.13.1+~0.12.1-1) ...
+Removing node-string-decoder (1.3.0-5) ...
+Removing node-safe-buffer (5.2.1+~cs2.1.2-2) ...
+Removing node-set-blocking (2.0.0-2) ...
+Removing node-signal-exit (3.0.6+~3.0.1-1) ...
+Removing node-slash (3.0.0-2) ...
+Removing node-validate-npm-package-license (3.0.4-2) ...
+Removing node-spdx-correct (3.1.1-2) ...
+Removing node-spdx-expression-parse (3.0.1+~3.0.1-1) ...
+Removing node-spdx-exceptions (2.3.0-2) ...
+Removing node-spdx-license-ids (3.0.11-1) ...
+Removing node-stealthy-require (1.1.1-5) ...
+Removing node-text-table (0.2.0-4) ...
+Removing node-time-stamp (2.2.0-1) ...
+Removing node-tmatch (5.0.0-4) ...
+Removing node-universalify (2.0.0-3) ...
+Removing node-util-deprecate (1.0.2-3) ...
+Removing node-webidl-conversions (7.0.0~1.1.0+~cs15.1.20180823-2) ...
+Removing node-whatwg-fetch (3.6.2-5) ...
+Removing node-wrappy (1.0.2-2) ...
+Removing node-yallist (4.0.0+~4.0.1-1) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.8) ...
+Processing triggers for man-db (2.10.2-1) ...
+Processing triggers for mailcap (3.70+nmu1ubuntu1) ...
+Processing triggers for hicolor-icon-theme (0.17-2) ...
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Del libssl-dev 3.0.2-0ubuntu1.17 [2375 kB]
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# node -v
+npm -v
+-bash: /usr/bin/node: No such file or directory
+-bash: /usr/bin/npm: No such file or directory
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh
+sudo bash nodesource_setup.sh
+2024-11-11 12:41:05 - Installing pre-requisites
+Hit:1 https://deb.nodesource.com/node_20.x nodistro InRelease
+Hit:2 http://security.ubuntu.com/ubuntu jammy-security InRelease
+Hit:3 http://security.ubuntu.com/ubuntu xenial-security InRelease
+Hit:4 http://archive.ubuntu.com/ubuntu jammy InRelease
+Hit:5 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
+Hit:6 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
+Reading package lists... Done
+W: http://security.ubuntu.com/ubuntu/dists/xenial-security/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+ca-certificates is already the newest version (20240203~22.04.1).
+curl is already the newest version (7.81.0-1ubuntu1.18).
+gnupg is already the newest version (2.2.27-3ubuntu2.1).
+apt-transport-https is already the newest version (2.4.13).
+0 upgraded, 0 newly installed, 0 to remove and 5 not upgraded.
+Hit:1 http://security.ubuntu.com/ubuntu jammy-security InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+Hit:3 http://security.ubuntu.com/ubuntu xenial-security InRelease
+Hit:4 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
+Hit:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
+Hit:6 https://deb.nodesource.com/node_20.x nodistro InRelease
+Reading package lists... Done
+W: http://security.ubuntu.com/ubuntu/dists/xenial-security/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+2024-11-11 12:41:11 - Repository configured successfully.
+2024-11-11 12:41:11 - To install Node.js, run: apt-get install nodejs -y
+2024-11-11 12:41:11 - You can use N|solid Runtime as a node.js alternative
+2024-11-11 12:41:11 - To install N|solid Runtime, run: apt-get install nsolid -y
+
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# sudo bash nodesource_setup.sh
+sudo apt install nodejs -y
+2024-11-11 12:41:26 - Installing pre-requisites
+Hit:1 https://deb.nodesource.com/node_20.x nodistro InRelease
+Hit:2 http://security.ubuntu.com/ubuntu jammy-security InRelease
+Hit:3 http://security.ubuntu.com/ubuntu xenial-security InRelease
+Hit:4 http://archive.ubuntu.com/ubuntu jammy InRelease
+Hit:5 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
+Hit:6 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
+curl is already the newest version (7.81.0-1ubuntu1.18).
+gnupg is already the newest version (2.2.27-3ubuntu2.1).
+apt-transport-https is already the newest version (2.4.13).
+0 upgraded, 0 newly installed, 0 to remove and 5 not upgraded.
+Hit:1 http://security.ubuntu.com/ubuntu jammy-security InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease
+Hit:4 http://security.ubuntu.com/ubuntu xenial-security InRelease
+Hit:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease
+Hit:6 https://deb.nodesource.com/node_20.x nodistro InRelease
+Reading package lists... Done
+W: http://security.ubuntu.com/ubuntu/dists/xenial-security/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+2024-11-11 12:41:33 - Repository configured successfully.
+2024-11-11 12:41:33 - To install Node.js, run: apt-get install nodejs -y
+2024-11-11 12:41:33 - You can use N|solid Runtime as a node.js alternative
+2024-11-11 12:41:33 - To install N|solid Runtime, run: apt-get install nsolid -y
+
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following NEW packages will be installed:
+  nodejs
+0 upgraded, 1 newly installed, 0 to remove and 5 not upgraded.
+Need to get 0 B/31.8 MB of archives.
+After this operation, 197 MB of additional disk space will be used.
+Selecting previously unselected package nodejs.
+(Reading database ... 96008 files and directories currently installed.)
+Preparing to unpack .../nodejs_20.18.0-1nodesource1_amd64.deb ...
+Unpacking nodejs (20.18.0-1nodesource1) ...
+Setting up nodejs (20.18.0-1nodesource1) ...
+Processing triggers for man-db (2.10.2-1) ...
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# nodejs -v
+v20.18.0
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# npm -v
+10.8.2
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic#

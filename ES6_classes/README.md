@@ -200,13 +200,104 @@ Click to show/hide file contents
 
 `.eslintrc.js`
 Click to show/hide file contents
+_______________________________________
+`package.json`
+Click to show/hide file contents
+```json
+
+{
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint",
+    "check-lint": "lint [0-9]*.js",
+    "dev": "npx babel-node",
+    "test": "jest",
+    "full-test": "./node_modules/.bin/eslint [0-9]*.js && jest"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "@babel/node": "^7.8.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^22.17.0",
+    "jest": "^24.9.0"
+  }
+}
+```
+
+`babel.config.js`
+Click to show/hide file contents
+```js
+
+module.exports = {
+  presets: [
+    [
+      '@babel/preset-env',
+      {
+        targets: {
+          node: 'current',
+        },
+      },
+    ],
+  ],
+};
+
+```
+
+
+`.eslintrc.js`
+Click to show/hide file contents
+```js
+
+module.exports = {
+  env: {
+    browser: false,
+    es6: true,
+    jest: true,
+  },
+  extends: [
+    'airbnb-base',
+    'plugin:jest/all',
+  ],
+  globals: {
+    Atomics: 'readonly',
+    SharedArrayBuffer: 'readonly',
+  },
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+  },
+  plugins: ['jest'],
+  rules: {
+    'max-classes-per-file': 'off',
+    'no-underscore-dangle': 'off',
+    'no-console': 'off',
+    'no-shadow': 'off',
+    'no-restricted-syntax': [
+      'error',
+      'LabeledStatement',
+      'WithStatement',
+    ],
+  },
+  overrides:[
+    {
+      files: ['*.js'],
+      excludedFiles: 'babel.config.js',
+    }
+  ]
+};
+
+```
 
 and…
 Don’t forget to run `$ npm install` when you have the `package.json`
 
 ## Tasks
 0. You used to attend a place like this at some point
+
 ***mandatory***
+
 Implement a class named `ClassRoom`:
 
 Prototype: `export default class ClassRoom`
@@ -234,7 +325,9 @@ File: `0-classroom.js`
 
 
 1. Let's make some classrooms
+
 ***mandatory***
+
 Import the `ClassRoom` class from `0-classroom.js`.
 
 Implement a function named `initializeRooms`. It should return an array of 3 `ClassRoom` objects with the sizes 19, 20, and 34 (in this order).
@@ -264,7 +357,9 @@ File: `1-make_classrooms.js`
 
 
 2. A Course, Getters, and Setters
+
 ***mandatory***
+
 Implement a class named `HolbertonCourse`:
 
 - Constructor attributes:
@@ -327,7 +422,9 @@ Directory: `ES6_classes`
 File: `2-hbtn_course.js`
 
 3. Methods, static methods, computed methods names..... MONEY
+
 ***mandatory***
+
 Implement a class named `Currency`:
 
 - Constructor attributes:
@@ -364,7 +461,9 @@ File: `3-currency.js`
 
 
 4. Pricing
+
 ***mandatory***
+
 Import the class `Currency` from `3-currency.js`
 
 Implement a class named `Pricing`:
@@ -411,7 +510,9 @@ File: `4-pricing.js`
 
 
 5. A Building
+
 ***mandatory***
+
 Implement a class named `Building`:
 
 - Constructor attributes:
@@ -459,7 +560,9 @@ File: `5-building.js`
 
 
 6. Inheritance
+
 ***mandatory***
+
 Import `Building` from `5-building.js`.
 
 Implement a class named `SkyHighBuilding` that extends from `Building`:
@@ -502,7 +605,9 @@ File: `6-sky_high.js`
 
 
 7. Airport
+
 ***mandatory***
+
 Implement a class named `Airport`:
 
 - Constructor attributes:
@@ -538,7 +643,9 @@ File: `7-airport.js`
 
 
 8. Primitive - Holberton Class
+
 ***mandatory***
+
 Implement a class named `HolbertonClass`:
 
 - Constructor attributes:
@@ -575,7 +682,9 @@ File: `8-hbtn_class.js`
 
 
 9. Hoisting
+
 ***mandatory***
+
 Fix this code and make it work.
 
 ```js
@@ -689,7 +798,9 @@ File: `9-hoisting.js`
 
 
 10. Vroom
+
 ***mandatory***
+
 Implement a class named `Car`:
 
 - Constructor attributes:
