@@ -1,6 +1,6 @@
 # ES6 Basics
 
-![Project badge](https://img.shields.io/badge/Progress-2.44%25-red)
+![Project badge](https://img.shields.io/badge/Progress-100%25-green)
 - **Your score will be updated as you progress.**
 
 ## Resources (Read or watch):
