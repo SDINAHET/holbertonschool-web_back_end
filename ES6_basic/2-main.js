@@ -1,7 +1,7 @@
 // 2-main.js
 
-import getNeighborhoodsList from './2-arrow.js';
+import GetNeighborhoodsList from './2-arrow';
 
-const neighborhoodsList = new getNeighborhoodsList();
+const neighborhoodsList = new GetNeighborhoodsList();
 const res = neighborhoodsList.addNeighborhood('Noe Valley');
 console.log(res);

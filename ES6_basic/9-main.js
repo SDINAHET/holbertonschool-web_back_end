@@ -1,6 +1,6 @@
 // 9-main.js
 
-import getFullBudgetObject from './9-getFullBudget.js';
+import getFullBudgetObject from './9-getFullBudget';
 
 const fullBudget = getFullBudgetObject(20, 50, 10);
 
