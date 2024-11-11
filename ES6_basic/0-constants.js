@@ -1,7 +1,7 @@
 // 0-constants.js
 
 export function taskFirst() {
-  const task = 'I prefer const when I can.'; // Using const since the variable does not change
+  const task = 'I prefer const when I can.';
   return task;
 }
 
@@ -10,8 +10,8 @@ export function getLast() {
 }
 
 export function taskNext() {
-  let combination = 'But sometimes let'; // Using let because we modify the variable
-  combination += getLast(); // Concatenating a string to combination
+  let combination = 'But sometimes let';
+  combination += getLast();
 
   return combination;
 }
