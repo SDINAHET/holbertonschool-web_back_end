@@ -1,6 +1,6 @@
 # ES6 Basics
 
-![Project badge](https://img.shields.io/badge/Progress-0%25-red)
+![Project badge](https://img.shields.io/badge/Progress-2.44%25-red)
 - **Your score will be updated as you progress.**
 
 ## Resources (Read or watch):
@@ -2312,3 +2312,15 @@ holbertonschool-web_back_end
 ```
 This will complete the task.
 
+
+```bash
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic# npm run dev 0-main.js
+
+> dev
+> npx babel-node 0-main.js
+
+I prefer const when I can. But sometimes let is okay
+root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
+sic#
+```
