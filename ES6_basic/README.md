@@ -229,6 +229,7 @@ in your project directory:
 - Install `Babel` using: `npm install --save-dev babel-jest @babel/core @babel/preset-env`
 
 - Install `ESLint` using: `npm install --save-dev eslint`
+test: npm run full-test
 
 ### Configuration files
 Please create the following 3 files (with the provided contents) in the project directory:
@@ -2324,3 +2325,4 @@ I prefer const when I can. But sometimes let is okay
 root@UID7E:/mnt/c/Users/steph/Documents/2ème trimestre holberton/web/holbertonschool-web_back_end/ES6_ba
 sic#
 ```
+npm run full-test
