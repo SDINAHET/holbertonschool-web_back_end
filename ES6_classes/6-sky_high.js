@@ -1,10 +1,10 @@
 // 6-sky_high.js
 
-import Building from './5-building.js';
+import Building from './5-building';
 
 class SkyHighBuilding extends Building {
   constructor(sqft, floors) {
-    super(sqft);  // Call the parent class (Building) constructor for sqft
+    super(sqft);// Call the parent class (Building) constructor for sqft
     this._floors = floors;
   }
 
