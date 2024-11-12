@@ -46,6 +46,7 @@ const student5 = new StudentHolberton('Jason', 'Sandler', class2019);
 
 export const listOfStudents = [student1, student2, student3, student4, student5];
 
+export default [student1, student2, student3, student4, student5];
 // Création des étudiants
 // const students = [
 //   ['Guillaume', 'Salva', class2020],
@@ -57,3 +58,4 @@ export const listOfStudents = [student1, student2, student3, student4, student5]
 //   holbertonClass));
 
 // export const listOfStudents = students;
+// export default [student1, student2, student3, student4, student5];
