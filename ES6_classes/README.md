@@ -1,6 +1,6 @@
 # ES6 classes
 
-![Project badge](https://img.shields.io/badge/Progress-0%25-red)
+![Project badge](https://img.shields.io/badge/Progress-100%25-green)
 - **Your score will be updated as you progress.**
 
 ## Resources
