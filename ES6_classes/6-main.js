@@ -1,6 +1,6 @@
 // 6-main.js
 
-import SkyHighBuilding from './6-sky_high.js';
+import SkyHighBuilding from './6-sky_high';
 
 const building = new SkyHighBuilding(140, 60);
 console.log(building.sqft);
