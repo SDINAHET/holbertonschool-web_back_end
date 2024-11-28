@@ -1,3 +1,4 @@
+
 module.exports = {
   env: {
     browser: false,
@@ -16,8 +17,11 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
+  extends: ["eslint:recommended", "plugin:jest/recommended"], 
   plugins: ['jest'],
   rules: {
+    'max-classes-per-file': 'off',
+    'no-underscore-dangle': 'off',
     'no-console': 'off',
     'no-shadow': 'off',
     'no-restricted-syntax': [
