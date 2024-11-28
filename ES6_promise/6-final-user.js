@@ -2,17 +2,42 @@
 import signUpUser from './4-user-promise.js';
 import uploadPhoto from './5-photo-reject.js';
 
+/**
+ * Handles profile signup by calling functions that return promises.
+ * @param {string} firstName - The user's first name.
+ * @param {string} lastName - The user's last name.
+ * @param {string} fileName - The filename for photo upload.
+ * @returns {Promise<Array>} A promise resolving to an array of results.
+ */
 export default function handleProfileSignup(firstName, lastName, fileName) {
-    // Appeler les fonctions et gérer les promesses
-    const signUpPromise = signUpUser(firstName, lastName);
-    const uploadPromise = uploadPhoto(fileName);
+  const signUpPromise = signUpUser(firstName, lastName);
+  const uploadPromise = uploadPhoto(fileName);
 
-    return Promise.allSettled([signUpPromise, uploadPromise])
-        .then(results => results.map(result => ({
-            status: result.status,
-            value: result.status === 'fulfilled' ? result.value : result.reason
-        })));
+  return Promise.allSettled([signUpPromise, uploadPromise])
+    .then((results) =>
+      results.map((result) => ({
+        status: result.status,
+        value: result.status === 'fulfilled' ? result.value : result.reason,
+      }))
+    );
 }
+
+
+// // 6-final-user.js
+// import signUpUser from './4-user-promise.js';
+// import uploadPhoto from './5-photo-reject.js';
+
+// export default function handleProfileSignup(firstName, lastName, fileName) {
+//     // Appeler les fonctions et gérer les promesses
+//     const signUpPromise = signUpUser(firstName, lastName);
+//     const uploadPromise = uploadPhoto(fileName);
+
+//     return Promise.allSettled([signUpPromise, uploadPromise])
+//         .then(results => results.map(result => ({
+//             status: result.status,
+//             value: result.status === 'fulfilled' ? result.value : result.reason
+//         })));
+// }
 
 // import signUpUser from './4-user-promise';
 // import uploadPhoto from './5-photo-reject';
