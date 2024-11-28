@@ -18,16 +18,39 @@ import signUpUser from './4-user-promise.js';
 import uploadPhoto from './5-photo-reject.js';
 
 export default async function handleProfileSignup(firstName, lastName, fileName) {
-  const results = await Promise.allSettled([
-    signUpUser(firstName, lastName),
-    uploadPhoto(fileName),
-  ]);
+  try {
+    const results = await Promise.allSettled([
+      signUpUser(firstName, lastName),
+      uploadPhoto(fileName),
+    ]);
 
-  return results.map((result) => ({
-    status: result.status,
-    value: result.status === 'fulfilled' ? result.value : String(result.reason),
-  }));
+    return results.map((result) => {
+      if (result.status === 'fulfilled') {
+        return { status: 'fulfilled', value: result.value };
+      } else {
+        return { status: 'rejected', value: String(result.reason) };
+      }
+    });
+  } catch (error) {
+    throw new Error(`Unexpected error in handleProfileSignup: ${error.message}`);
+  }
 }
+
+
+// import signUpUser from './4-user-promise.js';
+// import uploadPhoto from './5-photo-reject.js';
+
+// export default async function handleProfileSignup(firstName, lastName, fileName) {
+//   const results = await Promise.allSettled([
+//     signUpUser(firstName, lastName),
+//     uploadPhoto(fileName),
+//   ]);
+
+//   return results.map((result) => ({
+//     status: result.status,
+//     value: result.status === 'fulfilled' ? result.value : String(result.reason),
+//   }));
+// }
 
 // import signUpUser from './4-user-promise';
 // import uploadPhoto from './5-photo-reject';
