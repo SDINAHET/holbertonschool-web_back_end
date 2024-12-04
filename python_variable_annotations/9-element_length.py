@@ -7,6 +7,7 @@ with an element and its length.
 
 from typing import Iterable, Sequence, List, Tuple
 
+
 def element_length(lst: Iterable[Sequence]) -> List[Tuple[Sequence, int]]:
     """
     Get a list of tuples with an element and its length.

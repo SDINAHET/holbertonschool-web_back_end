@@ -4,6 +4,7 @@ This module defines a function `concat` that concatenates two strings.
 1-concat.py
 """
 
+
 def concat(str1: str, str2: str) -> str:
     """
     Concatenate two strings.
