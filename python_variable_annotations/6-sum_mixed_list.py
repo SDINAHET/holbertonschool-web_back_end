@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-This module defines a function `sum_mixed_list` that sums a list of integers and floats.
+This module defines a function `sum_mixed_list` that sums a list of integers
+and floats.
+6-sum_mixed_list.py
 """
 
 from typing import List, Union
