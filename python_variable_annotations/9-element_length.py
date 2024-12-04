@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """
 This module defines a function `element_length` that returns a list of tuples
 with an element and its length.

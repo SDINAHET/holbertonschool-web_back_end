@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """
 This module defines a function `sum_list` that sums a list of floats.
 """
