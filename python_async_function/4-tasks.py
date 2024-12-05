@@ -5,7 +5,7 @@ This module defines an async routine `task_wait_n` that spawns multiple tasks.
 
 import asyncio
 from typing import List
-from 3-tasks import task_wait_random
+from ('3-tasks') import task_wait_random
 
 async def task_wait_n(n: int, max_delay: int) -> List[float]:
     """
