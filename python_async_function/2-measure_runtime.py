@@ -5,8 +5,11 @@ This module defines a function `measure_time` to measure runtime of `wait_n`.
 
 import asyncio
 import time
-from concurrent_coroutines import wait_n
+# from 1-concurrent_coroutines import wait_n
+wait_n = __import__('1-concurrent_coroutines').wait_n
 
+# from 0-basic_async_syntax import wait_random
+# wait_random = __import__('0-basic_async_syntax').wait_random
 
 def measure_time(n: int, max_delay: int) -> float:
     """
