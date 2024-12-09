@@ -13,3 +13,6 @@ async def async_comprehension() -> List[float]:
     compréhension asynchrone.
     """
     return [num async for num in async_generator()]
+
+    """random_numbers = [number async for number in async_generator()]
+    return random_numbers[:10] """
