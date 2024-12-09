@@ -4,6 +4,8 @@ Module contenant une coroutine génératrice asynchrone.
 """
 import asyncio
 import random
+
+
 from typing import AsyncGenerator
 
 
