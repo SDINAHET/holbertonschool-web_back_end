@@ -51,14 +51,28 @@ class Server:
 
         Returns:
             Dict: A dictionary containing pagination metadata.
+                -index: the current start index of the return page. That is the
+                index of the first item in the current page. For example if
+                requesting page 3 with page_size 20, and no data was removed
+                from the dataset, the current index should be 60.
+                -next_index: the next index to query with. That should be the
+                index of the first item after the last item on the current page.
+                -page_size: the current page size
+                -data: the actual page of the dataset
         """
-        assert isinstance(index, int) and 0 <= index < len(self.dataset())
+        # assert isinstance(index, int) and 0 <= index < len(self.dataset())
+        assert isinstance(index, int) and 0 <= index < len(self.indexed_dataset())
 
         data = []
+        current_index = index
         next_index = index
 
         for _ in range(page_size):
-            if next_index >= len(self.dataset()):
+            while next_index not in self.__indexed_dataset and next_index < len(self.__indexed_dataset):
+                next_index += 1
+            # if next_index >= len(self.dataset()):
+            #     break
+            if next_index >= len(self.__indexed_dataset):
                 break
             data.append(self.dataset()[next_index])
             next_index += 1
