@@ -1,2 +1,3 @@
+#!/usr/bin/env mongo
 // List all databases in MongoDB
 db.adminCommand('listDatabases')
