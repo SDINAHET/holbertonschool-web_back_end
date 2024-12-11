@@ -56,7 +56,7 @@ class Server:
                 requesting page 3 with page_size 20, and no data was removed
                 from the dataset, the current index should be 60.
                 -next_index: the next index to query with. That should be the
-                index of the first item after the last item on the current page.
+                index of the first item after the last item on the current page
                 -page_size: the current page size
                 -data: the actual page of the dataset
         """
