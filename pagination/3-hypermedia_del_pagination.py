@@ -60,19 +60,14 @@ class Server:
                 -page_size: the current page size
                 -data: the actual page of the dataset
         """
-        # assert isinstance(index, int) and 0 <= index < len(self.dataset())
-        assert isinstance(index, int) and 0 <= index < len(self.indexed_dataset())
+        assert isinstance(index, int) and 0 <= index < len(self.dataset())
 
         data = []
         current_index = index
         next_index = index
 
         for _ in range(page_size):
-            while next_index not in self.__indexed_dataset and next_index < len(self.__indexed_dataset):
-                next_index += 1
-            # if next_index >= len(self.dataset()):
-            #     break
-            if next_index >= len(self.__indexed_dataset):
+            if next_index >= len(self.dataset()):
                 break
             data.append(self.dataset()[next_index])
             next_index += 1
