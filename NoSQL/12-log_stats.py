@@ -7,7 +7,7 @@ about Nginx logs, including the total number of logs, counts by HTTP method,
 and the number of GET requests to /status.
 """
 
-from pymongo import MongoClient
+# from pymongo import MongoClient
 
 def log_stats():
     """
