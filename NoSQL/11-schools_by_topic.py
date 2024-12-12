@@ -8,7 +8,7 @@ in their "topics" field.
 
 from pymongo.collection import Collection
 
-def schools_by_topic(mongo_collection: Collection, topic: str):
+def schools_by_topic(mongo_collection, topic):
     """
     Returns the list of schools having a specific topic.
 
