@@ -7,7 +7,7 @@ using the pymongo library. It accepts key-value pairs as input and returns the
 _id of the newly inserted document.
 """
 
-from pymongo import Mongoclient
+# from pymongo import Mongoclient
 
 def insert_school(mongo_collection, **kwargs):
     # """
@@ -23,6 +23,5 @@ def insert_school(mongo_collection, **kwargs):
     # new_document = kwargs
     # result = mongo_collection.insert_one(new_document)
     # return result.inserted_id
-
     """insert a new document in a collection named in kwargs"""
     return mongo_collection.insert_one(kwargs).inserted_id
