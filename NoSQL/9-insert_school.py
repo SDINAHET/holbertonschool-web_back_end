@@ -10,16 +10,19 @@ _id of the newly inserted document.
 from pymongo import Mongoclient
 
 def insert_school(mongo_collection, **kwargs):
-    """
-    Inserts a new document in a MongoDB collection based on kwargs.
+    # """
+    # Inserts a new document in a MongoDB collection based on kwargs.
 
-    Args:
-        mongo_collection (Collection): pymongo collection object
-        **kwargs: Key-value pairs representing the document fields
+    # Args:
+    #     mongo_collection (Collection): pymongo collection object
+    #     **kwargs: Key-value pairs representing the document fields
 
-    Returns:
-        ObjectId: The new document's _id.
-    """
-    new_document = kwargs
-    result = mongo_collection.insert_one(new_document)
-    return result.inserted_id
+    # Returns:
+    #     ObjectId: The new document's _id.
+    # """
+    # new_document = kwargs
+    # result = mongo_collection.insert_one(new_document)
+    # return result.inserted_id
+
+    """insert a new document in a collection named in kwargs"""
+    return mongo_collection.insert_one(kwargs).inserted_id

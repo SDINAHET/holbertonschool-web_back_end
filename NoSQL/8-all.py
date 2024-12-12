@@ -19,3 +19,6 @@ def list_all(mongo_collection):
         return []
     documents = list(mongo_collection.find())
     return list(mongo_collection.find())
+
+    # """return mongo_collection"""
+    # return mongo_collection.find()
