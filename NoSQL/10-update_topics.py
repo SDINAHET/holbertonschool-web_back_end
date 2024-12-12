@@ -6,7 +6,7 @@ This script defines a function to update the "topics" field of a document
 in a MongoDB collection based on the school name.
 """
 
-from pymongo.collection import Collection
+# from pymongo.collection import Collection
 
 def update_topics(mongo_collection: Collection, name: str, topics: list):
     # """
