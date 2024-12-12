@@ -9,7 +9,7 @@ _id of the newly inserted document.
 
 from pymongo.collection import Collection
 
-def insert_school(mongo_collection: Collection, **kwargs):
+def insert_school(mongo_collection, **kwargs):
     """
     Inserts a new document in a MongoDB collection based on kwargs.
 
