@@ -6,7 +6,7 @@ This script defines a function to search for schools that have a specific topic
 in their "topics" field.
 """
 
-from pymongo.collection import Collection
+# from pymongo.collection import Collection
 
 def schools_by_topic(mongo_collection, topic):
     """
