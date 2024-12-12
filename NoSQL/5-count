@@ -1,5 +1,6 @@
 // Display the number of documents in the 'school' collection
 print(db.school.count());
 // print(db.school.countDocuments());
+
 // my_db> print(db.school.count());
 //DeprecationWarning: Collection.count() is deprecated. Use countDocuments or estimatedDocumentCount.
