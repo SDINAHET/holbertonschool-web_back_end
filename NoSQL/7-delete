@@ -3,6 +3,6 @@
   { name: "Holberton school" } // Match documents with name "Holberton school"
 );
 // DeprecationWarning: Collection.remove() is deprecated. Use deleteOne, deleteMany, findOneAndDelete, or bulkWrite.
-db.school.delete(
+db.school.deleteMany(
   { name: "Holberton school" } // Match documents with name "Holberton school"
 );
