@@ -9,55 +9,30 @@ and the number of GET requests to /status.
 
 from pymongo import MongoClient
 
-# def log_stats():
-#     """
-#     Retrieves and displays statistics about Nginx logs stored in MongoDB.
-#     """
-#     client = MongoClient('mongodb://127.0.0.1:27017')
-#     db = client.logs
-#     collection = db.nginx
-
-#     # Total number of logs
-#     total_logs = collection.count_documents({})
-#     print(f"{total_logs} logs")
-
-#     # Methods statistics
-#     print("Methods:")
-#     methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
-#     for method in methods:
-#         count = collection.count_documents({"method": method})
-#         print(f"\tmethod {method}: {count}")
-
-#     # Number of GET requests to /status
-#     status_check = collection.count_documents({"method": "GET", "path": "/status"})
-#     print(f"{status_check} status check")
-
-# if __name__ == "__main__":
-#     log_stats()
-
 if __name__ == "__main__":
-    """Fournit des statistiques sur les logs nginx"""
+    """Provides statistics about Nginx logs."""
 
-    # Connexion à la base de données MongoDB
+    # Connect to MongoDB
     client = MongoClient('mongodb://127.0.0.1:27017')
     db = client['logs']
     collection = db['nginx']
 
-    # Liste des méthodes HTTP à analyser
+    # List of HTTP methods to analyze
     methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
 
-    # Affichage du nombre total de logs
-    print(f"{collection.count_documents({})} logs")
+    # Display total number of logs
+    total_logs = collection.count_documents({})
+    print(f"{total_logs} logs")
 
-    # Affichage du nombre de logs pour chaque méthode HTTP de la liste
+    # Display the count of logs for each HTTP method
     print("Methods:")
     for method in methods:
-        count = collection.count_documents({"method": method})
-        print(f"\tmethod {method}: {count}")
+        method_count = collection.count_documents({"method": method})
+        print(f"\tmethod {method}: {method_count}")
 
-    # Affichage du nombre de logs avec méthode GET et au chemin /status
-    print(collection.count_documents({"method": "GET", "path": "/status"}),
-          "status check")
+    # Display the count of logs with method GET and path /status
+    status_check_count = collection.count_documents({"method": "GET", "path": "/status"})
+    print(f"{status_check_count} status check")
 
-    # Fermeture de la connexion à la base de données MongoDB
+    # Close the MongoDB connection
     client.close()
