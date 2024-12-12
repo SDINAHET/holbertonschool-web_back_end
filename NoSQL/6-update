@@ -1,10 +1,10 @@
 // Update documents in the collection "school"
-db.school.update(
-  { name: "Holberton school" }, // Match documents with name "Holberton school"
-  { $set: { address: "972 Mission street" } }, // Add or update the address field
-  { multi: true } // Ensure all matching documents are updated
-);
-// db.school.updateMany(
+// db.school.update(
 //   { name: "Holberton school" }, // Match documents with name "Holberton school"
-//   { $set: { address: "972 Mission street" } } // Add or update the address field
+//   { $set: { address: "972 Mission street" } }, // Add or update the address field
+//   { multi: true } // Ensure all matching documents are updated
 // );
+db.school.updateMany(
+  { name: "Holberton school" }, // Match documents with name "Holberton school"
+  { $set: { address: "972 Mission street" } } // Add or update the address field
+);
