@@ -35,4 +35,4 @@ if __name__ == "__main__":
     print(f"{status_check_count} status check")
 
     # Close the MongoDB connection
-    client.close()
+    # client.close()
