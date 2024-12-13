@@ -18,12 +18,12 @@ if __name__ == "__main__":
     db = client['logs']
     collection = db['nginx']
 
+    # List of HTTP methods to analyze
+    methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
+
     # Display total number of logs
     total_logs = collection.count_documents({})
     print(f"{total_logs} logs")
-
-    # List of HTTP methods to analyze
-    methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
 
     # Display the count of logs for each HTTP method
     print("Methods:")
