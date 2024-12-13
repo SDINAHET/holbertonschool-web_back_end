@@ -31,7 +31,8 @@ if __name__ == "__main__":
         print(f"\tmethod {method}: {method_count}")
 
     # Display the count of logs with method GET and path /status
-    status_check_count = collection.count_documents({"method": "GET", "path": "/status"})
+    status_check_count = collection.count_documents({"method": "GET",
+                                                     "path": "/status"})
     print(f"{status_check_count} status check")
 
     # Close the MongoDB connection
