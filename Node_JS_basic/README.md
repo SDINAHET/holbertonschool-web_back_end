@@ -987,7 +987,237 @@ This implementation meets all the requirements and provides clear error handling
 
 ________________________________________
 
+Here's a detailed breakdown of how to implement the requested complex HTTP server using Express:
 
+1. Directory Structure
+The project will have the following structure:
+
+Copier
+Modifier
+full_server/
+├── controllers/
+│   ├── AppController.js
+│   ├── StudentsController.js
+├── routes/
+│   ├── index.js
+├── utils.js
+├── server.js
+2. Implementing the Components
+2.1 utils.js
+This file contains the readDatabase function to read and process the database asynchronously.
+
+javascript
+Copier
+Modifier
+const fs = require('fs');
+
+const readDatabase = (filePath) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, 'utf-8', (err, data) => {
+      if (err) {
+        reject(new Error('Cannot load the database'));
+        return;
+      }
+
+      const lines = data.split('\n').filter((line) => line.trim() !== '');
+      lines.shift(); // Remove header row
+
+      const fields = {};
+
+      lines.forEach((line) => {
+        const [firstname, , , field] = line.split(',');
+
+        if (!fields[field]) {
+          fields[field] = [];
+        }
+        fields[field].push(firstname);
+      });
+
+      resolve(fields);
+    });
+  });
+};
+
+module.exports = readDatabase;
+2.2 controllers/AppController.js
+This controller handles the root endpoint (/).
+
+javascript
+Copier
+Modifier
+class AppController {
+  static getHomepage(req, res) {
+    res.status(200).send('Hello Holberton School!');
+  }
+}
+
+module.exports = AppController;
+2.3 controllers/StudentsController.js
+This controller handles student-related endpoints.
+
+javascript
+Copier
+Modifier
+const readDatabase = require('../utils');
+
+class StudentsController {
+  static async getAllStudents(req, res) {
+    const databasePath = process.argv[2];
+
+    try {
+      const fields = await readDatabase(databasePath);
+
+      let output = 'This is the list of our students\n';
+      const sortedFields = Object.keys(fields).sort();
+
+      for (const field of sortedFields) {
+        const students = fields[field];
+        output += `Number of students in ${field}: ${students.length}. List: ${students.join(', ')}\n`;
+      }
+
+      res.status(200).send(output.trim());
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  }
+
+  static async getAllStudentsByMajor(req, res) {
+    const databasePath = process.argv[2];
+    const { major } = req.params;
+
+    if (major !== 'CS' && major !== 'SWE') {
+      res.status(500).send('Major parameter must be CS or SWE');
+      return;
+    }
+
+    try {
+      const fields = await readDatabase(databasePath);
+      const students = fields[major] || [];
+      res.status(200).send(`List: ${students.join(', ')}`);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  }
+}
+
+module.exports = StudentsController;
+2.4 routes/index.js
+This file defines the routes and links them to the appropriate controllers.
+
+javascript
+Copier
+Modifier
+const express = require('express');
+const AppController = require('../controllers/AppController');
+const StudentsController = require('../controllers/StudentsController');
+
+const router = express.Router();
+
+// Define routes
+router.get('/', AppController.getHomepage);
+router.get('/students', StudentsController.getAllStudents);
+router.get('/students/:major', StudentsController.getAllStudentsByMajor);
+
+module.exports = router;
+2.5 server.js
+This file initializes the Express server and links the routes.
+
+javascript
+Copier
+Modifier
+const express = require('express');
+const router = require('./routes/index');
+
+const app = express();
+
+// Use the defined routes
+app.use('/', router);
+
+// Start the server
+const PORT = 1245;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+module.exports = app;
+3. .babelrc File
+To enable ES6 support using babel-node, create a .babelrc file in the root directory:
+
+json
+Copier
+Modifier
+{
+  "presets": ["@babel/preset-env"]
+}
+4. package.json Script
+Update your package.json to include the dev script:
+
+json
+Copier
+Modifier
+"scripts": {
+  "dev": "nodemon --exec babel-node --presets @babel/preset-env ./full_server/server.js ./database.csv"
+}
+5. Testing the Server
+Start the Server:
+In terminal 1:
+
+bash
+Copier
+Modifier
+npm run dev
+Test Endpoints:
+Root endpoint:
+
+bash
+Copier
+Modifier
+curl localhost:1245
+Output:
+
+plaintext
+Copier
+Modifier
+Hello Holberton School!
+Students endpoint:
+
+bash
+Copier
+Modifier
+curl localhost:1245/students
+Output:
+
+plaintext
+Copier
+Modifier
+This is the list of our students
+Number of students in CS: 6. List: Johann, Arielle, Jonathan, Emmanuel, Guillaume, Katie
+Number of students in SWE: 4. List: Guillaume, Joseph, Paul, Tommy
+Students by major (CS):
+
+bash
+Copier
+Modifier
+curl localhost:1245/students/CS
+Output:
+
+plaintext
+Copier
+Modifier
+List: Johann, Arielle, Jonathan, Emmanuel, Guillaume, Katie
+Invalid major:
+
+bash
+Copier
+Modifier
+curl localhost:1245/students/French
+Output:
+
+plaintext
+Copier
+Modifier
+Major parameter must be CS or SWE
+This implementation adheres to all requirements and organizes the server for scalability and maintainability.
 
 
 
