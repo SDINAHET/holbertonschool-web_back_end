@@ -283,6 +283,172 @@ This implementation adheres to the requirements and provides the expected output
 
 ___________________________________________________________________
 
+Here’s how to implement the countStudents function in the 3-read_file_async.js file, using asynchronous file reading with promises.
+
+Implementation
+3-read_file_async.js:
+javascript
+Copier
+Modifier
+const fs = require('fs');
+
+function countStudents(path) {
+  return new Promise((resolve, reject) => {
+    // Read the file asynchronously
+    fs.readFile(path, 'utf-8', (err, data) => {
+      if (err) {
+        reject(new Error('Cannot load the database'));
+        return;
+      }
+
+      // Split the file into lines and filter out empty ones
+      const lines = data.split('\n').filter((line) => line.trim() !== '');
+
+      // Remove the header row
+      const header = lines.shift();
+
+      // Initialize data structure to count students
+      const students = {};
+      let totalStudents = 0;
+
+      lines.forEach((line) => {
+        const [firstname, lastname, age, field] = line.split(',');
+
+        if (firstname && field) {
+          totalStudents += 1;
+
+          if (!students[field]) {
+            students[field] = [];
+          }
+
+          students[field].push(firstname);
+        }
+      });
+
+      // Log total number of students
+      console.log(`Number of students: ${totalStudents}`);
+
+      // Log the number of students and their names per field
+      for (const [field, names] of Object.entries(students)) {
+        console.log(
+          `Number of students in ${field}: ${names.length}. List: ${names.join(', ')}`
+        );
+      }
+
+      resolve();
+    });
+  });
+}
+
+module.exports = countStudents;
+How It Works:
+Asynchronous File Reading:
+
+The fs.readFile function is used to read the file asynchronously.
+If there's an error (e.g., file not found), it rejects the promise with the error message Cannot load the database.
+Processing the Data:
+
+The file content is split into lines, with empty lines filtered out.
+The header row is removed as it's not part of the student data.
+Student data is parsed, grouped by field, and their names are stored.
+Logging Results:
+
+Logs the total number of students.
+Logs the count and names of students for each field.
+Promise Resolution:
+
+Resolves the promise after logging the results.
+Example Database (database.csv):
+csv
+Copier
+Modifier
+firstname,lastname,age,field
+Johann,Smith,25,CS
+Arielle,Brown,22,CS
+Jonathan,Doe,24,CS
+Emmanuel,Doe,23,CS
+Guillaume,Smith,23,CS
+Katie,Holmes,23,CS
+Guillaume,Holmes,25,SWE
+Joseph,Allen,22,SWE
+Paul,Dupont,24,SWE
+Tommy,Doe,23,SWE
+Testing:
+3-main_0.js (Error Case):
+javascript
+Copier
+Modifier
+const countStudents = require('./3-read_file_async');
+
+countStudents('nope.csv')
+  .then(() => {
+    console.log('Done!');
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+Output:
+
+plaintext
+Copier
+Modifier
+Error: Cannot load the database
+3-main_1.js (Successful Case):
+javascript
+Copier
+Modifier
+const countStudents = require('./3-read_file_async');
+
+countStudents('database.csv')
+  .then(() => {
+    console.log('Done!');
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+
+console.log('After!');
+Output:
+
+plaintext
+Copier
+Modifier
+After!
+Number of students: 10
+Number of students in CS: 6. List: Johann, Arielle, Jonathan, Emmanuel, Guillaume, Katie
+Number of students in SWE: 4. List: Guillaume, Joseph, Paul, Tommy
+Done!
+Directory Structure:
+markdown
+Copier
+Modifier
+holbertonschool-web_back_end/
+└── Node_JS_basic/
+    ├── 3-read_file_async.js
+    ├── 3-main_0.js
+    ├── 3-main_1.js
+    └── database.csv
+How to Run:
+Place the files in the Node_JS_basic directory.
+Test the error case:
+bash
+Copier
+Modifier
+node 3-main_0.js
+Test the successful case:
+bash
+Copier
+Modifier
+node 3-main_1.js
+This implementation follows the requirements, uses asynchronous file reading, and logs the expected output while maintaining non-blocking execution.
+
+
+
+_____________________________________________
+
+
+
+
 
 
 
