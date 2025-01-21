@@ -15,4 +15,5 @@ rl.on('line', (name) => {
 
 rl.on('close', () => {
   console.log('This important software is now closing');
+  process.exit(0); // Explicitly exit the process
 });
