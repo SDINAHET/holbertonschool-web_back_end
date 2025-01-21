@@ -446,6 +446,263 @@ This implementation follows the requirements, uses asynchronous file reading, an
 
 _____________________________________________
 
+Here’s how to create a small HTTP server using Node.js's http module as specified:
+
+Implementation
+4-http.js:
+javascript
+Copier
+Modifier
+const http = require('http');
+
+// Create the HTTP server
+const app = http.createServer((req, res) => {
+  // Set the response header to plain text
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+
+  // Send the response body
+  res.end('Hello Holberton School!');
+});
+
+// Make the server listen on port 1245
+app.listen(1245);
+
+// Export the server for reuse or testing
+module.exports = app;
+Explanation:
+HTTP Server Creation:
+
+The http.createServer() function is used to create the server.
+It accepts a callback function (req, res) that handles incoming requests and sends responses.
+Response Handling:
+
+Sets the Content-Type header to text/plain to ensure the response is plain text.
+Sends the response body with the text "Hello Holberton School!" using res.end().
+Listening on Port 1245:
+
+The server listens on port 1245 using app.listen(1245).
+Exporting the Server:
+
+The server instance app is exported to allow testing or reusing in other modules.
+Testing:
+Start the Server:
+Run the following command in terminal 1:
+
+bash
+Copier
+Modifier
+node 4-http.js
+Test with curl:
+In terminal 2, test the server by sending requests to different endpoints:
+
+Default endpoint:
+
+bash
+Copier
+Modifier
+curl localhost:1245 && echo ""
+Output:
+
+plaintext
+Copier
+Modifier
+Hello Holberton School!
+Any other endpoint:
+
+bash
+Copier
+Modifier
+curl localhost:1245/any_endpoint && echo ""
+Output:
+
+plaintext
+Copier
+Modifier
+Hello Holberton School!
+Directory Structure:
+markdown
+Copier
+Modifier
+holbertonschool-web_back_end/
+└── Node_JS_basic/
+    └── 4-http.js
+Expected Behavior:
+The server listens on port 1245.
+Responds with "Hello Holberton School!" to any HTTP request made to any endpoint.
+This implementation fulfills the requirements, ensuring the server responds correctly to all requests.
+
+_________________________________________________________________
+
+
+Here’s how to create a more complex HTTP server as described:
+
+Implementation
+5-http.js:
+javascript
+Copier
+Modifier
+const http = require('http');
+const fs = require('fs');
+
+function countStudents(path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, 'utf-8', (err, data) => {
+      if (err) {
+        reject(new Error('Cannot load the database'));
+        return;
+      }
+
+      const lines = data.split('\n').filter((line) => line.trim() !== '');
+      lines.shift(); // Remove header row
+
+      const students = {};
+      let totalStudents = 0;
+
+      lines.forEach((line) => {
+        const [firstname, , , field] = line.split(',');
+
+        if (firstname && field) {
+          totalStudents += 1;
+
+          if (!students[field]) {
+            students[field] = [];
+          }
+
+          students[field].push(firstname);
+        }
+      });
+
+      let output = `Number of students: ${totalStudents}\n`;
+      for (const [field, names] of Object.entries(students)) {
+        output += `Number of students in ${field}: ${names.length}. List: ${names.join(', ')}\n`;
+      }
+
+      resolve(output.trim());
+    });
+  });
+}
+
+const app = http.createServer(async (req, res) => {
+  if (req.url === '/') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Hello Holberton School!');
+  } else if (req.url === '/students') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.write('This is the list of our students\n');
+
+    const databasePath = process.argv[2];
+    if (!databasePath) {
+      res.end('Cannot load the database');
+      return;
+    }
+
+    try {
+      const studentData = await countStudents(databasePath);
+      res.end(studentData);
+    } catch (error) {
+      res.end(error.message);
+    }
+  } else {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not Found');
+  }
+});
+
+app.listen(1245);
+module.exports = app;
+How It Works:
+countStudents Function:
+
+Reads the file asynchronously using fs.readFile.
+Processes the CSV file, removing empty lines and grouping students by their field of study.
+Resolves with a formatted string containing the number of students and their details.
+HTTP Server:
+
+Listens on port 1245.
+Handles two paths:
+/: Responds with "Hello Holberton School!".
+/students: Responds with "This is the list of our students" followed by the processed student data from the CSV file.
+Uses the process.argv[2] to get the path to the database file from the command line.
+Error Handling:
+
+If the file path is not provided or cannot be read, it responds with "Cannot load the database".
+Not Found Handler:
+
+Responds with 404 Not Found for any other endpoints.
+Example Database (database.csv):
+csv
+Copier
+Modifier
+firstname,lastname,age,field
+Johann,Smith,25,CS
+Arielle,Brown,22,CS
+Jonathan,Doe,24,CS
+Emmanuel,Doe,23,CS
+Guillaume,Smith,23,CS
+Katie,Holmes,23,CS
+Guillaume,Holmes,25,SWE
+Joseph,Allen,22,SWE
+Paul,Dupont,24,SWE
+Tommy,Doe,23,SWE
+Testing:
+Start the Server:
+Run the following command in terminal 1:
+
+bash
+Copier
+Modifier
+node 5-http.js database.csv
+Test with curl:
+Default endpoint:
+
+bash
+Copier
+Modifier
+curl localhost:1245 && echo ""
+Output:
+
+plaintext
+Copier
+Modifier
+Hello Holberton School!
+/students endpoint:
+
+bash
+Copier
+Modifier
+curl localhost:1245/students && echo ""
+Output:
+
+plaintext
+Copier
+Modifier
+This is the list of our students
+Number of students: 10
+Number of students in CS: 6. List: Johann, Arielle, Jonathan, Emmanuel, Guillaume, Katie
+Number of students in SWE: 4. List: Guillaume, Joseph, Paul, Tommy
+Directory Structure:
+markdown
+Copier
+Modifier
+holbertonschool-web_back_end/
+└── Node_JS_basic/
+    ├── 5-http.js
+    ├── database.csv
+Notes:
+Ensure the database.csv file is correctly formatted.
+Test the /students endpoint without providing a database file:
+bash
+Copier
+Modifier
+node 5-http.js
+Output:
+plaintext
+Copier
+Modifier
+Cannot load the database
+This implementation fulfills all requirements and handles edge cases effectively.
+
+___________________________________
 
 
 
