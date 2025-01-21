@@ -1,14 +1,19 @@
-// Display the initial prompt
-console.log("Welcome to Holberton School, what is your name?");
+// 1-stdin.js
+const readline = require('readline');
 
-process.stdin.on('data', (data) => {
-  // Read user input and remove the newline character
-  const name = data.toString().trim();
+const ui = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
-  // Display the user's name
+console.log('Welcome to Holberton School, what is your name?');
+
+ui.question('', (name) => {
   console.log(`Your name is: ${name}`);
+  ui.close();
+});
 
-  // Exit the process
-  console.log("This important software is now closing");
-  process.exit();
+ui.on('close', () => {
+  console.log('This important software is now closing');
+  process.exit(0);
 });
