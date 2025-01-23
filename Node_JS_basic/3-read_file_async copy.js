@@ -2,25 +2,25 @@ const fs = require('fs');
 
 function countStudents(path) {
   return new Promise((resolve, reject) => {
-    // Lire le fichier de manière asynchrone
+    // Read the file asynchronously
     fs.readFile(path, 'utf-8', (err, data) => {
       if (err) {
         reject(new Error('Cannot load the database'));
         return;
       }
 
-      // Diviser le contenu du fichier en lignes, filtrer les lignes vides
+      // Split the file into lines and filter out empty ones
       const lines = data.split('\n').filter((line) => line.trim() !== '');
 
-      // Enlever la ligne d'en-tête
-      lines.shift();
+      // Remove the header row
+      const header = lines.shift();
 
-      // Initialisation de la structure de données pour compter les étudiants
+      // Initialize data structure to count students
       const students = {};
       let totalStudents = 0;
 
       lines.forEach((line) => {
-        const [firstname, , , field] = line.split(',');
+        const [firstname, lastname, age, field] = line.split(',');
 
         if (firstname && field) {
           totalStudents += 1;
@@ -33,10 +33,10 @@ function countStudents(path) {
         }
       });
 
-      // Afficher le nombre total d'étudiants
+      // Log total number of students
       console.log(`Number of students: ${totalStudents}`);
 
-      // Afficher le nombre d'étudiants et leurs noms pour chaque domaine
+      // Log the number of students and their names per field
       for (const [field, names] of Object.entries(students)) {
         console.log(
           `Number of students in ${field}: ${names.length}. List: ${names.join(', ')}`,
