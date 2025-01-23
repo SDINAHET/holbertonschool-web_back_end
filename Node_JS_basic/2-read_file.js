@@ -2,44 +2,35 @@ const fs = require('fs');
 
 function countStudents(path) {
   try {
-    // Read the file synchronously
     const data = fs.readFileSync(path, 'utf-8');
+    const lines = data.split('\n').filter((line) => line.trim() !== ''); // Remove empty lines
 
-    // Split the file into lines and filter out empty ones
-    const lines = data.split('\n').filter((line) => line.trim() !== '');
+    if (lines.length === 0) {
+      throw new Error('Cannot load the database');
+    }
 
-    // Remove the header row
-    const header = lines.shift();
+    const students = lines.slice(1); // Skip the header line
+    const fields = {};
 
-    // Initialize data structure to count students
-    const students = {};
-    let totalStudents = 0;
+    students.forEach((student) => {
+      const details = student.split(',').map((item) => item.trim()); // Trim whitespace from each field
+      if (details.length >= 4) { // Ensure valid student entry
+        const field = details[3]; // The field of study is the 4th column
+        const firstName = details[0]; // First name is the 1st column
 
-    lines.forEach((line) => {
-      const [firstname, lastname, age, field] = line.split(',');
-
-      if (firstname && field) {
-        totalStudents += 1;
-
-        if (!students[field]) {
-          students[field] = [];
+        if (!fields[field]) {
+          fields[field] = [];
         }
-
-        students[field].push(firstname);
+        fields[field].push(firstName);
       }
     });
 
-    // Log total number of students
-    console.log(`Number of students: ${totalStudents}`);
+    console.log(`Number of students: ${students.length}`);
 
-    // Log the number of students and their names per field
-    for (const [field, names] of Object.entries(students)) {
-      console.log(
-        `Number of students in ${field}: ${names.length}. List: ${names.join(', ')}`
-      );
+    for (const [field, firstNames] of Object.entries(fields)) {
+      console.log(`Number of students in ${field}: ${firstNames.length}. List: ${firstNames.join(', ')}`);
     }
   } catch (err) {
-    // Handle file not found or read error
     throw new Error('Cannot load the database');
   }
 }

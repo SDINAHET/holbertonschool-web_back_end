@@ -1221,7 +1221,13 @@ This implementation adheres to all requirements and organizes the server for sca
 
 
 
-
+--------------------
+npx eslint 2-read_file.js --fix
+npx eslint 2-read_file.js
+--------------------------
+Jest
+npm test
+-------
 
 
 
