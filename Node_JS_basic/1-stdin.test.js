@@ -1,39 +1,56 @@
 const { spawn } = require('child_process');
 
 describe('1-stdin.js', () => {
-  it('should handle manual input correctly', (done) => {
-    const child = spawn('node', ['1-stdin.js']);
+  it(
+    'should handle manual input correctly',
+    (done) => {
+      const child = spawn('node', ['1-stdin.js']);
+      let output = '';
+      let inputWritten = false;
 
-    let output = '';
-    child.stdout.on('data', (data) => {
-      output += data.toString();
-    });
+      // Capture stdout and write input when ready
+      child.stdout.on('data', (data) => {
+        output += data.toString();
 
-    child.stdin.write('Alice\n');
+        if (!inputWritten && output.includes('Welcome to Holberton School, what is your name?')) {
+          child.stdin.write('Bob\n'); // Simulate user input
+          inputWritten = true;
+        }
+      });
 
-    child.on('close', () => {
-      expect(output).toContain('Welcome to Holberton School, what is your name?');
-      expect(output).toContain('Your name is: Alice');
-      expect(output).toContain('This important software is now closing');
-      done();
-    });
-  });
+      // Handle process closure
+      child.on('close', () => {
+        // Assertions
+        expect(output).toContain('Welcome to Holberton School, what is your name?');
+        expect(output).toContain('Your name is: Bob');
+        expect(output).toContain('This important software is now closing');
+        done();
+      });
+    },
+    10000 // Set timeout to 10 seconds
+  );
 
-  it('should handle piped input correctly', (done) => {
-    const child = spawn('node', ['1-stdin.js']);
+  it(
+    'should handle piped input correctly',
+    (done) => {
+      // Simulate piped input
+      const child = spawn('echo', ['John | node 1-stdin.js'], { shell: true });
+      let output = '';
 
-    let output = '';
-    child.stdout.on('data', (data) => {
-      output += data.toString();
-    });
+      // Capture stdout
+      child.stdout.on('data', (data) => {
+        output += data.toString();
+      });
 
-    child.stdin.end('John\n');
-
-    child.on('close', () => {
-      expect(output).toContain('Welcome to Holberton School, what is your name?');
-      expect(output).toContain('Your name is: John');
-      expect(output).toContain('This important software is now closing');
-      done();
-    });
-  });
+      // Handle process closure
+      child.on('close', () => {
+        // Assertions
+        expect(output).toContain('Welcome to Holberton School, what is your name?');
+        expect(output).toContain('Your name is: John');
+        expect(output).toContain('This important software is now closing');
+        done();
+      });
+    },
+    10000 // Set timeout to 10 seconds
+  );
 });

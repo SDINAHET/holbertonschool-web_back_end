@@ -13,8 +13,7 @@ ui.question('', (name) => {
   ui.close();
 });
 
-// Ensures the program closes properly
 ui.on('close', () => {
   console.log('This important software is now closing');
-  process.exit(0); // Ensure clean process exit
+  process.exit(0);
 });
