@@ -46,7 +46,7 @@ const app = express();
 // Root route
 app.get('/', (req, res) => {
   res.setHeader('Content-Type', 'text/plain');
-  res.send('Hello Holberton School!\n');
+  res.send('Hello Holberton School!');
 });
 
 // Students route
