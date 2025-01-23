@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // 1-stdin.js
 const readline = require('readline');
 
