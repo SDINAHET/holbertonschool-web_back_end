@@ -31,8 +31,8 @@ function countStudents(path) {
       });
 
       let output = `Number of students: ${totalStudents}\n`;
-      Object.entries(students).forEach(([field, names]) => {
-        output += `Number of students in ${field}: ${names.length}. List: ${names.join(', ')}\n`;
+      Object.keys(students).sort().forEach((field) => {
+        output += `Number of students in ${field}: ${students[field].length}. List: ${students[field].join(', ')}\n`;
       });
 
       resolve(output.trim());
@@ -45,11 +45,14 @@ const app = express();
 
 // Root route
 app.get('/', (req, res) => {
-  res.send('Hello Holberton School!');
+  res.setHeader('Content-Type', 'text/plain');
+  res.send('Hello Holberton School!\n');
 });
 
 // Students route
 app.get('/students', async (req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
+
   const databasePath = process.argv[2];
 
   if (!databasePath) {
