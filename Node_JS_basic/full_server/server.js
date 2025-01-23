@@ -4,7 +4,7 @@ import router from './routes/index.js';
 const app = express();
 const port = 1245;
 
-// Use the routes defined in index.js
+// Use the router for all routes
 app.use('/', router);
 
 // Start the server
