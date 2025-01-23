@@ -31,9 +31,9 @@ function countStudents(path) {
       });
 
       let output = `Number of students: ${totalStudents}\n`;
-      Object.entries(students).forEach(([field, names]) => {
+      for (const [field, names] of Object.entries(students)) {
         output += `Number of students in ${field}: ${names.length}. List: ${names.join(', ')}\n`;
-      });
+      }
 
       resolve(output.trim());
     });
