@@ -23,9 +23,10 @@ class LIFOCache(BaseCaching):
         """
         if key is None or item is None:
             return
-
-        if key not in self.cache_data and len(
-            self.cache_data) >= BaseCaching.MAX_ITEMS:
+        if (
+            key not in self.cache_data and
+            len(self.cache_data) >= BaseCaching.MAX_ITEMS
+        ):
             # Remove last inserted key (not necessarily the last in the dict)
             if self.last_key in self.cache_data:
                 del self.cache_data[self.last_key]
