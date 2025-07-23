@@ -120,7 +120,15 @@ def main():
 
     cursor.close()
     # Closing the database connection (native MySQLConnection method)
+def close_db_connection(db: MySQLConnection) -> None:
+    """
+    Closes the database connection safely.
+
+    Args:
+        db: MySQLConnection object.
+    """
     db.close()
+
 
 
 if __name__ == "__main__":
