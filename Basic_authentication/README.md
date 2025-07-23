@@ -416,34 +416,150 @@ hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/unautho
 ```
 
 ### Task2:
+api/v1/app.py
+```python
 
+```
+
+api/v1/views/index.py
+```python
+
+```
+
+```bash
+
+```
 
 ### Task3:
+api/v1/auth
+```python
 
+```
+
+api/v1/auth/__init__.py
+```python
+
+```
+
+```bash
+
+```
+
+api/v1/auth/auth.py
+```python
+
+```
+
+```bash
+
+```
 
 ### Task4:
+api/v1/auth/auth.py
+```python
 
+```
+
+```bash
+
+```
 
 ### Task5:
+api/v1/app.py
+```python
 
+```
+
+api/v1/auth/auth.py
+```python
+
+```
+
+```bash
+
+```
 
 ### Task6:
+api/v1/app.py
+```python
 
+```
+
+api/v1/auth/basic_auth.py
+```python
+
+```
+
+```bash
+
+```
 
 ### Task7:
+api/v1/auth/basic_auth.py
+```python
 
+```
+
+```bash
+
+```
 
 ### Task8:
+api/v1/auth/basic_auth.py
+```python
 
+```
+
+```bash
+
+```
 
 ### Task9:
+api/v1/auth/basic_auth.py
+```python
 
+```
+
+```bash
+
+```
 
 ### Task10:
+api/v1/auth/basic_auth.py
+```python
 
+```
+
+```bash
+
+```
 
 ### Task11:
+api/v1/auth/basic_auth.py
+```python
 
+```
+
+```bash
+
+```
 
 ### Task12:
+api/v1/auth/basic_auth.py
+```python
 
+```
+
+```bash
+
+```
+
+### Task13:
+api/v1/auth/auth.py
+```python
+
+```
+
+```bash
+
+```
