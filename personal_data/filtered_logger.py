@@ -49,6 +49,7 @@ class RedactingFormatter(logging.Formatter):
         return filter_datum(
             self.fields, self.REDACTION, original, self.SEPARATOR)
 
+
 # PII fields from user_data.csv
 PII_FIELDS = ("name", "email", "phone", "ssn", "password")
 
