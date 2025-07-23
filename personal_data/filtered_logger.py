@@ -77,7 +77,7 @@ def get_logger() -> logging.Logger:
     return logger
 
 
-def get_db() -> MySQLConnection:
+def get_db():
     """
     Connects to a secure MySQL database using credentials from environment
     variables.
