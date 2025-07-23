@@ -6,6 +6,9 @@ Module for filtering sensitive data using regex
 import re
 import logging
 from typing import List
+import os
+import mysql.connector
+from mysql.connector.connection import MySQLConnection
 
 
 def filter_datum(fields: List[str], redaction: str,
@@ -72,3 +75,42 @@ def get_logger() -> logging.Logger:
 
     logger.addHandler(stream_handler)
     return logger
+
+def get_db() -> MySQLConnection:
+    """
+    Connects to a secure MySQL database using credentials from environment variables.
+
+    Returns:
+        MySQLConnection object to the database.
+    """
+    return mysql.connector.connect(
+        user=os.getenv("PERSONAL_DATA_DB_USERNAME", "root"),
+        password=os.getenv("PERSONAL_DATA_DB_PASSWORD", ""),
+        host=os.getenv("PERSONAL_DATA_DB_HOST", "localhost"),
+        database=os.getenv("PERSONAL_DATA_DB_NAME")
+    )
+
+def main():
+    """
+    Main function to read users from database and log each row
+    with PII fields redacted.
+    """
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute("SELECT * FROM users;")
+    field_names = [i[0] for i in cursor.description]
+
+    logger = get_logger()
+
+    for row in cursor:
+        message = ''.join(f"{k}={v}; " for k, v in zip(field_names, row)).strip()
+        logger.info(message)
+
+    cursor.close()
+    db.close()
+
+
+if __name__ == "__main__":
+    main()
+
