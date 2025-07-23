@@ -1,5 +1,14 @@
 📡 Basic Authentication - Holberton School Project
 
+API_HOST=0.0.0.0 API_PORT=5000 python3 -m api.v1.app
+
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+
+
+
 # Simple API
 
 Simple HTTP API for playing with `User` model.
