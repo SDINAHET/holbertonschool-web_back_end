@@ -23,6 +23,12 @@ def not_found(error) -> str:
     """ Return a JSON-formatted 404 error """
     return jsonify({"error": "Not found"}), 404
 
+# Custom error handler for 401
+@app.errorhandler(401)
+def unauthorized(error) -> str:
+    """ Return a JSON-formatted 401 error """
+    return jsonify({"error": "Unauthorized"}), 401
+
 if __name__ == "__main__":
     # Load host and port from environment or use default
     host = getenv("API_HOST", "0.0.0.0")
