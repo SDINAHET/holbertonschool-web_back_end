@@ -97,6 +97,13 @@ def main():
     """
     Main function to read users from database and log each row
     with PII fields redacted.
+
+    The function:
+    - Connects to the database using get_db().
+    - Retrieves all rows from the users table.
+    - Logs each row with sensitive fields redacted using a logger.
+    - Closes the cursor and the database connection using cursor.close()
+      and db.close().
     """
     db = get_db()
     cursor = db.cursor()
