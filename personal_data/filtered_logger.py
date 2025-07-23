@@ -119,6 +119,7 @@ def main():
         logger.info(message)
 
     cursor.close()
+    # Closing the database connection (native MySQLConnection method)
     db.close()
 
 
