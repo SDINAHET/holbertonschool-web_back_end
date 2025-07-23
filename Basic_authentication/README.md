@@ -296,7 +296,7 @@ root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
 hool-web_back_end/Basic_authentication#
 ```
 
-### Task0:
+### Task1:
 api/v1/app.py
 ```python
 #!/usr/bin/env python3
@@ -418,16 +418,133 @@ hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/unautho
 ### Task2:
 api/v1/app.py
 ```python
+#!/usr/bin/env python3
+"""
+Route module for the API
+Sets up the Flask app and registers blueprints, error handlers, and CORS.
+"""
 
+from os import getenv
+from flask import Flask, jsonify
+from flask_cors import CORS
+from api.v1.views import app_views
+
+app = Flask(__name__)
+
+# Register blueprints
+app.register_blueprint(app_views)
+
+# Enable CORS for all /api/v1/* routes
+CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
+
+# Custom error handler for 404
+@app.errorhandler(404)
+def not_found(error) -> str:
+    """ Return a JSON-formatted 404 error """
+    return jsonify({"error": "Not found"}), 404
+
+# Custom error handler for 401
+@app.errorhandler(401)
+def unauthorized(error) -> str:
+    """ Return a JSON-formatted 401 error """
+    return jsonify({"error": "Unauthorized"}), 401
+
+# Custom error handler for 403
+@app.errorhandler(403)
+def forbidden(error) -> str:
+    """ Return a JSON-formatted 403 error """
+    return jsonify({"error": "Forbidden"}), 403
+
+
+if __name__ == "__main__":
+    # Load host and port from environment or use default
+    host = getenv("API_HOST", "0.0.0.0")
+    port = int(getenv("API_PORT", "5000"))
+    app.run(host=host, port=port)
 ```
 
 api/v1/views/index.py
 ```python
+#!/usr/bin/env python3
+""" Module of Index views
+"""
+from flask import jsonify, abort
+from api.v1.views import app_views
 
+
+@app_views.route('/status', methods=['GET'], strict_slashes=False)
+def status() -> str:
+    """ GET /api/v1/status
+    Return:
+      - the status of the API
+    """
+    return jsonify({"status": "OK"})
+
+
+@app_views.route('/stats/', strict_slashes=False)
+def stats() -> str:
+    """ GET /api/v1/stats
+    Return:
+      - the number of each objects
+    """
+    from models.user import User
+    stats = {}
+    stats['users'] = User.count()
+    return jsonify(stats)
+
+@app_views.route('/unauthorized', methods=['GET'], strict_slashes=False)
+def raise_unauthorized():
+    """ Raise 401 Unauthorized error """
+    abort(401)
+
+@app_views.route('/forbidden', methods=['GET'], strict_slashes=False)
+def raise_forbidden():
+    """ GET /api/v1/forbidden - Raise a 403 Forbidden error """
+    abort(403)
 ```
 
 ```bash
-
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/Basic_authentication# c                        c
+url http://0.0.0.0:5000/api/v1/forbidden
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/forbidden"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/forbidden" -vvv
+*   Trying 0.0.0.0...
+*   Trying 0.0.0.0:5000...
+* Connected to 0.0.0.0 (127.0.0.1) port 5000 (#0)
+> GET /api/v1/forbidden HTTP/1.1
+> Host: 0.0.0.0:5000
+> User-Agent: curl/7.81.0
+> Accept: */*
+>
+* Mark bundle as not supporting multiuse
+* HTTP 1.0, assume close after body
+< HTTP/1.0 403 FORBIDDEN
+< Content-Type: application/json
+< Content-Length: 22
+< Access-Control-Allow-Origin: *
+< Server: Werkzeug/1.0.1 Python/3.10.12
+< Date: Wed, 23 Jul 2025 23:17:04 GMT
+<
+{"error":"Forbidden"}
+* Closing connection 0
+/mnt/c/Program Files (x86)/php-8.4.1-Win32-vs17-x64/README.md: line 1: div: No such file or directory
+/mnt/c/Program Files (x86)/php-8.4.1-Win32-vs17-x64/README.md: line 2: a: No such file or directory
+/mnt/c/Program Files (x86)/php-8.4.1-Win32-vs17-x64/README.md: lin: No such file or directory
+/mnt/c/Program Files (x86)/php-8.4.1-Win32-vs17-x64/README.md: line 7: /a: No such file or directory
+/mnt/c/Program Files (x86)/php-8.4.1-Win32-vs17-x64/README.md: line 8: /div: No such file or directory
+/mnt/c/Program Files (x86)/php-8.4.1-Win32-vs17-x64/README.md: line 9: $'\r': command not found
+/mnt/c/Program Files (x86)/php-8.4.1-Win32-vs17-x64/README.md: line 11: $'\r': command not found
+/mnt/c/Program Files (x86)/php-8.4.1-Win32-vs17-x64/README.md: line 12: PHP: command not found
+/mnt/c/Program Files (x86)/php-8.4.1-Win32-vs17-x64/README.md: line 13: web: command not found
+/mnt/c/Program Files (x86)/php-8.4.1-Win32-vs17-x64/README.md: line 14: blog: command not found
+/mnt/c/Program Files (x86)/php-8.4.1-Win32-vs17-x64/README.md: line 15: syntax error near unexpected token `('
+/mnt/c/Program Files (x86)/php-8.4.1-Win32-vs17-x64/README.md: lin' 15: `[PHP License v3.01](LICENSE).
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication#
 ```
 
 ### Task3:
