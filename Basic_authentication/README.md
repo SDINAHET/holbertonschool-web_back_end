@@ -443,11 +443,13 @@ def not_found(error) -> str:
     """ Return a JSON-formatted 404 error """
     return jsonify({"error": "Not found"}), 404
 
+
 # Custom error handler for 401
 @app.errorhandler(401)
 def unauthorized(error) -> str:
     """ Return a JSON-formatted 401 error """
     return jsonify({"error": "Unauthorized"}), 401
+
 
 # Custom error handler for 403
 @app.errorhandler(403)
@@ -492,10 +494,12 @@ def stats() -> str:
     stats['users'] = User.count()
     return jsonify(stats)
 
+
 @app_views.route('/unauthorized', methods=['GET'], strict_slashes=False)
 def raise_unauthorized():
     """ Raise 401 Unauthorized error """
     abort(401)
+
 
 @app_views.route('/forbidden', methods=['GET'], strict_slashes=False)
 def raise_forbidden():

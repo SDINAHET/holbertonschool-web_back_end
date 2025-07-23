@@ -17,17 +17,20 @@ app.register_blueprint(app_views)
 # Enable CORS for all /api/v1/* routes
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 
+
 # Custom error handler for 404
 @app.errorhandler(404)
 def not_found(error) -> str:
     """ Return a JSON-formatted 404 error """
     return jsonify({"error": "Not found"}), 404
 
+
 # Custom error handler for 401
 @app.errorhandler(401)
 def unauthorized(error) -> str:
     """ Return a JSON-formatted 401 error """
     return jsonify({"error": "Unauthorized"}), 401
+
 
 # Custom error handler for 403
 @app.errorhandler(403)
