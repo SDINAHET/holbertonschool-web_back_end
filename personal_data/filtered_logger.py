@@ -104,7 +104,8 @@ def main():
     logger = get_logger()
 
     for row in cursor:
-        message = ''.join(f"{k}={v}; " for k, v in zip(field_names, row)).strip()
+        message = ''.join(f"{k}={v}; " for k, v in zip(
+            field_names, row)).strip()
         logger.info(message)
 
     cursor.close()
