@@ -76,9 +76,11 @@ def get_logger() -> logging.Logger:
     logger.addHandler(stream_handler)
     return logger
 
+
 def get_db() -> MySQLConnection:
     """
-    Connects to a secure MySQL database using credentials from environment variables.
+    Connects to a secure MySQL database using credentials from environment
+    variables.
 
     Returns:
         MySQLConnection object to the database.
@@ -89,6 +91,7 @@ def get_db() -> MySQLConnection:
         host=os.getenv("PERSONAL_DATA_DB_HOST", "localhost"),
         database=os.getenv("PERSONAL_DATA_DB_NAME")
     )
+
 
 def main():
     """
@@ -114,4 +117,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
