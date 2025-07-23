@@ -130,7 +130,9 @@ def main():
 
     cursor.close()
     # Closing the database connection (native MySQLConnection method)
-    db.close()
+    # db.close()
+    close_db_connection(db)
+
 
 
 if __name__ == "__main__":
