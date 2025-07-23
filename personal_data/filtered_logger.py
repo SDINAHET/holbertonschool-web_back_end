@@ -93,6 +93,16 @@ def get_db() -> MySQLConnection:
     )
 
 
+def close_db_connection(db: MySQLConnection) -> None:
+    """
+    Closes the database connection.
+
+    Args:
+        db: The MySQLConnection object to close.
+    """
+    db.close()
+
+
 def main():
     """
     Main function to read users from database and log each row
