@@ -630,11 +630,93 @@ None
 ### Task4:
 api/v1/auth/auth.py
 ```python
+#!/usr/bin/env python3
+"""
+Auth module for handling API authentication
+"""
 
+from flask import request
+from typing import List, TypeVar
+
+
+class Auth:
+    """
+    Template for all authentication systems
+    """
+
+    def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
+        """
+        Determines if authentication is required for a given path.
+        Returns True if path is not in excluded_paths.
+        """
+        if path is None:
+            return True
+
+        if excluded_paths is None or not excluded_paths:
+            return True
+
+        # Ensure path ends with '/' for comparison
+        if not path.endswith('/'):
+            path += '/'
+
+        for excluded in excluded_paths:
+            if excluded.endswith('*'):
+                # Handle wildcard prefix match
+                if path.startswith(excluded[:-1]):
+                    return False
+            elif path == excluded:
+                return False
+
+        return True
+
+    def authorization_header(self, request=None) -> str:
+        """
+        Returns the Authorization header from the request
+
+        Returns:
+            None for now
+        """
+        return None
+
+    def current_user(self, request=None) -> TypeVar('User'):
+        """
+        Returns the current user (None for now)
+
+        Returns:
+            None
+        """
+        return None
+```
+
+main_1.py
+```python
+bob@dylan:~$ cat main_1.py
+#!/usr/bin/env python3
+""" Main 1
+"""
+from api.v1.auth.auth import Auth
+
+a = Auth()
+
+print(a.require_auth(None, None))
+print(a.require_auth(None, []))
+print(a.require_auth("/api/v1/status/", []))
+print(a.require_auth("/api/v1/status/", ["/api/v1/status/"]))
+print(a.require_auth("/api/v1/status", ["/api/v1/status/"]))
+print(a.require_auth("/api/v1/users", ["/api/v1/status/"]))
+print(a.require_auth("/api/v1/users", ["/api/v1/status/", "/api/v1/stats"]))
 ```
 
 ```bash
-
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/Basic_authentication#
+API_HOST=0.0.0.0 API_PORT=5000 ./main_1.py
+True
+True
+True
+False
+False
+True
+True
 ```
 
 ### Task5:
