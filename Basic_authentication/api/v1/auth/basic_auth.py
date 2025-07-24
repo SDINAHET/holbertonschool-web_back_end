@@ -7,12 +7,16 @@ from api.v1.auth.auth import Auth
 import base64
 from typing import TypeVar
 
+
 class BasicAuth(Auth):
     """
     BasicAuth class inherits from Auth
     For now, it does nothing, just a placeholder
     """
-    def extract_base64_authorization_header(self, authorization_header: str) -> str:
+
+    def extract_base64_authorization_header(
+            self, authorization_header: str) -> str:
+
         """
         Extracts the Base64 part of the Authorization header for Basic Auth
 
