@@ -1101,7 +1101,7 @@ from os import getenv
 from flask import Flask, jsonify
 from flask_cors import CORS
 from api.v1.views import app_views
-from api.v1.auth.auth import Auth
+# from api.v1.auth.auth import Auth
 from flask import abort, request
 
 auth = None
@@ -1113,8 +1113,6 @@ if auth_type == "auth":
 elif auth_type == "basic_auth":
     from api.v1.auth.basic_auth import BasicAuth
     auth = BasicAuth()
-
-
 
 app = Flask(__name__)
 
@@ -1172,7 +1170,6 @@ if __name__ == "__main__":
     host = getenv("API_HOST", "0.0.0.0")
     port = int(getenv("API_PORT", "5000"))
     app.run(host=host, port=port)
-
 ```
 
 api/v1/auth/basic_auth.py
