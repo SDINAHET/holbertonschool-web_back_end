@@ -12,8 +12,15 @@ from api.v1.auth.auth import Auth
 from flask import abort, request
 
 auth = None
-if getenv("AUTH_TYPE") == "auth":
+auth_type = getenv("AUTH_TYPE")
+
+if auth_type == "auth":
+    from api.v1.auth.auth import Auth
     auth = Auth()
+elif auth_type == "basic_auth":
+    from api.v1.auth.basic_auth import BasicAuth
+    auth = BasicAuth()
+
 
 
 app = Flask(__name__)
