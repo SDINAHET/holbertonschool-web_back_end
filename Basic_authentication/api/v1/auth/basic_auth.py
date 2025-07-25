@@ -61,7 +61,8 @@ class BasicAuth(Auth):
         Extracts user credentials from the Base64 decoded string
 
         Args:
-            decoded_base64_authorization_header (str): string in format 'email:password'
+            decoded_base64_authorization_header (str): string in format
+                'email:password'
 
         Returns:
             tuple: (email, password) or (None, None) if invalid
@@ -73,4 +74,3 @@ class BasicAuth(Auth):
         if ':' not in decoded_base64_authorization_header:
             return None, None
         return tuple(decoded_base64_authorization_header.split(':', 1))
-
