@@ -1458,11 +1458,167 @@ hool-web_back_end/Basic_authentication#
 ### Task10:
 api/v1/auth/basic_auth.py
 ```python
+#!/usr/bin/env python3
+"""
+BasicAuth module for handling Basic Authentication
+"""
 
+from api.v1.auth.auth import Auth
+import base64
+from typing import TypeVar
+
+
+class BasicAuth(Auth):
+    """
+    BasicAuth class inherits from Auth
+    For now, it does nothing, just a placeholder
+    """
+
+    def extract_base64_authorization_header(
+            self, authorization_header: str) -> str:
+
+        """
+        Extracts the Base64 part of the Authorization header for Basic Auth
+
+        Args:
+            authorization_header (str): The "Authorization" header
+
+        Returns:
+            str: Base64 part (after "Basic "), or None if invalid
+        """
+        if authorization_header is None:
+            return None
+        if not isinstance(authorization_header, str):
+            return None
+        if not authorization_header.startswith("Basic "):
+            return None
+        return authorization_header[len("Basic "):]
+
+    def decode_base64_authorization_header(
+            self, base64_authorization_header: str) -> str:
+        """
+        Decodes a Base64-encoded string to a UTF-8 string
+
+        Args:
+            base64_authorization_header (str): Base64 string to decode
+
+        Returns:
+            str: Decoded UTF-8 string, or None if invalid or error
+        """
+        if base64_authorization_header is None:
+            return None
+        if not isinstance(base64_authorization_header, str):
+            return None
+        try:
+            decoded_bytes = base64.b64decode(base64_authorization_header)
+            return decoded_bytes.decode('utf-8')
+        except Exception:
+            return None
+
+    def extract_user_credentials(
+            self, decoded_base64_authorization_header: str) -> (str, str):
+        """
+        Extracts user credentials from the Base64 decoded string
+
+        Args:
+            decoded_base64_authorization_header (str): string in format
+                'email:password'
+
+        Returns:
+            tuple: (email, password) or (None, None) if invalid
+        """
+        if decoded_base64_authorization_header is None:
+            return None, None
+        if not isinstance(decoded_base64_authorization_header, str):
+            return None, None
+        if ':' not in decoded_base64_authorization_header:
+            return None, None
+        return tuple(decoded_base64_authorization_header.split(':', 1))
+
+    def user_object_from_credentials(
+            self, user_email: str, user_pwd: str) -> TypeVar('User'):
+        """
+        Retrieves a User instance based on email and password.
+
+        Args:
+            user_email (str): user email
+            user_pwd (str): user password
+
+        Returns:
+            User instance if credentials are valid, else None
+        """
+        from models.user import User
+
+        if user_email is None or not isinstance(user_email, str):
+            return None
+        if user_pwd is None or not isinstance(user_pwd, str):
+            return None
+
+        try:
+            users = User.search({'email': user_email})
+        except Exception:
+            return None
+
+        if not users or len(users) == 0:
+            return None
+
+        user = users[0]
+
+        if not user.is_valid_password(user_pwd):
+            return None
+
+        return user
+```
+
+main_5.py
+```bash
+#!/usr/bin/env python3
+""" Main 5
+"""
+import uuid
+from api.v1.auth.basic_auth import BasicAuth
+from models.user import User
+
+""" Create a user test """
+user_email = str(uuid.uuid4())
+user_clear_pwd = str(uuid.uuid4())
+user = User()
+user.email = user_email
+user.first_name = "Bob"
+user.last_name = "Dylan"
+user.password = user_clear_pwd
+print("New user: {}".format(user.display_name()))
+user.save()
+
+""" Retreive this user via the class BasicAuth """
+
+a = BasicAuth()
+
+u = a.user_object_from_credentials(None, None)
+print(u.display_name() if u is not None else "None")
+
+u = a.user_object_from_credentials(89, 98)
+print(u.display_name() if u is not None else "None")
+
+u = a.user_object_from_credentials("email@notfound.com", "pwd")
+print(u.display_name() if u is not None else "None")
+
+u = a.user_object_from_credentials(user_email, "pwd")
+print(u.display_name() if u is not None else "None")
+
+u = a.user_object_from_credentials(user_email, user_clear_pwd)
+print(u.display_name() if u is not None else "None")
 ```
 
 ```bash
-
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# API_HOST=0.0.0.0 API_PORT=5000 ./main_5.py
+New user: Bob Dylan
+None
+None
+None
+None
+Bob Dylan
 ```
 
 ### Task11:
