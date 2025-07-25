@@ -1244,14 +1244,107 @@ hool-web_back_end/Basic_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE
 127.0.0.1 - - [24/Jul/2025 22:51:26] "GET /api/v1/users HTTP/1.1" 403 -
 ```
 
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# API_HOST=0.0.0.0 API_PORT=5000 ./main_2.py
+None
+None
+None
+Holberton
+SG9sYmVydG9u
+SG9sYmVydG9uIFNjaG9vbA==
+None
+````
+
 ### Task8:
 api/v1/auth/basic_auth.py
 ```python
+#!/usr/bin/env python3
+"""
+BasicAuth module for handling Basic Authentication
+"""
 
+from api.v1.auth.auth import Auth
+import base64
+from typing import TypeVar
+
+
+class BasicAuth(Auth):
+    """
+    BasicAuth class inherits from Auth
+    For now, it does nothing, just a placeholder
+    """
+
+    def extract_base64_authorization_header(
+            self, authorization_header: str) -> str:
+
+        """
+        Extracts the Base64 part of the Authorization header for Basic Auth
+
+        Args:
+            authorization_header (str): The "Authorization" header
+
+        Returns:
+            str: Base64 part (after "Basic "), or None if invalid
+        """
+        if authorization_header is None:
+            return None
+        if not isinstance(authorization_header, str):
+            return None
+        if not authorization_header.startswith("Basic "):
+            return None
+        return authorization_header[len("Basic "):]
+
+    def decode_base64_authorization_header(
+        self, base64_authorization_header: str) -> str:
+        """
+        Decodes a Base64-encoded string to a UTF-8 string
+
+        Args:
+            base64_authorization_header (str): Base64 string to decode
+
+        Returns:
+            str: Decoded UTF-8 string, or None if invalid or error
+        """
+        if base64_authorization_header is None:
+            return None
+        if not isinstance(base64_authorization_header, str):
+            return None
+        try:
+            decoded_bytes = base64.b64decode(base64_authorization_header)
+            return decoded_bytes.decode('utf-8')
+        except Exception:
+            return None
 ```
 
 ```bash
+bob@dylan:~$ cat main_3.py
+#!/usr/bin/env python3
+""" Main 3
+"""
+from api.v1.auth.basic_auth import BasicAuth
 
+a = BasicAuth()
+
+print(a.decode_base64_authorization_header(None))
+print(a.decode_base64_authorization_header(89))
+print(a.decode_base64_authorization_header("Holberton School"))
+print(a.decode_base64_authorization_header("SG9sYmVydG9u"))
+print(a.decode_base64_authorization_header("SG9sYmVydG9uIFNjaG9vbA=="))
+print(a.decode_base64_authorization_header(a.extract_base64_authorization_header("Basic SG9sYmVydG9uIFNjaG9vbA==")))
+```
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# API_HOST=0.0.0.0 API_PORT=5000 ./main_3.py
+None
+None
+None
+Holberton
+Holberton School
+Holberton School
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication#
 ```
 
 ### Task9:
