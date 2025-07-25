@@ -1623,11 +1623,91 @@ Bob Dylan
 ### Task11:
 api/v1/auth/basic_auth.py
 ```python
+#!/usr/bin/env python3
+"""
+Route module for the API
+Sets up the Flask app and registers blueprints, error handlers, and CORS.
+"""
+
+from os import getenv
+from flask import Flask, jsonify
+from flask_cors import CORS
+from api.v1.views import app_views
+# from api.v1.auth.auth import Auth
+from flask import abort, request
+
+auth = None
+auth_type = getenv("AUTH_TYPE")
+
+if auth_type == "auth":
+    from api.v1.auth.auth import Auth
+    auth = Auth()
+elif auth_type == "basic_auth":
+    from api.v1.auth.basic_auth import BasicAuth
+    auth = BasicAuth()
+
+app = Flask(__name__)
+
+# Register blueprints
+app.register_blueprint(app_views)
+
+# Enable CORS for all /api/v1/* routes
+CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
+
+
+# Custom error handler for 404
+@app.errorhandler(404)
+def not_found(error) -> str:
+    """ Return a JSON-formatted 404 error """
+    return jsonify({"error": "Not found"}), 404
+
+
+# Custom error handler for 401
+@app.errorhandler(401)
+def unauthorized(error) -> str:
+    """ Return a JSON-formatted 401 error """
+    return jsonify({"error": "Unauthorized"}), 401
+
+
+# Custom error handler for 403
+@app.errorhandler(403)
+def forbidden(error) -> str:
+    """ Return a JSON-formatted 403 error """
+    return jsonify({"error": "Forbidden"}), 403
+
+
+@app.before_request
+def before_request_func():
+    """
+    Validates all requests before they reach route handlers
+    """
+    if auth is None:
+        return
+    excluded_paths = ['/api/v1/status/', '/api/v1/status',
+                    '/api/v1/unauthorized/', '/api/v1/unauthorized',
+                    '/api/v1/forbidden/', '/api/v1/forbidden']
+
+
+    if not auth.require_auth(request.path, excluded_paths):
+        return
+
+    if auth.authorization_header(request) is None:
+        abort(401)
+
+    if auth.current_user(request) is None:
+        abort(403)
+
+
+if __name__ == "__main__":
+    # Load host and port from environment or use default
+    host = getenv("API_HOST", "0.0.0.0")
+    port = int(getenv("API_PORT", "5000"))
+    app.run(host=host, port=port)
 
 ```
 
 
-main_5.py
+main_6.py
 ```bash
 #!/usr/bin/env python3
 """ Main 6
@@ -1650,22 +1730,286 @@ print("Basic Base64: {}".format(base64.b64encode(basic_clear.encode('utf-8')).de
 ```
 
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-w
+eb_back_end/Basic_authentication# API_HOST=0.0.0.0 API_PORT=5000 ./main_6.py
+New user: 4ca1f939-bb68-4298-b111-2e234b47eee6 / bob@hbtn.io
+Basic Base64: Ym9iQGhidG4uaW86SDBsYmVydG9uU2Nob29sOTgh
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-w
+eb_back_end/Basic_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=basic_auth python3 -m api.v1.app
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000 (Press CTRL+C to quit)
+```
 
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/status"
+{"status":"OK"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/users"
+{"error":"Unauthorized"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/users" -H "Authorization: Test"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/users" -H "Authorization: Basic test"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/users" -H "Authorization: Basic Ym9iQGhidG4uaW86SDBsYmVydG9uU2Nob29sOTgh"
+[{"created_at":"2025-07-25T12:29:39","email":"bob@hbtn.io","first_name":null,"id":"4ca1f939-bb68-4298-b111-2e234b47eee6","last_name":null,"updated_at":"2025-07-25T12:29:39"}]
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication#
 ```
 
 ### Task12:
 api/v1/auth/basic_auth.py
 ```python
+#!/usr/bin/env python3
+"""
+BasicAuth module for handling Basic Authentication
+"""
 
+from api.v1.auth.auth import Auth
+import base64
+from typing import TypeVar
+
+
+class BasicAuth(Auth):
+    """
+    BasicAuth class inherits from Auth
+    For now, it does nothing, just a placeholder
+    """
+
+    def extract_base64_authorization_header(
+            self, authorization_header: str) -> str:
+
+        """
+        Extracts the Base64 part of the Authorization header for Basic Auth
+
+        Args:
+            authorization_header (str): The "Authorization" header
+
+        Returns:
+            str: Base64 part (after "Basic "), or None if invalid
+        """
+        if authorization_header is None:
+            return None
+        if not isinstance(authorization_header, str):
+            return None
+        if not authorization_header.startswith("Basic "):
+            return None
+        return authorization_header[len("Basic "):]
+
+    def decode_base64_authorization_header(
+            self, base64_authorization_header: str) -> str:
+        """
+        Decodes a Base64-encoded string to a UTF-8 string
+
+        Args:
+            base64_authorization_header (str): Base64 string to decode
+
+        Returns:
+            str: Decoded UTF-8 string, or None if invalid or error
+        """
+        if base64_authorization_header is None:
+            return None
+        if not isinstance(base64_authorization_header, str):
+            return None
+        try:
+            decoded_bytes = base64.b64decode(base64_authorization_header)
+            return decoded_bytes.decode('utf-8')
+        except Exception:
+            return None
+
+    def extract_user_credentials(
+            self, decoded_base64_authorization_header: str) -> (str, str):
+        """
+        Extracts user credentials from the Base64 decoded string
+
+        Args:
+            decoded_base64_authorization_header (str): string in format
+                'email:password'
+
+        Returns:
+            tuple: (email, password) or (None, None) if invalid
+        """
+        if decoded_base64_authorization_header is None:
+            return None, None
+        if not isinstance(decoded_base64_authorization_header, str):
+            return None, None
+        if ':' not in decoded_base64_authorization_header:
+            return None, None
+        return tuple(decoded_base64_authorization_header.split(':', 1))
+
+    def user_object_from_credentials(
+            self, user_email: str, user_pwd: str) -> TypeVar('User'):
+        """
+        Retrieves a User instance based on email and password.
+
+        Args:
+            user_email (str): user email
+            user_pwd (str): user password
+
+        Returns:
+            User instance if credentials are valid, else None
+        """
+        from models.user import User
+
+        if not isinstance(user_email, str) or not isinstance(user_pwd, str):
+            return None
+        if user_email == "" or user_pwd == "":
+            return None
+
+        try:
+            users = User.search({"email": user_email})
+        except Exception:
+            return None
+
+        if not users:
+            return None
+
+        user = users[0]
+        if not user.is_valid_password(user_pwd):
+            return None
+
+        return user
+
+    def current_user(self, request=None) -> TypeVar('User'):
+        """
+        Retrieves the User instance for a given request using Basic Auth
+
+        Args:
+            request: Flask request object
+
+        Returns:
+            User instance if authentication is successful, else None
+        """
+        auth_header = self.authorization_header(request)
+        if auth_header is None:
+            return None
+
+        base64_auth = self.extract_base64_authorization_header(auth_header)
+        if base64_auth is None:
+            return None
+
+        decoded = self.decode_base64_authorization_header(base64_auth)
+        if decoded is None:
+            return None
+
+        user_email, user_pwd = self.extract_user_credentials(decoded)
+        if user_email is None or user_pwd is None:
+            return None
+
+        return self.user_object_from_credentials(user_email, user_pwd)
 ```
 
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# API_HOST=0.0.0.0 API_PORT=5000 ./main_100.py
+New user: ae2e3c73-a422-48e9-be71-f9f14c0b0d52
+Basic Base64: Ym9iMTAwQGhidG4uaW86SDBsYmVydG9uOlNjaG9vbDo5OCE=
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=basic_auth python3 -m api.v1.app
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000 (Press CTRL+C to quit)
+```
 
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/status"
+{"status":"OK"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/users"
+{"error":"Unauthorized"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/users" -H "Authorization: Test"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/users" -H "Authorization: Basic test"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication# curl "http://0.0.0.0:5000/api/v1/users" -H "Authorization: Basic Ym9iMTAwQGhidG4uaW86SDBsYmVydG9uOlNjaG9vbDo5OCE="
+[{"created_at":"2025-07-25T12:34:05","email":"bob100@hbtn.io","first_name":null,"id":"ae2e3c73-a422-48e9-be71-f9f14c0b0d52","last_name":null,"updated_at":"2025-07-25T12:34:05"}]
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Basic_authentication#
 ```
 
 ### Task13:
 api/v1/auth/auth.py
 ```python
+#!/usr/bin/env python3
+"""
+Auth module for handling API authentication
+"""
+
+from flask import request
+from typing import List, TypeVar
+
+
+class Auth:
+    """
+    Template for all authentication systems
+    """
+
+    def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
+        """
+        Determines if authentication is required for a given path.
+        Returns True if path is not in excluded_paths.
+        """
+        if path is None:
+            return True
+
+        if excluded_paths is None or not excluded_paths:
+            return True
+
+        # Ensure path ends with '/' for comparison
+        if not path.endswith('/'):
+            path += '/'
+
+        for excluded in excluded_paths:
+            if excluded.endswith('*'):
+                # Handle wildcard prefix match
+                if path.startswith(excluded[:-1]):
+                    return False
+            elif path == excluded:
+                return False
+
+        return True
+
+    def authorization_header(self, request=None) -> str:
+        """
+        Returns the Authorization header from the request
+        """
+        if request is None:
+            return None
+        if 'Authorization' not in request.headers:
+            return None
+        return request.headers.get('Authorization')
+
+    def current_user(self, request=None) -> TypeVar('User'):
+        """
+        Returns the current user (None for now)
+
+        Returns:
+            None
+        """
+        return None
+```
+
+```bash
 
 ```
 
