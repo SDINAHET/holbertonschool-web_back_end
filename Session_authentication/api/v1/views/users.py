@@ -18,12 +18,13 @@ def view_all_users() -> str:
 
 @app_views.route('/users/<user_id>', methods=['GET'], strict_slashes=False)
 def view_one_user(user_id: str = None) -> str:
-    """ GET /api/v1/users/:id
+    """
+    GET /api/v1/users/<user_id> or /users/me
     Path parameter:
-      - User ID
+      - User ID or the string "me"
     Return:
       - User object JSON represented
-      - 404 if the User ID doesn't exist
+      - 404 if the User ID doesn't exist or if "me" is used and user is not authenticated
     """
     if user_id is None:
         abort(404)
