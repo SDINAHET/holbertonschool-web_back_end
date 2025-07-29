@@ -2083,10 +2083,11 @@ def before_request_func():
     """
     if auth is None:
         return
-    excluded_paths = ['/api/v1/status/', '/api/v1/status',
-                    '/api/v1/unauthorized/', '/api/v1/unauthorized',
-                    '/api/v1/forbidden/', '/api/v1/forbidden']
-
+    excluded_paths = [
+        '/api/v1/status/', '/api/v1/status',
+        '/api/v1/unauthorized/', '/api/v1/unauthorized',
+        '/api/v1/forbidden/', '/api/v1/forbidden'
+    ]
 
     if not auth.require_auth(request.path, excluded_paths):
         return
@@ -2096,7 +2097,6 @@ def before_request_func():
 
     user = auth.current_user(request)  # ✅ Tu avais oublié cette ligne
     if user is None:
-    # if auth.current_user(request) is None:
         abort(403)
     request.current_user = user  # ✅
 
@@ -2131,18 +2131,21 @@ def view_all_users() -> str:
 
 @app_views.route('/users/<user_id>', methods=['GET'], strict_slashes=False)
 def view_one_user(user_id: str = None) -> str:
-    """ GET /api/v1/users/:id
+    """
+    GET /api/v1/users/<user_id> or /users/me
     Path parameter:
-      - User ID
+      - User ID or the string "me"
     Return:
       - User object JSON represented
-      - 404 if the User ID doesn't exist
+      - 404 if the User ID doesn't exist or if "me" is used and user is not
+      authenticated
     """
     if user_id is None:
         abort(404)
 
     if user_id == "me":
-        if not hasattr(request, "current_user") or request.current_user is None:
+        if not hasattr(request, "current_user") or \
+                request.current_user is None:
             abort(404)
         return jsonify(request.current_user.to_json())
 
@@ -2239,6 +2242,7 @@ def update_user(user_id: str = None) -> str:
         user.last_name = rj.get('last_name')
     user.save()
     return jsonify(user.to_json()), 200
+
 ```
 
 main_0.py
