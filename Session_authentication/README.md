@@ -2016,3 +2016,490 @@ class Auth:
 ```bash
 
 ```
+
+# Project Session authentication
+
+### Task0:
+
+api/v1/app.py
+```python
+#!/usr/bin/env python3
+"""
+Route module for the API
+Sets up the Flask app and registers blueprints, error handlers, and CORS.
+"""
+
+from os import getenv
+from flask import Flask, jsonify
+from flask_cors import CORS
+from api.v1.views import app_views
+# from api.v1.auth.auth import Auth
+from flask import abort, request
+
+auth = None
+auth_type = getenv("AUTH_TYPE")
+
+if auth_type == "auth":
+    from api.v1.auth.auth import Auth
+    auth = Auth()
+elif auth_type == "basic_auth":
+    from api.v1.auth.basic_auth import BasicAuth
+    auth = BasicAuth()
+
+app = Flask(__name__)
+
+# Register blueprints
+app.register_blueprint(app_views)
+
+# Enable CORS for all /api/v1/* routes
+CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
+
+
+# Custom error handler for 404
+@app.errorhandler(404)
+def not_found(error) -> str:
+    """ Return a JSON-formatted 404 error """
+    return jsonify({"error": "Not found"}), 404
+
+
+# Custom error handler for 401
+@app.errorhandler(401)
+def unauthorized(error) -> str:
+    """ Return a JSON-formatted 401 error """
+    return jsonify({"error": "Unauthorized"}), 401
+
+
+# Custom error handler for 403
+@app.errorhandler(403)
+def forbidden(error) -> str:
+    """ Return a JSON-formatted 403 error """
+    return jsonify({"error": "Forbidden"}), 403
+
+
+@app.before_request
+def before_request_func():
+    """
+    Validates all requests before they reach route handlers
+    """
+    if auth is None:
+        return
+    excluded_paths = ['/api/v1/status/', '/api/v1/status',
+                    '/api/v1/unauthorized/', '/api/v1/unauthorized',
+                    '/api/v1/forbidden/', '/api/v1/forbidden']
+
+
+    if not auth.require_auth(request.path, excluded_paths):
+        return
+
+    if auth.authorization_header(request) is None:
+        abort(401)
+
+    user = auth.current_user(request)  # ✅ Tu avais oublié cette ligne
+    if user is None:
+    # if auth.current_user(request) is None:
+        abort(403)
+    request.current_user = user  # ✅
+
+
+if __name__ == "__main__":
+    # Load host and port from environment or use default
+    host = getenv("API_HOST", "0.0.0.0")
+    port = int(getenv("API_PORT", "5000"))
+    app.run(host=host, port=port)
+
+```
+
+api/v1/views/users.py
+```python
+#!/usr/bin/env python3
+""" Module of Users views
+"""
+from api.v1.views import app_views
+from flask import abort, jsonify, request
+from models.user import User
+
+
+@app_views.route('/users', methods=['GET'], strict_slashes=False)
+def view_all_users() -> str:
+    """ GET /api/v1/users
+    Return:
+      - list of all User objects JSON represented
+    """
+    all_users = [user.to_json() for user in User.all()]
+    return jsonify(all_users)
+
+
+@app_views.route('/users/<user_id>', methods=['GET'], strict_slashes=False)
+def view_one_user(user_id: str = None) -> str:
+    """ GET /api/v1/users/:id
+    Path parameter:
+      - User ID
+    Return:
+      - User object JSON represented
+      - 404 if the User ID doesn't exist
+    """
+    if user_id is None:
+        abort(404)
+
+    if user_id == "me":
+        if not hasattr(request, "current_user") or request.current_user is None:
+            abort(404)
+        return jsonify(request.current_user.to_json())
+
+    user = User.get(user_id)
+    if user is None:
+        abort(404)
+    return jsonify(user.to_json())
+
+
+@app_views.route('/users/<user_id>', methods=['DELETE'], strict_slashes=False)
+def delete_user(user_id: str = None) -> str:
+    """ DELETE /api/v1/users/:id
+    Path parameter:
+      - User ID
+    Return:
+      - empty JSON is the User has been correctly deleted
+      - 404 if the User ID doesn't exist
+    """
+    if user_id is None:
+        abort(404)
+    user = User.get(user_id)
+    if user is None:
+        abort(404)
+    user.remove()
+    return jsonify({}), 200
+
+
+@app_views.route('/users', methods=['POST'], strict_slashes=False)
+def create_user() -> str:
+    """ POST /api/v1/users/
+    JSON body:
+      - email
+      - password
+      - last_name (optional)
+      - first_name (optional)
+    Return:
+      - User object JSON represented
+      - 400 if can't create the new User
+    """
+    rj = None
+    error_msg = None
+    try:
+        rj = request.get_json()
+    except Exception as e:
+        rj = None
+    if rj is None:
+        error_msg = "Wrong format"
+    if error_msg is None and rj.get("email", "") == "":
+        error_msg = "email missing"
+    if error_msg is None and rj.get("password", "") == "":
+        error_msg = "password missing"
+    if error_msg is None:
+        try:
+            user = User()
+            user.email = rj.get("email")
+            user.password = rj.get("password")
+            user.first_name = rj.get("first_name")
+            user.last_name = rj.get("last_name")
+            user.save()
+            return jsonify(user.to_json()), 201
+        except Exception as e:
+            error_msg = "Can't create User: {}".format(e)
+    return jsonify({'error': error_msg}), 400
+
+
+@app_views.route('/users/<user_id>', methods=['PUT'], strict_slashes=False)
+def update_user(user_id: str = None) -> str:
+    """ PUT /api/v1/users/:id
+    Path parameter:
+      - User ID
+    JSON body:
+      - last_name (optional)
+      - first_name (optional)
+    Return:
+      - User object JSON represented
+      - 404 if the User ID doesn't exist
+      - 400 if can't update the User
+    """
+    if user_id is None:
+        abort(404)
+    user = User.get(user_id)
+    if user is None:
+        abort(404)
+    rj = None
+    try:
+        rj = request.get_json()
+    except Exception as e:
+        rj = None
+    if rj is None:
+        return jsonify({'error': "Wrong format"}), 400
+    if rj.get('first_name') is not None:
+        user.first_name = rj.get('first_name')
+    if rj.get('last_name') is not None:
+        user.last_name = rj.get('last_name')
+    user.save()
+    return jsonify(user.to_json()), 200
+```
+
+main_0.py
+```bash
+#!/usr/bin/env python3
+""" Main 0
+"""
+import base64
+from api.v1.auth.basic_auth import BasicAuth
+from models.user import User
+
+""" Create a user test """
+user_email = "bob@hbtn.io"
+user_clear_pwd = "H0lbertonSchool98!"
+
+user = User()
+user.email = user_email
+user.password = user_clear_pwd
+print("New user: {}".format(user.id))
+user.save()
+
+basic_clear = "{}:{}".format(user_email, user_clear_pwd)
+print("Basic Base64: {}".format(base64.b64encode(basic_clear.encode('utf-8')).decode("utf-8")))
+```
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=basic_auth ./main_0.py
+New user: 88bb3b7a-cf60-4ae0-83bb-ed9235aabde0
+Basic Base64: Ym9iQGhidG4uaW86SDBsYmVydG9uU2Nob29sOTgh
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=basic_auth python3 -m api.v1.app
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000 (Press CTRL+C to quit)
+127.0.0.1 - - [30/Jul/2025 00:18:37] "GET /api/v1/status HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 00:18:44] "GET /api/v1/users HTTP/1.1" 401 -
+127.0.0.1 - - [30/Jul/2025 00:18:52] "GET /api/v1/users HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 00:19:02] "GET /api/v1/users/me HTTP/1.1" 200 -
+
+```
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/status"
+{"status":"OK"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users"
+{"error":"Unauthorized"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users" -H "Authorization: Basic Ym9iQGhidG4uaW86SDBsYmVydG9uU2Nob29sOTgh"
+[{"created_at":"2025-07-29T22:18:08","email":"bob@hbtn.io","first_name":null,"id":"88bb3b7a-cf60-4ae0-83bb-ed9235aabde0","last_name":null,"updated_at":"2025-07-29T22:18:08"}]
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" -H "Authorization: Basic Ym9iQGhidG4uaW86SDBsYmVydG9uU2Nob29sOTgh"
+{"created_at":"2025-07-29T22:18:08","email":"bob@hbtn.io","first_name":null,"id":"88bb3b7a-cf60-4ae0-83bb-ed9235aabde0","last_name":null,"updated_at":"2025-07-29T22:18:08"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication#
+```
+
+### Task1:
+
+api/v1/
+```python
+
+```
+
+api/v1
+```python
+
+```
+
+main_1.py
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+### Task2:
+
+api/v1/
+```python
+
+```
+
+api/v1
+```python
+
+```
+
+main_1.py
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+### Task3:
+
+api/v1/
+```python
+
+```
+
+api/v1
+```python
+
+```
+
+main_1.py
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+### Task4:
+
+api/v1/
+```python
+
+```
+
+api/v1
+```python
+
+```
+
+main_1.py
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+### Task5:
+
+api/v1/
+```python
+
+```
+
+api/v1
+```python
+
+```
+
+main_1.py
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+### Task6:
+
+api/v1/
+```python
+
+```
+
+api/v1
+```python
+
+```
+
+main_1.py
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+### Task7:
+
+api/v1/
+```python
+
+```
+
+api/v1
+```python
+
+```
+
+main_1.py
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+### Task8:
+
+api/v1/
+```python
+
+```
+
+api/v1
+```python
+
+```
+
+main_1.py
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
