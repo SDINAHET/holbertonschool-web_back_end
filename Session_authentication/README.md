@@ -2304,6 +2304,13 @@ root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
 hool-web_back_end/Session_authentication#
 ```
 
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# pycodestyle api/v1/app.py
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# pycodestyle api/v1/views/users.py
+```
+
 ### Task1:
 
 api/v1/

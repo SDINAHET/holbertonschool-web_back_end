@@ -58,10 +58,11 @@ def before_request_func():
     """
     if auth is None:
         return
-    excluded_paths = ['/api/v1/status/', '/api/v1/status',
-                    '/api/v1/unauthorized/', '/api/v1/unauthorized',
-                    '/api/v1/forbidden/', '/api/v1/forbidden']
-
+    excluded_paths = [
+        '/api/v1/status/', '/api/v1/status',
+        '/api/v1/unauthorized/', '/api/v1/unauthorized',
+        '/api/v1/forbidden/', '/api/v1/forbidden'
+    ]
 
     if not auth.require_auth(request.path, excluded_paths):
         return
@@ -71,7 +72,6 @@ def before_request_func():
 
     user = auth.current_user(request)  # ✅ Tu avais oublié cette ligne
     if user is None:
-    # if auth.current_user(request) is None:
         abort(403)
     request.current_user = user  # ✅
 
