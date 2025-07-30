@@ -2720,27 +2720,85 @@ hool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TY
 
 ### Task2:
 
-api/v1/
+api/v1/auth/session_auth.py
 ```python
+#!/usr/bin/env python3
+"""
+SessionAuth module
+Defines a class SessionAuth that inherits from Auth.
+This class will handle session-based authentication.
+"""
 
-```
+from api.v1.auth.auth import Auth
+import uuid
 
-api/v1
-```python
+class SessionAuth(Auth):
+    """
+    SessionAuth class inherits from Auth.
+    Manages user sessions in memory.
+    """
+    user_id_by_session_id = {}
 
+    def create_session(self, user_id: str = None) -> str:
+        """
+        Creates a session ID for a given user ID.
+
+        Args:
+            user_id (str): The ID of the user to create a session for.
+
+        Returns:
+            str: The session ID if created, else None.
+        """
+        if user_id is None or not isinstance(user_id, str):
+            return None
+
+        session_id = str(uuid.uuid4())
+        self.user_id_by_session_id[session_id] = user_id
+        return session_id
 ```
 
 main_1.py
 ```bash
+#!/usr/bin/env python3
+""" Main 1
+"""
+from api.v1.auth.session_auth import SessionAuth
 
+sa = SessionAuth()
+
+print("{}: {}".format(type(sa.user_id_by_session_id), sa.user_id_by_session_id))
+
+user_id = None
+session = sa.create_session(user_id)
+print("{} => {}: {}".format(user_id, session, sa.user_id_by_session_id))
+
+user_id = 89
+session = sa.create_session(user_id)
+print("{} => {}: {}".format(user_id, session, sa.user_id_by_session_id))
+
+user_id = "abcde"
+session = sa.create_session(user_id)
+print("{} => {}: {}".format(user_id, session, sa.user_id_by_session_id))
+
+user_id = "fghij"
+session = sa.create_session(user_id)
+print("{} => {}: {}".format(user_id, session, sa.user_id_by_session_id))
+
+user_id = "abcde"
+session = sa.create_session(user_id)
+print("{} => {}: {}".format(user_id, session, sa.user_id_by_session_id))
 ```
 
 ```bash
-
-```
-
-```bash
-
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=session_auth ./main_1.py
+<class 'dict'>: {}
+None => None: {}
+89 => None: {}
+abcde => 9149616e-d659-4464-b54e-72c67eb6d823: {'9149616e-d659-4464-b54e-72c67eb6d823': 'abcde'}
+fghij => 453c7115-62ba-48dd-9d1d-0f8ec0d09a26: {'9149616e-d659-4464-b54e-72c67eb6d823': 'abcde', '453c7115-62ba-48dd-9d1d-0f8ec0d09a26': 'fghij'}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication#
 ```
 
 ### Task3:
