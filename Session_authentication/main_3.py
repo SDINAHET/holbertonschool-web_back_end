@@ -3,10 +3,12 @@
 """
 from flask import Flask, request
 from api.v1.auth.auth import Auth
+from flasgger import Swagger
 
 auth = Auth()
 
 app = Flask(__name__)
+Swagger(app)
 
 @app.route('/', methods=['GET'], strict_slashes=False)
 def root_path():

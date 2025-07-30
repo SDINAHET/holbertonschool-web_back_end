@@ -2929,30 +2929,173 @@ c8c4eb59-5d7a-48ff-a51f-822f59fdaf63 => abcde
 ```
 
 
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=session_auth python3 -m api.v1.app
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000 (Press CTRL+C to quit)
+127.0.0.1 - - [30/Jul/2025 15:31:58] "GET / HTTP/1.1" 401 -
+127.0.0.1 - - [30/Jul/2025 15:31:59] "GET /favicon.ico HTTP/1.1" 401 -
+127.0.0.1 - - [30/Jul/2025 15:32:01] "GET /apidocs/ HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 15:32:01] "GET /flasgger_static/swagger-ui.css HTTP/1.1" 304 -
+127.0.0.1 - - [30/Jul/2025 15:32:01] "GET /flasgger_static/swagger-ui-bundle.js HTTP/1.1" 304 -
+127.0.0.1 - - [30/Jul/2025 15:32:01] "GET /flasgger_static/swagger-ui-standalone-preset.js HTTP/1.1" 304 -
+127.0.0.1 - - [30/Jul/2025 15:32:01] "GET /flasgger_static/lib/jquery.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [30/Jul/2025 15:32:02] "GET /apispec_1.json HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 15:32:02] "GET /flasgger_static/favicon-32x32.png HTTP/1.1" 304 -
+
+```
+
 ### Task4:
 
-api/v1/
+api/v1/auth/auth.py
 ```python
+#!/usr/bin/env python3
+"""
+Auth module for handling API authentication
+"""
 
+from flask import request
+from typing import List, TypeVar
+from os import getenv
+
+
+class Auth:
+    ...
+    def session_cookie(self, request=None):
+        """
+        Returns the value of the session cookie from the request
+
+        Returns:
+            str: value of the session cookie (_my_session_id by default)
+        """
+        if request is None:
+            return None
+
+        session_name = getenv("SESSION_NAME")
+        if session_name is None:
+            return None
+
+        return request.cookies.get(session_name)
+    def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
+        """
+        Determines if authentication is required for a given path.
+        Returns True if path is not in excluded_paths.
+        """
+        if path is None:
+            return True
+
+        if excluded_paths is None or not excluded_paths:
+            return True
+
+        # Ensure path ends with '/' for comparison
+        if not path.endswith('/'):
+            path += '/'
+
+        for excluded in excluded_paths:
+            if excluded.endswith('*'):
+                # Handle wildcard prefix match
+                if path.startswith(excluded[:-1]):
+                    return False
+            elif path == excluded:
+                return False
+
+        return True
+
+    def authorization_header(self, request=None) -> str:
+        """
+        Returns the Authorization header from the request
+        """
+        if request is None:
+            return None
+        if 'Authorization' not in request.headers:
+            return None
+        return request.headers.get('Authorization')
+
+    def current_user(self, request=None) -> TypeVar('User'):
+        """
+        Returns the current user (None for now)
+
+        Returns:
+            None
+        """
+        return None
 ```
 
-api/v1
-```python
-
-```
-
-main_1.py
+main_3.py
 ```bash
+#!/usr/bin/env python3
+""" Cookie server
+"""
+from flask import Flask, request
+from api.v1.auth.auth import Auth
 
+auth = Auth()
+
+app = Flask(__name__)
+
+@app.route('/', methods=['GET'], strict_slashes=False)
+def root_path():
+    """ Root path
+    """
+    return "Cookie value: {}\n".format(auth.session_cookie(request))
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port="5000")
 ```
 
 ```bash
-
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=session_auth SESSION_NAME=_my_session_id ./main_3.py
+ * Serving Flask app 'main_3' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000 (Press CTRL+C to quit)
+127.0.0.1 - - [30/Jul/2025 15:39:49] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 15:40:02] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 15:40:10] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 15:40:19] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 15:40:27] "GET /apidocs/ HTTP/1.1" 404 -
+127.0.0.1 - - [30/Jul/2025 15:40:29] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 15:40:29] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
 ```
 
 ```bash
-
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000"
+Cookie value: None
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000" --cookie "_my_session_id=Hello"
+Cookie value: Hello
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000" --cookie "_my_session_id=C is fun"
+Cookie value: C is fun
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000" --cookie "_my_session_id_fake"
+Cookie value: None
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication#
 ```
+
+```bash
+http://localhost:5000/apidocs/
+http://127.0.0.1:5000/apidocs/
+```
+
+![alt text](image-1.png)
+
 
 ### Task5:
 
