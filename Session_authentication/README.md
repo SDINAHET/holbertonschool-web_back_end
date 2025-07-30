@@ -3092,9 +3092,12 @@ hool-web_back_end/Session_authentication#
 ```bash
 http://localhost:5000/apidocs/
 http://127.0.0.1:5000/apidocs/
+http://localhost:5000/
 ```
 
 ![alt text](image-1.png)
+![alt text](image-2.png)
+![alt text](image-3.png)
 
 
 ### Task5:
