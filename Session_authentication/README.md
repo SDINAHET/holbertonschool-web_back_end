@@ -2459,6 +2459,264 @@ hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users
 root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
 hool-web_back_end/Session_authentication#
 ```
+### Task implémentation de flasger:
+
+api/v1/app.py
+```python
+#!/usr/bin/env python3
+"""
+Route module for the API
+Sets up the Flask app and registers blueprints, error handlers, and CORS.
+"""
+
+from os import getenv
+from flask import Flask, jsonify
+from flask_cors import CORS
+from api.v1.views import app_views
+# from api.v1.auth.auth import Auth
+from flask import abort, request
+from flasgger import Swagger  # ✅ Ajout Swagger
+
+auth = None
+auth_type = getenv("AUTH_TYPE")
+
+if auth_type == "auth":
+    from api.v1.auth.auth import Auth
+    auth = Auth()
+elif auth_type == "basic_auth":
+    from api.v1.auth.basic_auth import BasicAuth
+    auth = BasicAuth()
+elif auth_type == "session_auth":
+    from api.v1.auth.session_auth import SessionAuth
+    auth = SessionAuth()
+
+app = Flask(__name__)
+
+app.config['SWAGGER'] = {
+    'title': 'Session storage API',
+    'uiversion': 3
+}
+swagger = Swagger(app)  # Initialise Flasgger avec l'app Flask
+
+
+# Register blueprints
+app.register_blueprint(app_views)
+
+# Enable CORS for all /api/v1/* routes
+CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
+
+
+# Custom error handler for 404
+@app.errorhandler(404)
+def not_found(error) -> str:
+    """ Return a JSON-formatted 404 error """
+    return jsonify({"error": "Not found"}), 404
+
+
+# Custom error handler for 401
+@app.errorhandler(401)
+def unauthorized(error) -> str:
+    """ Return a JSON-formatted 401 error """
+    return jsonify({"error": "Unauthorized"}), 401
+
+
+# Custom error handler for 403
+@app.errorhandler(403)
+def forbidden(error) -> str:
+    """ Return a JSON-formatted 403 error """
+    return jsonify({"error": "Forbidden"}), 403
+
+
+@app.before_request
+def before_request_func():
+    """
+    Validates all requests before they reach route handlers
+    """
+    if auth is None:
+        return
+    excluded_paths = [
+        '/api/v1/status/', '/api/v1/status',
+        '/api/v1/unauthorized/', '/api/v1/unauthorized',
+        '/api/v1/forbidden/', '/api/v1/forbidden',
+        '/apidocs', '/apidocs/', '/apispec_1.json'  # Swagger UI
+    ]
+
+    # ✅ Autoriser Swagger static + spec JSON
+    if request.path.startswith('/flasgger_static/'):
+        return
+
+    # ✅ Autoriser explicitement la spec JSON Swagger
+    if request.path == '/apispec_1.json':
+        return
+
+    if not auth.require_auth(request.path, excluded_paths):
+        return
+
+    if auth.authorization_header(request) is None:
+        abort(401)
+
+    user = auth.current_user(request)  # ✅ Tu avais oublié cette ligne
+    if user is None:
+        abort(403)
+    request.current_user = user  # ✅
+
+
+if __name__ == "__main__":
+    # Load host and port from environment or use default
+    host = getenv("API_HOST", "0.0.0.0")
+    port = int(getenv("API_PORT", "5000"))
+    app.run(host=host, port=port)
+```
+
+api/v1/views/index.py
+```python
+#!/usr/bin/env python3
+""" Module of Index views
+"""
+from flask import jsonify, abort
+from api.v1.views import app_views
+from flasgger.utils import swag_from  # ✅ Import pour Swagger
+from models.user import User
+
+
+@app_views.route('/status', methods=['GET'], strict_slashes=False)
+@swag_from({
+    'tags': ['Status'],
+    'responses': {
+        200: {
+            'description': 'Return API status',
+            'examples': {
+                'application/json': {
+                    'status': 'OK'
+                }
+            }
+        }
+    }
+})
+def status() -> str:
+    """ GET /api/v1/status
+    Return:
+      - the status of the API
+    """
+    return jsonify({"status": "OK"})
+
+
+@app_views.route('/stats/', strict_slashes=False)
+@swag_from({
+    'tags': ['Statistics'],
+    'summary': 'Get total count of each object',
+    'description': 'Returns the number of objects stored by model (e.g., users, places, etc.)',
+    'responses': {
+        200: {
+            'description': 'A JSON dictionary with object counts',
+            'content': {
+                'application/json': {
+                    'example': {
+                        'users': 42
+                    }
+                }
+            }
+        }
+    }
+})
+def stats() -> str:
+    """ GET /api/v1/stats
+    Return:
+      - the number of each objects
+    """
+    from models.user import User
+    stats = {}
+    stats['users'] = User.count()
+    return jsonify(stats)
+
+
+@app_views.route('/unauthorized', methods=['GET'], strict_slashes=False)
+@swag_from({
+    'tags': ['Errors'],
+    'summary': 'Force a 401 Unauthorized error',
+    'description': 'This route is used to simulate a 401 Unauthorized error.',
+    'responses': {
+        401: {
+            'description': 'Unauthorized - authentication is required and has failed or has not yet been provided.',
+            'content': {
+                'application/json': {
+                    'example': {
+                        'error': 'Unauthorized'
+                    }
+                }
+            }
+        }
+    }
+})
+def raise_unauthorized():
+    """ Raise 401 Unauthorized error """
+    abort(401)
+
+
+@app_views.route('/forbidden', methods=['GET'], strict_slashes=False)
+@swag_from({
+    'tags': ['Errors'],
+    'summary': 'Force a 403 Forbidden error',
+    'description': 'This route simulates a 403 Forbidden error, indicating that the user is authenticated but does not have permission.',
+    'responses': {
+        403: {
+            'description': 'Forbidden - the server understood the request but refuses to authorize it.',
+            'content': {
+                'application/json': {
+                    'example': {
+                        'error': 'Forbidden'
+                    }
+                }
+            }
+        }
+    }
+})
+def raise_forbidden():
+    """ GET /api/v1/forbidden - Raise a 403 Forbidden error """
+    abort(403)
+```
+
+```bash
+http://localhost:5000/apidocs/
+```
+
+```bash
+API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=session_auth python3 -m api.v1.app
+```
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=session_auth python3 -m api.v1.app
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000 (Press CTRL+C to quit)
+^Croot@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=session_auth python3 -m api.v1.app
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000 (Press CTRL+C to quit)
+127.0.0.1 - - [30/Jul/2025 13:36:56] "GET /apidocs/ HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 13:36:56] "GET /flasgger_static/swagger-ui.css HTTP/1.1" 304 -
+127.0.0.1 - - [30/Jul/2025 13:36:56] "GET /flasgger_static/swagger-ui-bundle.js HTTP/1.1" 304 -
+127.0.0.1 - - [30/Jul/2025 13:36:56] "GET /flasgger_static/swagger-ui-standalone-preset.js HTTP/1.1" 304 -
+127.0.0.1 - - [30/Jul/2025 13:36:56] "GET /flasgger_static/lib/jquery.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [30/Jul/2025 13:36:57] "GET /apispec_1.json HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 13:36:57] "GET /flasgger_static/favicon-32x32.png HTTP/1.1" 304 -
+127.0.0.1 - - [30/Jul/2025 13:37:09] "GET /api/v1/status HTTP/1.1" 200 -
+```
+![alt text](image.png)
 
 ### Task2:
 

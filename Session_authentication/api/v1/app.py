@@ -10,6 +10,7 @@ from flask_cors import CORS
 from api.v1.views import app_views
 # from api.v1.auth.auth import Auth
 from flask import abort, request
+from flasgger import Swagger  # ✅ Ajout Swagger
 
 auth = None
 auth_type = getenv("AUTH_TYPE")
@@ -25,6 +26,13 @@ elif auth_type == "session_auth":
     auth = SessionAuth()
 
 app = Flask(__name__)
+
+app.config['SWAGGER'] = {
+    'title': 'Session storage API',
+    'uiversion': 3
+}
+swagger = Swagger(app)  # Initialise Flasgger avec l'app Flask
+
 
 # Register blueprints
 app.register_blueprint(app_views)
@@ -64,8 +72,17 @@ def before_request_func():
     excluded_paths = [
         '/api/v1/status/', '/api/v1/status',
         '/api/v1/unauthorized/', '/api/v1/unauthorized',
-        '/api/v1/forbidden/', '/api/v1/forbidden'
+        '/api/v1/forbidden/', '/api/v1/forbidden',
+        '/apidocs', '/apidocs/', '/apispec_1.json'  # Swagger UI
     ]
+
+    # ✅ Autoriser Swagger static + spec JSON
+    if request.path.startswith('/flasgger_static/'):
+        return
+
+    # ✅ Autoriser explicitement la spec JSON Swagger
+    if request.path == '/apispec_1.json':
+        return
 
     if not auth.require_auth(request.path, excluded_paths):
         return
