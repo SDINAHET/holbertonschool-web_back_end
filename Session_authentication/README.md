@@ -3410,7 +3410,10 @@ from os import getenv
 @swag_from({
     'tags': ['Session Authentication'],
     'summary': 'Create session and return user info',
-    'description': 'Authenticates a user using email and password, and sets session cookie.',
+    'description': (
+        'Authenticates a user using email and password, '
+        'and sets session cookie.'
+    ),
     'parameters': [
         {
             'name': 'email',
@@ -3482,7 +3485,6 @@ def session_login():
     response.set_cookie(session_name, session_id)
 
     return response
-
 ```
 
 api/v1/views/__init__.py
