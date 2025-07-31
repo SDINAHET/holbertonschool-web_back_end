@@ -24,13 +24,53 @@ elif auth_type == "basic_auth":
 elif auth_type == "session_auth":
     from api.v1.auth.session_auth import SessionAuth
     auth = SessionAuth()
+elif auth_type == "session_exp_auth":
+    from api.v1.auth.session_exp_auth import SessionExpAuth
+    auth = SessionExpAuth()
+
 
 app = Flask(__name__)
 
+# app.config['SWAGGER'] = {
+#     'title': 'Session storage API',
+#     'uiversion': 3
+# }
 app.config['SWAGGER'] = {
-    'title': 'Session storage API',
-    'uiversion': 3
+    'title': '🗂️ Session Storage API',
+    'uiversion': 3,
+    'description': (
+        'Cette API permet la gestion des sessions utilisateur, '
+        'avec prise en charge de l’authentification (Token, Basic, Session) '
+        'et des opérations sécurisées sur les ressources utilisateur.\n\n'
+        'Fonctionnalités principales :\n'
+        '- Authentification par header ou cookie\n'
+        '- Accès protégé par token/session\n'
+        '- Gestion d’erreurs 401, 403, 404 avec retour JSON\n'
+        '- Documentation interactive avec Swagger'
+    ),
+    'version': '1.0.0',
+    'termsOfService': '/terms',
+    'contact': {
+        'name': 'Stéphane Dinahet',
+        'email': 'contact@stephanedinahet.fr',
+        'url': 'https://stephanedinahet.fr'
+    },
+    'license': {
+        'name': 'MIT License',
+        'url': 'https://opensource.org/licenses/MIT'
+    },
+    'servers': [
+        {
+            'url': 'http://localhost:5000/api/v1',
+            'description': 'Serveur local (développement)'
+        },
+        {
+            'url': 'https://stephanedinahet.fr/api/v1',
+            'description': 'Serveur de production'
+        }
+    ]
 }
+
 swagger = Swagger(app)  # Initialise Flasgger avec l'app Flask
 
 
