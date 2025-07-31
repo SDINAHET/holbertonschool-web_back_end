@@ -3200,9 +3200,9 @@ def before_request_func():
 
     # if auth.authorization_header(request) is None:
     #     abort(401)
-    if auth.authorization_header(request) is None and auth.session_cookie(request) is None:
+    if (auth.authorization_header(request) is None and
+            auth.session_cookie(request) is None):
         abort(401)
-
 
     user = auth.current_user(request)  # ✅ Tu avais oublié cette ligne
     if user is None:
@@ -3268,27 +3268,124 @@ hool-web_back_end/Session_authentication#
 
 ### Task6:
 
-api/v1/
+api/v1/auth/session_auth.py
 ```python
+#!/usr/bin/env python3
+"""
+SessionAuth module
+Defines a class SessionAuth that inherits from Auth.
+This class will handle session-based authentication.
+"""
+
+from api.v1.auth.auth import Auth
+import uuid
+from models.user import User  # 👈 à ajouter task6
+
+
+class SessionAuth(Auth):
+    """
+    SessionAuth class inherits from Auth.
+    Manages user sessions in memory.
+    """
+    user_id_by_session_id = {}
+
+    def create_session(self, user_id: str = None) -> str:
+        """
+        Creates a session ID for a given user ID.
+
+        Args:
+            user_id (str): The ID of the user to create a session for.
+
+        Returns:
+            str: The session ID if created, else None.
+        """
+        if user_id is None or not isinstance(user_id, str):
+            return None
+
+        session_id = str(uuid.uuid4())
+        self.user_id_by_session_id[session_id] = user_id
+        return session_id
+
+    def user_id_for_session_id(self, session_id: str = None) -> str:
+        """
+        Retrieves the user ID associated with a given session ID.
+
+        Args:
+            session_id (str): The session ID to look up.
+
+        Returns:
+            str: The user ID if found, else None.
+        """
+        if session_id is None or not isinstance(session_id, str):
+            return None
+
+        return self.user_id_by_session_id.get(session_id)
+
+    def current_user(self, request=None):
+        """
+        Returns the User instance for a given request based on session cookie.
+
+        Args:
+            request: The Flask request object containing the session cookie.
+
+        Returns:
+            User instance if session is valid and user exists, else None.
+        """
+        session_id = self.session_cookie(request)
+        if session_id is None:
+            return None
+
+        user_id = self.user_id_for_session_id(session_id)
+        if user_id is None:
+            return None
+
+        return User.get(user_id)
 
 ```
 
-api/v1
-```python
 
-```
-
-main_1.py
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=session_auth SESSION_NAME=_my_session_id ./main_4.py
+User with ID: 7431597b-a83f-4704-8188-69846cf957bf has a Session ID: 387d9ab1-4ee2-4111-85be-cde50d66f989
+ * Serving Flask app 'main_4' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000 (Press CTRL+C to quit)
+127.0.0.1 - - [31/Jul/2025 04:18:27] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 04:18:33] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 04:18:46] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 04:19:36] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 04:19:54] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 04:19:59] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [31/Jul/2025 04:20:06] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 04:20:06] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
 
 ```
 
 ```bash
-
-```
-
-```bash
-
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/"
+No user found
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/" --cookie "_my_session_id=Holberton"
+No user found
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/" --cookie "_my_session_id=9d1648aa-da79-4692-8236-5f9d7f9e9485"
+No user found
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/" --cookie "_my_session_id=387d9ab1-4ee2-4111-85be-cde50d66f989
+> ^C
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/" --cookie "_my_session_id=387d9ab1-4ee2-4111-85be-cde50d66f989"
+User found: 7431597b-a83f-4704-8188-69846cf957bf
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication#
 ```
 
 ### Task7:

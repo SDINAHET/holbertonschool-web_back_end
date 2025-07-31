@@ -7,6 +7,7 @@ This class will handle session-based authentication.
 
 from api.v1.auth.auth import Auth
 import uuid
+from models.user import User  # 👈 à ajouter task6
 
 
 class SessionAuth(Auth):
@@ -47,3 +48,23 @@ class SessionAuth(Auth):
             return None
 
         return self.user_id_by_session_id.get(session_id)
+
+    def current_user(self, request=None):
+        """
+        Returns the User instance for a given request based on session cookie.
+
+        Args:
+            request: The Flask request object containing the session cookie.
+
+        Returns:
+            User instance if session is valid and user exists, else None.
+        """
+        session_id = self.session_cookie(request)
+        if session_id is None:
+            return None
+
+        user_id = self.user_id_for_session_id(session_id)
+        if user_id is None:
+            return None
+
+        return User.get(user_id)
