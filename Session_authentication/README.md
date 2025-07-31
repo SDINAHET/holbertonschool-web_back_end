@@ -3705,7 +3705,6 @@ class SessionAuth(Auth):
         del self.user_id_by_session_id[session_id]
         return True
 
-
 ```
 
 api/v1/views/session_auth.py
@@ -3718,7 +3717,7 @@ Handles POST /api/v1/auth_session/login
 
 from flask import request, jsonify, make_response
 from flasgger.utils import swag_from
-from flask import abort  #task8
+from flask import abort  # task8
 from api.v1.views import app_views
 from models.user import User
 from os import getenv
@@ -3804,7 +3803,12 @@ def session_login():
 
     return response
 
-@app_views.route('/auth_session/logout', methods=['DELETE'], strict_slashes=False)
+
+@app_views.route(
+    '/auth_session/logout',
+    methods=['DELETE'],
+    strict_slashes=False
+)
 @swag_from({
     'tags': ['Session Authentication'],
     'summary': 'Logout user by destroying session',

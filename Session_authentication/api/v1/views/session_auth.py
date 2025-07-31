@@ -6,7 +6,7 @@ Handles POST /api/v1/auth_session/login
 
 from flask import request, jsonify, make_response
 from flasgger.utils import swag_from
-from flask import abort  #task8
+from flask import abort  # task8
 from api.v1.views import app_views
 from models.user import User
 from os import getenv
@@ -91,6 +91,7 @@ def session_login():
     response.set_cookie(session_name, session_id)
 
     return response
+
 
 @app_views.route(
     '/auth_session/logout',
