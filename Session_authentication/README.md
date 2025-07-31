@@ -3983,7 +3983,8 @@ class SessionExpAuth(SessionAuth):
         if not isinstance(created_at, datetime):
             return None
 
-        if datetime.now() > created_at + timedelta(seconds=self.session_duration):
+        if (created_at + timedelta(seconds=self.session_duration)
+                < datetime.now()):
             return None
 
         return session_dict["user_id"]
@@ -4218,6 +4219,303 @@ hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users
 {"created_at":"2025-07-31T02:18:05","email":"bobsession@hbtn.io","first_name":null,"id":"7431597b-a83f-4704-8188-69846cf957bf","last_name":null,"updated_at":"2025-07-31T02:18:05"}
 root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
 hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=55a79cb3-999b-4c6b-9945-e0a07e393c0d"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication#
+```
+
+# Task10
+
+
+api/v1/auth/session_db_auth.py
+```python
+#!/usr/bin/env python3
+"""
+SessionDBAuth module
+Stores sessions in the database (file) using UserSession.
+"""
+
+from datetime import datetime, timedelta
+from models.user_session import UserSession
+from models.user import User
+from api.v1.auth.session_exp_auth import SessionExpAuth
+
+
+class SessionDBAuth(SessionExpAuth):
+    """Session Authentication stored in DB."""
+
+    def create_session(self, user_id=None):
+        """Create session and store it in DB"""
+        session_id = super().create_session(user_id)
+        if session_id is None:
+            return None
+
+        session = UserSession(user_id=user_id, session_id=session_id)
+        session.save()
+        return session_id
+
+    def user_id_for_session_id(self, session_id=None):
+        """Return user_id if session not expired and exists in DB"""
+        if session_id is None:
+            return None
+
+        from models.user_session import UserSession
+        sessions = UserSession.search({'session_id': session_id})
+        if not sessions:
+            return None
+
+        session = sessions[0]
+        if self.session_duration <= 0:
+            return session.user_id
+
+        if not getattr(session, 'created_at', None):
+            return None
+
+        if datetime.now() > (
+            session.created_at + timedelta(seconds=self.session_duration)
+        ):
+            return None
+
+        return session.user_id
+
+    def destroy_session(self, request=None):
+        """Destroy session in DB"""
+        if request is None:
+            return False
+
+        session_id = self.session_cookie(request)
+        if session_id is None:
+            return False
+
+        from models.user_session import UserSession
+        sessions = UserSession.search({'session_id': session_id})
+        if not sessions:
+            return False
+
+        sessions[0].remove()
+        return True
+
+```
+
+api/v1/app.py, models/user_session.py
+```python
+#!/usr/bin/env python3
+"""
+Defines the UserSession model.
+Stores session ID and associated user ID.
+"""
+
+from models.base import Base
+
+
+class UserSession(Base):
+    """UserSession model for storing sessions in DB (file)."""
+
+    def __init__(self, *args: list, **kwargs: dict):
+        """Initialize session with user_id and session_id"""
+        super().__init__(*args, **kwargs)
+        self.user_id = kwargs.get('user_id')
+        self.session_id = kwargs.get('session_id')
+
+```
+
+api/v1/app.py
+```python
+#!/usr/bin/env python3
+"""
+Route module for the API
+Sets up the Flask app and registers blueprints, error handlers, and CORS.
+"""
+
+from os import getenv
+from flask import Flask, jsonify
+from flask_cors import CORS
+from api.v1.views import app_views
+# from api.v1.auth.auth import Auth
+from flask import abort, request
+from flasgger import Swagger  # ✅ Ajout Swagger
+
+auth = None
+auth_type = getenv("AUTH_TYPE")
+
+if auth_type == "auth":
+    from api.v1.auth.auth import Auth
+    auth = Auth()
+elif auth_type == "basic_auth":
+    from api.v1.auth.basic_auth import BasicAuth
+    auth = BasicAuth()
+elif auth_type == "session_auth":
+    from api.v1.auth.session_auth import SessionAuth
+    auth = SessionAuth()
+elif auth_type == "session_exp_auth":
+    from api.v1.auth.session_exp_auth import SessionExpAuth
+    auth = SessionExpAuth()
+elif auth_type == "session_db_auth":
+    from api.v1.auth.session_db_auth import SessionDBAuth
+    auth = SessionDBAuth()
+
+
+app = Flask(__name__)
+
+# app.config['SWAGGER'] = {
+#     'title': 'Session storage API',
+#     'uiversion': 3
+# }
+app.config['SWAGGER'] = {
+    'title': '🗂️ Session Storage API',
+    'uiversion': 3,
+    'description': (
+        'Cette API permet la gestion des sessions utilisateur, '
+        'avec prise en charge de l’authentification (Token, Basic, Session) '
+        'et des opérations sécurisées sur les ressources utilisateur.\n\n'
+        'Fonctionnalités principales :\n'
+        '- Authentification par header ou cookie\n'
+        '- Accès protégé par token/session\n'
+        '- Gestion d’erreurs 401, 403, 404 avec retour JSON\n'
+        '- Documentation interactive avec Swagger'
+    ),
+    'version': '1.0.0',
+    'termsOfService': '/terms',
+    'contact': {
+        'name': 'Stéphane Dinahet',
+        'email': 'contact@stephanedinahet.fr',
+        'url': 'https://stephanedinahet.fr'
+    },
+    'license': {
+        'name': 'MIT License',
+        'url': 'https://opensource.org/licenses/MIT'
+    },
+    'servers': [
+        {
+            'url': 'http://localhost:5000/api/v1',
+            'description': 'Serveur local (développement)'
+        },
+        {
+            'url': 'https://stephanedinahet.fr/api/v1',
+            'description': 'Serveur de production'
+        }
+    ]
+}
+
+swagger = Swagger(app)  # Initialise Flasgger avec l'app Flask
+
+
+# Register blueprints
+app.register_blueprint(app_views)
+
+# Enable CORS for all /api/v1/* routes
+CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
+
+
+# Custom error handler for 404
+@app.errorhandler(404)
+def not_found(error) -> str:
+    """ Return a JSON-formatted 404 error """
+    return jsonify({"error": "Not found"}), 404
+
+
+# Custom error handler for 401
+@app.errorhandler(401)
+def unauthorized(error) -> str:
+    """ Return a JSON-formatted 401 error """
+    return jsonify({"error": "Unauthorized"}), 401
+
+
+# Custom error handler for 403
+@app.errorhandler(403)
+def forbidden(error) -> str:
+    """ Return a JSON-formatted 403 error """
+    return jsonify({"error": "Forbidden"}), 403
+
+
+@app.before_request
+def before_request_func():
+    """
+    Validates all requests before they reach route handlers
+    """
+    if auth is None:
+        return
+    excluded_paths = [
+        '/api/v1/status/', '/api/v1/status',
+        '/api/v1/unauthorized/', '/api/v1/unauthorized',
+        '/api/v1/forbidden/', '/api/v1/forbidden',
+        '/apidocs', '/apidocs/', '/apispec_1.json',  # Swagger UI
+        '/api/v1/auth_session/login/',  # 👈 AJOUT task5
+    ]
+
+    # ✅ Autoriser Swagger static + spec JSON
+    if request.path.startswith('/flasgger_static/'):
+        return
+
+    # ✅ Autoriser explicitement la spec JSON Swagger
+    if request.path == '/apispec_1.json':
+        return
+
+    if not auth.require_auth(request.path, excluded_paths):
+        return
+
+    # if auth.authorization_header(request) is None:
+    #     abort(401)
+    if (auth.authorization_header(request) is None and
+            auth.session_cookie(request) is None):
+        abort(401)
+
+    user = auth.current_user(request)  # ✅ Tu avais oublié cette ligne
+    if user is None:
+        abort(403)
+    request.current_user = user  # ✅
+
+
+if __name__ == "__main__":
+    # Load host and port from environment or use default
+    host = getenv("API_HOST", "0.0.0.0")
+    port = int(getenv("API_PORT", "5000"))
+    app.run(host=host, port=port)
+
+```
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=session_db_auth SESSION_NAME=_my_session_id SESSION_DURATION=60 python3 -m api.v1.app
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000 (Press CTRL+C to quit)
+
+```
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/login" -XPOST -d "email=bobsession@hbtn.io" -d "password=fake pwd" -vvv
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 0.0.0.0:5000...
+* Connected to 0.0.0.0 (127.0.0.1) port 5000 (#0)
+> POST /api/v1/auth_session/login HTTP/1.1
+> Host: 0.0.0.0:5000
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Content-Length: 42
+> Content-Type: application/x-www-form-urlencoded
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Server: Werkzeug/2.1.2 Python/3.10.12
+< Date: Thu, 31 Jul 2025 14:26:30 GMT
+< Content-Type: application/json
+< Content-Length: 180
+< Set-Cookie: _my_session_id=53798cba-eba3-4975-bddf-43782ce3461c; Path=/
+< Access-Control-Allow-Origin: *
+< Connection: close
+<
+{"created_at":"2025-07-31T02:18:05","email":"bobsession@hbtn.io","first_name":null,"id":"7431597b-a83f-4704-8188-69846cf957bf","last_name":null,"updated_at":"2025-07-31T02:18:05"}
+* Closing connection 0
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=53798cba-eba3-4975-bddf-43782ce3461c"
 {"error":"Forbidden"}
 root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
 hool-web_back_end/Session_authentication#
