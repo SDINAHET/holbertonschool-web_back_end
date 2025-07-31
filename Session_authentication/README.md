@@ -3598,6 +3598,7 @@ hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users
 root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
 hool-web_back_end/Session_authentication#
 ```
+![alt text](image-4.png)
 
 ### Task8:
 
