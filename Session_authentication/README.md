@@ -2968,22 +2968,10 @@ from os import getenv
 
 
 class Auth:
-    ...
-    def session_cookie(self, request=None):
-        """
-        Returns the value of the session cookie from the request
+    """
+    Template for all authentication systems
+    """
 
-        Returns:
-            str: value of the session cookie (_my_session_id by default)
-        """
-        if request is None:
-            return None
-
-        session_name = getenv("SESSION_NAME")
-        if session_name is None:
-            return None
-
-        return request.cookies.get(session_name)
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
         """
         Determines if authentication is required for a given path.
@@ -3027,6 +3015,22 @@ class Auth:
             None
         """
         return None
+
+    def session_cookie(self, request=None):
+        """
+        Returns the value of the session cookie from the request.
+
+        Returns:
+            str: value of the session cookie (_my_session_id by default)
+        """
+        if request is None:
+            return None
+
+        session_name = getenv("SESSION_NAME")
+        if session_name is None:
+            return None
+
+        return request.cookies.get(session_name)
 ```
 
 main_3.py
@@ -3102,27 +3106,164 @@ http://localhost:5000/
 
 ### Task5:
 
-api/v1/
+api/v1/app.py
 ```python
+#!/usr/bin/env python3
+"""
+Route module for the API
+Sets up the Flask app and registers blueprints, error handlers, and CORS.
+"""
+
+from os import getenv
+from flask import Flask, jsonify
+from flask_cors import CORS
+from api.v1.views import app_views
+# from api.v1.auth.auth import Auth
+from flask import abort, request
+from flasgger import Swagger  # ✅ Ajout Swagger
+
+auth = None
+auth_type = getenv("AUTH_TYPE")
+
+if auth_type == "auth":
+    from api.v1.auth.auth import Auth
+    auth = Auth()
+elif auth_type == "basic_auth":
+    from api.v1.auth.basic_auth import BasicAuth
+    auth = BasicAuth()
+elif auth_type == "session_auth":
+    from api.v1.auth.session_auth import SessionAuth
+    auth = SessionAuth()
+
+app = Flask(__name__)
+
+app.config['SWAGGER'] = {
+    'title': 'Session storage API',
+    'uiversion': 3
+}
+swagger = Swagger(app)  # Initialise Flasgger avec l'app Flask
+
+
+# Register blueprints
+app.register_blueprint(app_views)
+
+# Enable CORS for all /api/v1/* routes
+CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
+
+
+# Custom error handler for 404
+@app.errorhandler(404)
+def not_found(error) -> str:
+    """ Return a JSON-formatted 404 error """
+    return jsonify({"error": "Not found"}), 404
+
+
+# Custom error handler for 401
+@app.errorhandler(401)
+def unauthorized(error) -> str:
+    """ Return a JSON-formatted 401 error """
+    return jsonify({"error": "Unauthorized"}), 401
+
+
+# Custom error handler for 403
+@app.errorhandler(403)
+def forbidden(error) -> str:
+    """ Return a JSON-formatted 403 error """
+    return jsonify({"error": "Forbidden"}), 403
+
+
+@app.before_request
+def before_request_func():
+    """
+    Validates all requests before they reach route handlers
+    """
+    if auth is None:
+        return
+    excluded_paths = [
+        '/api/v1/status/', '/api/v1/status',
+        '/api/v1/unauthorized/', '/api/v1/unauthorized',
+        '/api/v1/forbidden/', '/api/v1/forbidden',
+        '/apidocs', '/apidocs/', '/apispec_1.json',  # Swagger UI
+        '/api/v1/auth_session/login/',  # 👈 AJOUT task5
+    ]
+
+    # ✅ Autoriser Swagger static + spec JSON
+    if request.path.startswith('/flasgger_static/'):
+        return
+
+    # ✅ Autoriser explicitement la spec JSON Swagger
+    if request.path == '/apispec_1.json':
+        return
+
+    if not auth.require_auth(request.path, excluded_paths):
+        return
+
+    # if auth.authorization_header(request) is None:
+    #     abort(401)
+    if auth.authorization_header(request) is None and auth.session_cookie(request) is None:
+        abort(401)
+
+
+    user = auth.current_user(request)  # ✅ Tu avais oublié cette ligne
+    if user is None:
+        abort(403)
+    request.current_user = user  # ✅
+
+
+if __name__ == "__main__":
+    # Load host and port from environment or use default
+    host = getenv("API_HOST", "0.0.0.0")
+    port = int(getenv("API_PORT", "5000"))
+    app.run(host=host, port=port)
 
 ```
 
-api/v1
-```python
 
-```
-
-main_1.py
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=session_auth SESSION_NAME=_my_session_id python3 -m api.v1.app
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000 (Press CTRL+C to quit)
+127.0.0.1 - - [31/Jul/2025 03:59:53] "GET /apidocs/ HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 03:59:53] "GET /flasgger_static/swagger-ui.css HTTP/1.1" 304 -
+127.0.0.1 - - [31/Jul/2025 03:59:54] "GET /flasgger_static/swagger-ui-bundle.js HTTP/1.1" 304 -
+127.0.0.1 - - [31/Jul/2025 03:59:54] "GET /flasgger_static/swagger-ui-standalone-preset.js HTTP/1.1" 304 -
+127.0.0.1 - - [31/Jul/2025 03:59:54] "GET /flasgger_static/lib/jquery.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [31/Jul/2025 03:59:54] "GET /apispec_1.json HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 04:00:03] "GET / HTTP/1.1" 401 -
+127.0.0.1 - - [31/Jul/2025 04:00:50] "GET /api/v1/status HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 04:00:59] "GET /api/v1/auth_session/login HTTP/1.1" 404 -
+127.0.0.1 - - [31/Jul/2025 04:01:06] "GET /api/v1/users/me HTTP/1.1" 401 -
+127.0.0.1 - - [31/Jul/2025 04:01:18] "GET /api/v1/users/me HTTP/1.1" 403 -
+127.0.0.1 - - [31/Jul/2025 04:01:35] "GET /api/v1/users/me HTTP/1.1" 403 -
 
 ```
 
 ```bash
-
-```
-
-```bash
-
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/status"
+{"status":"OK"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/login" # not found but not "blocked" by an authentication system
+{"error":"Not found"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication#  curl "http://0.0.0.0:5000/api/v1/users/me"
+{"error":"Unauthorized"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication#  curl "http://0.0.0.0:5000/api/v1/users/me" -H "Authorization: Basic Ym9iQGhidG4uaW86SDBsYmVydG9uU2Nob29sOTgh" # Won't work because the environment variable AUTH_TYPE is equal to "session_auth"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=5535d4d7-3d77-4d06-8281-495dc3acfe76" # Won't work because no user is linked to this Session ID
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication#
 ```
 
 ### Task6:

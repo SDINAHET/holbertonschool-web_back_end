@@ -73,7 +73,8 @@ def before_request_func():
         '/api/v1/status/', '/api/v1/status',
         '/api/v1/unauthorized/', '/api/v1/unauthorized',
         '/api/v1/forbidden/', '/api/v1/forbidden',
-        '/apidocs', '/apidocs/', '/apispec_1.json'  # Swagger UI
+        '/apidocs', '/apidocs/', '/apispec_1.json',  # Swagger UI
+        '/api/v1/auth_session/login/',  # 👈 AJOUT task5
     ]
 
     # ✅ Autoriser Swagger static + spec JSON
@@ -87,8 +88,11 @@ def before_request_func():
     if not auth.require_auth(request.path, excluded_paths):
         return
 
-    if auth.authorization_header(request) is None:
+    # if auth.authorization_header(request) is None:
+    #     abort(401)
+    if auth.authorization_header(request) is None and auth.session_cookie(request) is None:
         abort(401)
+
 
     user = auth.current_user(request)  # ✅ Tu avais oublié cette ligne
     if user is None:
