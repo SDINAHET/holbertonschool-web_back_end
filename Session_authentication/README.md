@@ -3604,27 +3604,320 @@ hool-web_back_end/Session_authentication#
 ![alt text](image-5.png)
 ![alt text](image-6.png)
 
+_my_session_id= 14f7a8bf-7dd0-40a6-bde7-3d0fdb3a526e
+
 ### Task8:
 
-api/v1/
+api/v1/auth/session_auth.py
 ```python
+#!/usr/bin/env python3
+"""
+SessionAuth module
+Defines a class SessionAuth that inherits from Auth.
+This class will handle session-based authentication.
+"""
+
+from api.v1.auth.auth import Auth
+import uuid
+from models.user import User  # 👈 à ajouter task6
+
+
+class SessionAuth(Auth):
+    """
+    SessionAuth class inherits from Auth.
+    Manages user sessions in memory.
+    """
+    user_id_by_session_id = {}
+
+    def create_session(self, user_id: str = None) -> str:
+        """
+        Creates a session ID for a given user ID.
+
+        Args:
+            user_id (str): The ID of the user to create a session for.
+
+        Returns:
+            str: The session ID if created, else None.
+        """
+        if user_id is None or not isinstance(user_id, str):
+            return None
+
+        session_id = str(uuid.uuid4())
+        self.user_id_by_session_id[session_id] = user_id
+        return session_id
+
+    def user_id_for_session_id(self, session_id: str = None) -> str:
+        """
+        Retrieves the user ID associated with a given session ID.
+
+        Args:
+            session_id (str): The session ID to look up.
+
+        Returns:
+            str: The user ID if found, else None.
+        """
+        if session_id is None or not isinstance(session_id, str):
+            return None
+
+        return self.user_id_by_session_id.get(session_id)
+
+    def current_user(self, request=None):
+        """
+        Returns the User instance for a given request based on session cookie.
+
+        Args:
+            request: The Flask request object containing the session cookie.
+
+        Returns:
+            User instance if session is valid and user exists, else None.
+        """
+        session_id = self.session_cookie(request)
+        if session_id is None:
+            return None
+
+        user_id = self.user_id_for_session_id(session_id)
+        if user_id is None:
+            return None
+
+        return User.get(user_id)
+
+    def destroy_session(self, request=None) -> bool:
+        """
+        Deletes the session (logout) based on the request cookie.
+
+        Args:
+            request: The Flask request object containing the session cookie.
+
+        Returns:
+            True if session was deleted, False otherwise.
+        """
+        if request is None:
+            return False
+
+        session_id = self.session_cookie(request)
+        if session_id is None:
+            return False
+
+        user_id = self.user_id_for_session_id(session_id)
+        if user_id is None:
+            return False
+
+        del self.user_id_by_session_id[session_id]
+        return True
+
 
 ```
 
-api/v1
+api/v1/views/session_auth.py
 ```python
+#!/usr/bin/env python3
+"""
+New route for Session Authentication
+Handles POST /api/v1/auth_session/login
+"""
+
+from flask import request, jsonify, make_response
+from flasgger.utils import swag_from
+from flask import abort  #task8
+from api.v1.views import app_views
+from models.user import User
+from os import getenv
+
+
+@app_views.route('/auth_session/login', methods=['POST'], strict_slashes=False)
+@swag_from({
+    'tags': ['Session Authentication'],
+    'summary': 'Create session and return user info',
+    'description': (
+        'Authenticates a user using email and password, '
+        'and sets session cookie.'
+    ),
+    'parameters': [
+        {
+            'name': 'email',
+            'in': 'formData',
+            'type': 'string',
+            'required': True,
+            'description': 'User email'
+        },
+        {
+            'name': 'password',
+            'in': 'formData',
+            'type': 'string',
+            'required': True,
+            'description': 'User password'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'User authenticated, session created',
+            'examples': {
+                'application/json': {
+                    "id": "cf3ddee1-ff24-49e4-a40b-2540333fe992",
+                    "email": "bobsession@hbtn.io",
+                    "first_name": None,
+                    "last_name": None,
+                    "created_at": "2017-10-16 04:23:04",
+                    "updated_at": "2017-10-16 04:23:04"
+                }
+            }
+        },
+        400: {
+            'description': 'Missing email or password'
+        },
+        401: {
+            'description': 'Wrong password'
+        },
+        404: {
+            'description': 'User not found'
+        }
+    }
+})
+def session_login():
+    """
+    Handles session login: validates email/password, creates session,
+    sets session cookie, returns user JSON.
+    """
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    if not email:
+        return jsonify({"error": "email missing"}), 400
+    if not password:
+        return jsonify({"error": "password missing"}), 400
+
+    users = User.search({"email": email})
+    if not users or len(users) == 0:
+        return jsonify({"error": "no user found for this email"}), 404
+
+    user = users[0]
+    if not user.is_valid_password(password):
+        return jsonify({"error": "wrong password"}), 401
+
+    # 👇 Importer auth ici pour éviter l'import circulaire
+    from api.v1.app import auth
+    session_id = auth.create_session(user.id)
+
+    response = make_response(jsonify(user.to_json()))
+    session_name = getenv("SESSION_NAME")
+    response.set_cookie(session_name, session_id)
+
+    return response
+
+@app_views.route('/auth_session/logout', methods=['DELETE'], strict_slashes=False)
+@swag_from({
+    'tags': ['Session Authentication'],
+    'summary': 'Logout user by destroying session',
+    'description': 'Deletes the session cookie to log out the user.',
+    'responses': {
+        200: {
+            'description': 'Session successfully destroyed',
+            'examples': {
+                'application/json': {}
+            }
+        },
+        404: {
+            'description': 'Session not found or invalid'
+        }
+    }
+})
+def session_logout():
+    """
+    Logs out a user by destroying the session ID from the cookie.
+    """
+    from api.v1.app import auth  # éviter l'import circulaire
+    destroyed = auth.destroy_session(request)
+
+    if not destroyed:
+        abort(404)
+
+    return jsonify({}), 200
 
 ```
 
-main_1.py
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=session_auth SESSION_NAME=_my_session_id python3 -m api.v1.app
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000 (Press CTRL+C to quit)
+127.0.0.1 - - [31/Jul/2025 05:14:02] "POST /api/v1/auth_session/login HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:14:48] "GET /api/v1/users/me HTTP/1.1" 403 -
+127.0.0.1 - - [31/Jul/2025 05:15:02] "GET /api/v1/users/me HTTP/1.1" 403 -
+127.0.0.1 - - [31/Jul/2025 05:16:05] "GET /api/v1/users/me HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:16:27] "GET /api/v1/auth_session/logout HTTP/1.1" 403 -
+127.0.0.1 - - [31/Jul/2025 05:17:10] "GET /api/v1/auth_session/logout HTTP/1.1" 405 -
+127.0.0.1 - - [31/Jul/2025 05:17:43] "DELETE /api/v1/auth_session/logout HTTP/1.1" 403 -
+127.0.0.1 - - [31/Jul/2025 05:18:13] "DELETE /api/v1/auth_session/logout HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:18:33] "GET /api/v1/users/me HTTP/1.1" 403 -
+127.0.0.1 - - [31/Jul/2025 05:18:55] "GET /api/v1/users/me HTTP/1.1" 403 -
 
 ```
 
-```bash
-
-```
+Set-Cookie: _my_session_id=c8fab1bb-7730-46dc-8251-6252f0cde17
 
 ```bash
-
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/login" -XPOST -d "email=bobsession@hbtn.io" -d "password=fake pwd" -vvv
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 0.0.0.0:5000...
+* Connected to 0.0.0.0 (127.0.0.1) port 5000 (#0)
+> POST /api/v1/auth_session/login HTTP/1.1
+> Host: 0.0.0.0:5000
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Content-Length: 42
+> Content-Type: application/x-www-form-urlencoded
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Server: Werkzeug/2.1.2 Python/3.10.12
+< Date: Thu, 31 Jul 2025 03:14:02 GMT
+< Content-Type: application/json
+< Content-Length: 180
+< Set-Cookie: _my_session_id=c8fab1bb-7730-46dc-8251-6252f0cde173; Path=/
+< Access-Control-Allow-Origin: *
+< Connection: close
+<
+{"created_at":"2025-07-31T02:18:05","email":"bobsession@hbtn.io","first_name":null,"id":"7431597b-a83f-4704-8188-69846cf957bf","last_name":null,"updated_at":"2025-07-31T02:18:05"}
+* Closing connection 0
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=e173cb79-d3fc-4e3a-9e6f-bcd345b24721"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=7431597b-a83f-4704-8188-69846cf957bf"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=c8fab1bb-7730-46dc-8251-6252f0cde173"
+{"created_at":"2025-07-31T02:18:05","email":"bobsession@hbtn.io","first_name":null,"id":"7431597b-a83f-4704-8188-69846cf957bf","last_name":null,"updated_at":"2025-07-31T02:18:05"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/logout" --cookie "_my_session_id=e173cb79-d3fc-4e3a-9e6f-bcd345b24721"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/logout" --cookie "_my_session_id=c8fab1bb-7730-46dc-8251-6252f0cde173"
+<!doctype html>
+<html lang=en>
+<title>405 Method Not Allowed</title>
+<h1>Method Not Allowed</h1>
+<p>The method is not allowed for the requested URL.</p>
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/logout" --cookie "_my_session_id=e173cb79-d3fc-4e3a-9e6f-bcd345b24721" -XDELETE
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/logout" --cookie "_my_session_id=c8fab1bb-7730-46dc-8251-6252f0cde173" -XDELETE
+{}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=e173cb79-d3fc-4e3a-9e6f-bcd345b24721"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=c8fab1bb-7730-46dc-8251-6252f0cde173"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication#
 ```

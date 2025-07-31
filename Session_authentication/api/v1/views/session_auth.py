@@ -6,7 +6,7 @@ Handles POST /api/v1/auth_session/login
 
 from flask import request, jsonify, make_response
 from flasgger.utils import swag_from
-
+from flask import abort  #task8
 from api.v1.views import app_views
 from models.user import User
 from os import getenv
@@ -91,3 +91,32 @@ def session_login():
     response.set_cookie(session_name, session_id)
 
     return response
+
+@app_views.route('/auth_session/logout', methods=['DELETE'], strict_slashes=False)
+@swag_from({
+    'tags': ['Session Authentication'],
+    'summary': 'Logout user by destroying session',
+    'description': 'Deletes the session cookie to log out the user.',
+    'responses': {
+        200: {
+            'description': 'Session successfully destroyed',
+            'examples': {
+                'application/json': {}
+            }
+        },
+        404: {
+            'description': 'Session not found or invalid'
+        }
+    }
+})
+def session_logout():
+    """
+    Logs out a user by destroying the session ID from the cookie.
+    """
+    from api.v1.app import auth  # éviter l'import circulaire
+    destroyed = auth.destroy_session(request)
+
+    if not destroyed:
+        abort(404)
+
+    return jsonify({}), 200
