@@ -3390,27 +3390,213 @@ hool-web_back_end/Session_authentication#
 
 ### Task7:
 
-api/v1/
+api/v1/views/session_auth.py
 ```python
+#!/usr/bin/env python3
+"""
+New route for Session Authentication
+Handles POST /api/v1/auth_session/login
+"""
+
+from flask import request, jsonify, make_response
+from flasgger.utils import swag_from
+
+from api.v1.views import app_views
+from models.user import User
+from os import getenv
+
+
+@app_views.route('/auth_session/login', methods=['POST'], strict_slashes=False)
+@swag_from({
+    'tags': ['Session Authentication'],
+    'summary': 'Create session and return user info',
+    'description': 'Authenticates a user using email and password, and sets session cookie.',
+    'parameters': [
+        {
+            'name': 'email',
+            'in': 'formData',
+            'type': 'string',
+            'required': True,
+            'description': 'User email'
+        },
+        {
+            'name': 'password',
+            'in': 'formData',
+            'type': 'string',
+            'required': True,
+            'description': 'User password'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'User authenticated, session created',
+            'examples': {
+                'application/json': {
+                    "id": "cf3ddee1-ff24-49e4-a40b-2540333fe992",
+                    "email": "bobsession@hbtn.io",
+                    "first_name": None,
+                    "last_name": None,
+                    "created_at": "2017-10-16 04:23:04",
+                    "updated_at": "2017-10-16 04:23:04"
+                }
+            }
+        },
+        400: {
+            'description': 'Missing email or password'
+        },
+        401: {
+            'description': 'Wrong password'
+        },
+        404: {
+            'description': 'User not found'
+        }
+    }
+})
+def session_login():
+    """
+    Handles session login: validates email/password, creates session,
+    sets session cookie, returns user JSON.
+    """
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    if not email:
+        return jsonify({"error": "email missing"}), 400
+    if not password:
+        return jsonify({"error": "password missing"}), 400
+
+    users = User.search({"email": email})
+    if not users or len(users) == 0:
+        return jsonify({"error": "no user found for this email"}), 404
+
+    user = users[0]
+    if not user.is_valid_password(password):
+        return jsonify({"error": "wrong password"}), 401
+
+    # 👇 Importer auth ici pour éviter l'import circulaire
+    from api.v1.app import auth
+    session_id = auth.create_session(user.id)
+
+    response = make_response(jsonify(user.to_json()))
+    session_name = getenv("SESSION_NAME")
+    response.set_cookie(session_name, session_id)
+
+    return response
 
 ```
 
-api/v1
+api/v1/views/__init__.py
 ```python
+#!/usr/bin/env python3
+""" DocDocDocDocDocDoc
+"""
+from flask import Blueprint
+
+app_views = Blueprint("app_views", __name__, url_prefix="/api/v1")
+
+from api.v1.views.index import *
+from api.v1.views.users import *
+from api.v1.views.session_auth import *
+
+User.load_from_file()
 
 ```
 
-main_1.py
-```bash
 
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=session_auth SESSION_NAME=_my_session_id python3 -m api.v1.app
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000 (Press CTRL+C to quit)
+127.0.0.1 - - [31/Jul/2025 04:36:54] "GET /api/v1/auth_session/login HTTP/1.1" 405 -
+127.0.0.1 - - [31/Jul/2025 04:37:18] "POST /api/v1/auth_session/login HTTP/1.1" 400 -
+127.0.0.1 - - [31/Jul/2025 04:38:50] "POST /api/v1/auth_session/login HTTP/1.1" 400 -
+127.0.0.1 - - [31/Jul/2025 04:39:03] "POST /api/v1/auth_session/login HTTP/1.1" 404 -
+127.0.0.1 - - [31/Jul/2025 04:39:18] "POST /api/v1/auth_session/login HTTP/1.1" 401 -
+127.0.0.1 - - [31/Jul/2025 04:39:29] "POST /api/v1/auth_session/login HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 04:39:52] "POST /api/v1/auth_session/login HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 04:40:32] "GET /api/v1/users/me HTTP/1.1" 403 -
+127.0.0.1 - - [31/Jul/2025 04:42:21] "GET / HTTP/1.1" 401 -
+127.0.0.1 - - [31/Jul/2025 04:42:22] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 401 -
+127.0.0.1 - - [31/Jul/2025 04:42:42] "GET /apidocs/ HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 04:42:42] "GET /flasgger_static/swagger-ui.css HTTP/1.1" 304 -
+127.0.0.1 - - [31/Jul/2025 04:42:42] "GET /flasgger_static/swagger-ui-bundle.js HTTP/1.1" 304 -
+127.0.0.1 - - [31/Jul/2025 04:42:42] "GET /flasgger_static/swagger-ui-standalone-preset.js HTTP/1.1" 304 -
+127.0.0.1 - - [31/Jul/2025 04:42:42] "GET /flasgger_static/lib/jquery.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [31/Jul/2025 04:42:43] "GET /apispec_1.json HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 04:42:43] "GET /flasgger_static/favicon-32x32.png HTTP/1.1" 304 -
+127.0.0.1 - - [31/Jul/2025 04:43:47] "GET /api/v1/users/me HTTP/1.1" 200 -
 ```
 
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication#  curl "http://0.0.0.0:5000/api/v1/auth_session/login" -XGET
+{"error":"Not found"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication#  curl "http://0.0.0.0:5000/api/v1/auth_session/login" -XGET
+<!doctype html>
+<html lang=en>
+<title>405 Method Not Allowed</title>
+<h1>Method Not Allowed</h1>
+<p>The method is not allowed for the requested URL.</p>
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/login" -XPOST
+{"error":"email missing"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/login" -XPOST -d "email=guillaume@hbtn.io"
+{"error":"password missing"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/login" -XPOST -d "email=guillaume@hbtn.io" -d "password=test"
+{"error":"no user found for this email"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/login" -XPOST -d "email=bobsession@hbtn.io" -d "password=test"
+{"error":"wrong password"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/login" -XPOST -d "email=bobsession@hbtn.io" -d "password=fake pwd"
+{"created_at":"2025-07-31T02:18:05","email":"bobsession@hbtn.io","first_name":null,"id":"7431597b-a83f-4704-8188-69846cf957bf","last_name":null,"updated_at":"2025-07-31T02:18:05"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/login" -XPOST -d "email=bobsession@hbtn.io" -d "password=fake pwd" -vvv
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 0.0.0.0:5000...
+* Connected to 0.0.0.0 (127.0.0.1) port 5000 (#0)
+> POST /api/v1/auth_session/login HTTP/1.1
+> Host: 0.0.0.0:5000
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Content-Length: 42
+> Content-Type: application/x-www-form-urlencoded
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Server: Werkzeug/2.1.2 Python/3.10.12
+< Date: Thu, 31 Jul 2025 02:39:52 GMT
+< Content-Type: application/json
+< Content-Length: 180
+< Set-Cookie: _my_session_id=1da98e7e-c5ce-4179-aade-913bb17bfcfa; Path=/
+< Access-Control-Allow-Origin: *
+< Connection: close
+<
+{"created_at":"2025-07-31T02:18:05","email":"bobsession@hbtn.io","first_name":null,"id":"7431597b-a83f-4704-8188-69846cf957bf","last_name":null,"updated_at":"2025-07-31T02:18:05"}
+* Closing connection 0
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=df05b4e1-d117-444c-a0cc-ba0d167889c4"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id="
 
-```
 
-```bash
-
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=1da98e7e-c5ce-4179-aade-913bb17bfcfa"
+{"created_at":"2025-07-31T02:18:05","email":"bobsession@hbtn.io","first_name":null,"id":"7431597b-a83f-4704-8188-69846cf957bf","last_name":null,"updated_at":"2025-07-31T02:18:05"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
+hool-web_back_end/Session_authentication#
 ```
 
 ### Task8:
