@@ -263,3 +263,30 @@ def update_user(user_id: str = None) -> str:
         user.last_name = rj.get('last_name')
     user.save()
     return jsonify(user.to_json()), 200
+
+@app_views.route('/users/me', methods=['GET'], strict_slashes=False)
+@swag_from({
+    'tags': ['Users'],
+    'summary': 'Get the authenticated user ("me")',
+    'description': 'Returns the currently authenticated user based on the session or token. Requires user to be logged in.',
+    'responses': {
+        200: {
+            'description': 'Authenticated user data',
+            'schema': {
+                '$ref': '#/definitions/User'
+            }
+        },
+        401: {
+            'description': 'Unauthorized: no user is authenticated'
+        }
+    }
+})
+def view_me_user() -> str:
+    """GET /api/v1/users/me
+    Return:
+      - JSON of authenticated user if logged in
+      - 401 if not authenticated
+    """
+    if not hasattr(request, "current_user") or request.current_user is None:
+        abort(401)
+    return jsonify(request.current_user.to_json())

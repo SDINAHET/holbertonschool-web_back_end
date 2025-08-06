@@ -4629,3 +4629,26 @@ User me (session expirée) OK
 
 
 ![alt text](image-7.png)
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# cat .db_UserSession.json | jq .
+{
+  "986fdf71-59ff-4a30-b462-f203d64e31ab": {
+    "user_id": "861726af-af4a-4a54-9374-e90c2f63393f",
+    "session_id": "7f0903ac-aa73-48c9-af8e-6536a698061f",
+    "id": "986fdf71-59ff-4a30-b462-f203d64e31ab",
+    "created_at": "2025-08-06T10:37:16",
+    "updated_at": "2025-08-06T10:37:16"
+  },
+  "22e0417d-44f1-4c79-b421-2108c4174980": {
+    "user_id": "861726af-af4a-4a54-9374-e90c2f63393f",
+    "session_id": "10f459c7-657f-4b7d-ae8d-1055e2148901",
+    "id": "22e0417d-44f1-4c79-b421-2108c4174980",
+    "created_at": "2025-08-06T10:37:26",
+    "updated_at": "2025-08-06T10:37:26"
+  }
+}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication#
+```

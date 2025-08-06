@@ -74,7 +74,35 @@ app.config['SWAGGER'] = {
     ]
 }
 
-swagger = Swagger(app)  # Initialise Flasgger avec l'app Flask
+# swagger = Swagger(app)  # Initialise Flasgger avec l'app Flask
+
+
+swagger_template = {
+    "swagger": "2.0",
+    "info": app.config['SWAGGER'],
+    "host": "localhost:5000",
+    "basePath": "/api/v1",
+    "schemes": ["http"],
+    "securityDefinitions": {
+        "session_cookie": {
+            "type": "apiKey",
+            "in": "cookie",
+            "name": "_my_session_id",
+            "description": "Cookie de session (_my_session_id)"
+        },
+        "BearerAuth": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "Authorization",
+            "description": "Token Bearer (ex: Bearer <token>)"
+        }
+    },
+    "security": [
+        {"session_cookie": []}
+    ]
+}
+
+swagger = Swagger(app, template=swagger_template)
 
 
 # Register blueprints
