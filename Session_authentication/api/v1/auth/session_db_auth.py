@@ -30,7 +30,8 @@ class SessionDBAuth(SessionExpAuth):
         return session_id
 
     def user_id_for_session_id(self, session_id=None):
-        """Return user ID from a session ID if session exists and is not expired."""
+        """Return user ID from a session ID if session exists
+            and is not expired."""
         if session_id is None:
             # print(">>> Aucune session_id fournie.")
             return None
@@ -52,7 +53,8 @@ class SessionDBAuth(SessionExpAuth):
         # print(f">>> Session chargée: {session}")
         # print(f">>> created_at: {session.created_at}")
         # print(f">>> now: {datetime.now()}")
-        # print(f">>> expire_at: {session.created_at + timedelta(seconds=self.session_duration)}")
+        # print(f">>> expire_at: {session.created_at + timedelta(
+        # seconds=self.session_duration)}")
         # print(f">>> session_duration: {self.session_duration}")
 
         if self.session_duration <= 0:
@@ -62,12 +64,13 @@ class SessionDBAuth(SessionExpAuth):
             # print(">>> Pas de created_at sur la session")
             return None
 
-        if datetime.utcnow() > (session.created_at + timedelta(seconds=self.session_duration)):
+        if datetime.utcnow() > (
+                session.created_at + timedelta(
+                    seconds=self.session_duration)):
             # print(">>> Session expirée")
             return None
 
         return session.user_id
-
 
     # def user_id_for_session_id(self, session_id=None):
     #     """Return user_id if session not expired and exists in DB"""
@@ -88,11 +91,11 @@ class SessionDBAuth(SessionExpAuth):
     #     if not getattr(session, 'created_at', None):
     #         return None
 
-    #     if datetime.now() > (session.created_at + timedelta(seconds=self.session_duration)):
+    #     if datetime.now() > (session.created_at + timedelta(
+        # seconds=self.session_duration)):
     #         return None
 
     #     return session.user_id
-
 
     # def destroy_session(self, request=None):
     #     """Destroy session in DB"""
@@ -161,7 +164,6 @@ class SessionDBAuth(SessionExpAuth):
         UserSession.save_to_file()      # ✅ Save updated file
         return True
 
-
     # def destroy_session(self, request=None):
     #     """Destroy session in DB"""
     #     if request is None:
@@ -180,4 +182,3 @@ class SessionDBAuth(SessionExpAuth):
     #     sessions[0].remove()
     #     storage.save()
     #     return True
-
