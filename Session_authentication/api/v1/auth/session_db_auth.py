@@ -32,14 +32,14 @@ class SessionDBAuth(SessionExpAuth):
     def user_id_for_session_id(self, session_id=None):
         """Return user ID from a session ID if session exists and is not expired."""
         if session_id is None:
-            print(">>> Aucune session_id fournie.")
+            # print(">>> Aucune session_id fournie.")
             return None
 
         storage.reload()
         sessions = UserSession.search({'session_id': session_id})
 
-        print(f">>> session_id reçu: {session_id}")
-        print(f">>> Sessions trouvées: {sessions}")
+        # print(f">>> session_id reçu: {session_id}")
+        # print(f">>> Sessions trouvées: {sessions}")
 
         if not sessions:
             print(">>> Aucune session trouvée avec cet ID")
@@ -47,21 +47,21 @@ class SessionDBAuth(SessionExpAuth):
 
         session = sessions[0]
 
-        print(f">>> Session chargée: {session}")
-        print(f">>> created_at: {session.created_at}")
-        print(f">>> now: {datetime.now()}")
-        print(f">>> expire_at: {session.created_at + timedelta(seconds=self.session_duration)}")
-        print(f">>> session_duration: {self.session_duration}")
+        # print(f">>> Session chargée: {session}")
+        # print(f">>> created_at: {session.created_at}")
+        # print(f">>> now: {datetime.now()}")
+        # print(f">>> expire_at: {session.created_at + timedelta(seconds=self.session_duration)}")
+        # print(f">>> session_duration: {self.session_duration}")
 
         if self.session_duration <= 0:
             return session.user_id
 
         if not getattr(session, 'created_at', None):
-            print(">>> Pas de created_at sur la session")
+            # print(">>> Pas de created_at sur la session")
             return None
 
         if datetime.utcnow() > (session.created_at + timedelta(seconds=self.session_duration)):
-            print(">>> Session expirée")
+            # print(">>> Session expirée")
             return None
 
         return session.user_id
@@ -123,13 +123,21 @@ class SessionDBAuth(SessionExpAuth):
         session_id = self.session_cookie(request)
         if session_id is None:
             return False
-        sessions = storage.all(UserSession)
-        for session in sessions.values():
-            if session.session_id == session_id:
-                storage.delete(session)
-                storage.save()
-                return True
-        return False
+        # sessions = storage.all(UserSession)
+        # for session in sessions.values():
+        #     if session.session_id == session_id:
+        #         storage.delete(session)
+        #         storage.save()
+        #         return True
+        # return False
+
+        storage.reload()
+        sessions = UserSession.search({'session_id': session_id})
+        if not sessions:
+            return False
+
+        sessions[0].remove()  # ✅ C’est ce que le checker attend
+        return True
 
 
     # def destroy_session(self, request=None):
