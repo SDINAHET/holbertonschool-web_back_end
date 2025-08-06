@@ -57,3 +57,7 @@ class User(Base):
             return "{}".format(self.last_name)
         else:
             return "{} {}".format(self.first_name, self.last_name)
+
+    def set_password(self, pwd: str):
+        """Public method to set password using the setter"""
+        self.password = pwd

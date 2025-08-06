@@ -4520,3 +4520,109 @@ hool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users
 root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsc
 hool-web_back_end/Session_authentication#
 ```
+
+
+
+
+
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=session_db_auth SESSION_NAME=_my_session_id SESSION_DURATION=60 python3 -m api.v1.app
+ * Serving Flask app 'app' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000 (Press CTRL+C to quit)
+127.0.0.1 - - [06/Aug/2025 01:00:58] "POST /api/v1/auth_session/login HTTP/1.1" 200 -
+>>> session_id reçu: 9c96dd89-13b4-4eda-bcfb-72058c12affd
+>>> Sessions trouvées: [<models.user_session.UserSession object at 0x7f33b4a804c0>]
+>>> Session chargée: <models.user_session.UserSession object at 0x7f33b4a804c0>
+>>> created_at: 2025-08-05 23:00:58.228025
+>>> now: 2025-08-06 01:01:42.214711
+>>> expire_at: 2025-08-05 23:01:58.228025
+>>> session_duration: 60
+127.0.0.1 - - [06/Aug/2025 01:01:42] "GET /api/v1/users/me HTTP/1.1" 200 -
+>>> session_id reçu: 9c96dd89-13b4-4eda-bcfb-72058c12affd
+>>> Sessions trouvées: [<models.user_session.UserSession object at 0x7f33b4a804c0>]
+>>> Session chargée: <models.user_session.UserSession object at 0x7f33b4a804c0>
+>>> created_at: 2025-08-05 23:00:58.228025
+>>> now: 2025-08-06 01:01:59.645215
+>>> expire_at: 2025-08-05 23:01:58.228025
+>>> session_duration: 60
+>>> Session expirée
+127.0.0.1 - - [06/Aug/2025 01:01:59] "GET /api/v1/users/me HTTP/1.1" 403 -
+>>> session_id reçu: 9c96dd89-13b4-4eda-bcfb-72058c12affd
+>>> Sessions trouvées: [<models.user_session.UserSession object at 0x7f33b4a804c0>]
+>>> Session chargée: <models.user_session.UserSession object at 0x7f33b4a804c0>
+>>> created_at: 2025-08-05 23:00:58.228025
+>>> now: 2025-08-06 01:02:03.199187
+>>> expire_at: 2025-08-05 23:01:58.228025
+>>> session_duration: 60
+>>> Session expirée
+127.0.0.1 - - [06/Aug/2025 01:02:03] "GET /api/v1/users/me HTTP/1.1" 403 -
+```
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/auth_session/login" -XPOST -d "email=bobsession@hbtn.io" -d "password=fake pwd" -vvv
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 0.0.0.0:5000...
+* Connected to 0.0.0.0 (127.0.0.1) port 5000 (#0)
+> POST /api/v1/auth_session/login HTTP/1.1
+> Host: 0.0.0.0:5000
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Content-Length: 42
+> Content-Type: application/x-www-form-urlencoded
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Server: Werkzeug/2.1.2 Python/3.10.12
+< Date: Tue, 05 Aug 2025 23:00:58 GMT
+< Content-Type: application/json
+< Content-Length: 186
+< Set-Cookie: _my_session_id=9c96dd89-13b4-4eda-bcfb-72058c12affd; Path=/
+< Access-Control-Allow-Origin: *
+< Connection: close
+<
+{"created_at":"2025-08-05T22:56:04","email":"bobsession@hbtn.io","first_name":"Bob","id":"861726af-af4a-4a54-9374-e90c2f63393f","last_name":"Session","updated_at":"2025-08-05T22:56:04"}
+* Closing connection 0
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=9c96dd89-13b4-4eda-bcfb-72058c12affd"
+{"created_at":"2025-08-05T22:56:04","email":"bobsession@hbtn.io","first_name":"Bob","id":"861726af-af4a-4a54-9374-e90c2f63393f","last_name":"Session","updated_at":"2025-08-05T22:56:04"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=9c96dd89-13b4-4eda-bcfb-72058c12affd"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=9c96dd89-13b4-4eda-bcfb-72058c12affd"
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication#
+```
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# python3 setup_0.py
+User created:
+861726af-af4a-4a54-9374-e90c2f63393f
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# python3 test/python_e2e.py
+
+Session ID: c3fb2dae-1abb-443c-a894-69c81fbb8c1f
+User me (immédiat) OK
+User me (10s) OK
+User me (session expirée) OK
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# python3 test/python_e2e.py
+
+Session ID: 93a7af31-93e1-4142-866d-b4ac27950156
+User me (immédiat) OK
+User me (10s) OK
+Waiting for session to expire (65s)...
+User me (session expirée) OK
+```

@@ -118,6 +118,7 @@ def before_request_func():
         '/api/v1/forbidden/', '/api/v1/forbidden',
         '/apidocs', '/apidocs/', '/apispec_1.json',  # Swagger UI
         '/api/v1/auth_session/login/',  # 👈 AJOUT task5
+        '/api/v1/users/'  # 👈 AJOUT task10
     ]
 
     # ✅ Autoriser Swagger static + spec JSON

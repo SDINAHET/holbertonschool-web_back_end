@@ -4,9 +4,25 @@
 from api.v1.views import app_views
 from flask import abort, jsonify, request
 from models.user import User
+from flasgger.utils import swag_from
 
 
 @app_views.route('/users', methods=['GET'], strict_slashes=False)
+@swag_from({
+    'tags': ['Users'],
+    'summary': 'Get all users',
+    'responses': {
+        200: {
+            'description': 'List of all users',
+            'schema': {
+                'type': 'array',
+                'items': {
+                    '$ref': '#/definitions/User'
+                }
+            }
+        }
+    }
+})
 def view_all_users() -> str:
     """ GET /api/v1/users
     Return:
@@ -17,6 +33,30 @@ def view_all_users() -> str:
 
 
 @app_views.route('/users/<user_id>', methods=['GET'], strict_slashes=False)
+@swag_from({
+    'tags': ['Users'],
+    'summary': 'Get user by ID or "me"',
+    'parameters': [
+        {
+            'name': 'user_id',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': 'User ID or "me"'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'User found',
+            'schema': {
+                '$ref': '#/definitions/User'
+            }
+        },
+        404: {
+            'description': 'User not found'
+        }
+    }
+})
 def view_one_user(user_id: str = None) -> str:
     """
     GET /api/v1/users/<user_id> or /users/me
@@ -43,6 +83,30 @@ def view_one_user(user_id: str = None) -> str:
 
 
 @app_views.route('/users/<user_id>', methods=['DELETE'], strict_slashes=False)
+@swag_from({
+    'tags': ['Users'],
+    'summary': 'Delete a user by ID',
+    'parameters': [
+        {
+            'name': 'user_id',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': 'User ID'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'User deleted successfully',
+            'schema': {
+                'type': 'object'
+            }
+        },
+        404: {
+            'description': 'User not found'
+        }
+    }
+})
 def delete_user(user_id: str = None) -> str:
     """ DELETE /api/v1/users/:id
     Path parameter:
@@ -61,6 +125,38 @@ def delete_user(user_id: str = None) -> str:
 
 
 @app_views.route('/users', methods=['POST'], strict_slashes=False)
+@swag_from({
+    'tags': ['Users'],
+    'summary': 'Create a new user',
+    'parameters': [
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'email': {'type': 'string'},
+                    'password': {'type': 'string'},
+                    'first_name': {'type': 'string'},
+                    'last_name': {'type': 'string'}
+                },
+                'required': ['email', 'password']
+            }
+        }
+    ],
+    'responses': {
+        201: {
+            'description': 'User created',
+            'schema': {
+                '$ref': '#/definitions/User'
+            }
+        },
+        400: {
+            'description': 'Invalid input'
+        }
+    }
+})
 def create_user() -> str:
     """ POST /api/v1/users/
     JSON body:
@@ -99,6 +195,44 @@ def create_user() -> str:
 
 
 @app_views.route('/users/<user_id>', methods=['PUT'], strict_slashes=False)
+@swag_from({
+    'tags': ['Users'],
+    'summary': 'Update a user by ID',
+    'parameters': [
+        {
+            'name': 'user_id',
+            'in': 'path',
+            'type': 'string',
+            'required': True
+        },
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'first_name': {'type': 'string'},
+                    'last_name': {'type': 'string'}
+                }
+            }
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'User updated successfully',
+            'schema': {
+                '$ref': '#/definitions/User'
+            }
+        },
+        400: {
+            'description': 'Invalid input format'
+        },
+        404: {
+            'description': 'User not found'
+        }
+    }
+})
 def update_user(user_id: str = None) -> str:
     """ PUT /api/v1/users/:id
     Path parameter:

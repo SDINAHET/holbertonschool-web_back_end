@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-""" DocDocDocDocDocDoc
-"""
+""" Initialize Blueprint for API views. """
+
 from flask import Blueprint
+from models.user import User # add task 10
 
 app_views = Blueprint("app_views", __name__, url_prefix="/api/v1")
 
