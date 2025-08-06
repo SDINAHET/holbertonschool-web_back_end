@@ -4626,3 +4626,6 @@ User me (10s) OK
 Waiting for session to expire (65s)...
 User me (session expirée) OK
 ```
+
+
+![alt text](image-7.png)

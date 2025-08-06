@@ -30,6 +30,7 @@ class SessionDBAuth(SessionExpAuth):
         return session_id
 
     def user_id_for_session_id(self, session_id=None):
+        """Return user ID from a session ID if session exists and is not expired."""
         if session_id is None:
             print(">>> Aucune session_id fournie.")
             return None
@@ -109,6 +110,16 @@ class SessionDBAuth(SessionExpAuth):
     #     return True
 
     def destroy_session(self, request=None):
+        """
+        Destroy a user session from the database using the session ID
+        extracted from the request's cookie.
+
+        Args:
+            request: The Flask request object.
+
+        Returns:
+            True if the session was successfully found and deleted, else False.
+        """
         session_id = self.session_cookie(request)
         if session_id is None:
             return False
