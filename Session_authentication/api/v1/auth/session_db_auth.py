@@ -44,7 +44,7 @@ class SessionDBAuth(SessionExpAuth):
         # print(f">>> Sessions trouvées: {sessions}")
 
         if not sessions:
-            print(">>> Aucune session trouvée avec cet ID")
+            # print(">>> Aucune session trouvée avec cet ID")
             return None
 
         session = sessions[0]
