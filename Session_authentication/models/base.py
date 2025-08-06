@@ -6,6 +6,9 @@ from typing import TypeVar, List, Iterable
 from os import path
 import json
 import uuid
+# from models.user_session import UserSession
+# from models.user import User  # utile pour tests checker
+
 
 
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S"
@@ -94,12 +97,24 @@ class Base():
         self.__class__.save_to_file()
 
     def remove(self):
-        """ Remove object
-        """
+        # """ Remove object
+        # """
+        # s_class = self.__class__.__name__
+        # if DATA[s_class].get(self.id) is not None:
+        #     del DATA[s_class][self.id]
+        #     self.__class__.save_to_file()
+        """Remove object from memory and save to file"""
         s_class = self.__class__.__name__
-        if DATA[s_class].get(self.id) is not None:
-            del DATA[s_class][self.id]
-            self.__class__.save_to_file()
+        if s_class in DATA:
+            # Recherche sécurisée par ID
+            if self.id in DATA[s_class]:
+                print(f"🗑️ Suppression de l'objet {self.id} dans {s_class}")
+                del DATA[s_class][self.id]
+                self.__class__.save_to_file()
+            else:
+                print(f"⚠️ L'objet avec id={self.id} n'existe pas dans DATA[{s_class}]")
+        else:
+            print(f"⚠️ Classe {s_class} non présente dans DATA")
 
     @classmethod
     def count(cls) -> int:
@@ -133,5 +148,5 @@ class Base():
                 if (getattr(obj, k) != v):
                     return False
             return True
-        
+
         return list(filter(_search, DATA[s_class].values()))

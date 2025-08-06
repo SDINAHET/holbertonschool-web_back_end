@@ -16,5 +16,8 @@ classes = {
     "UserSession": UserSession,
 }
 
+User.load_from_file()
+UserSession.load_from_file()
+
 storage = FileStorage()
 storage.reload()

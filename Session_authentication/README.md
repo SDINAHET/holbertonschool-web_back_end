@@ -4652,3 +4652,56 @@ ool-web_back_end/Session_authentication# cat .db_UserSession.json | jq .
 root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
 ool-web_back_end/Session_authentication#
 ```
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# curl -XPOST "http://0.0.0.0:5000/api/v1/auth_session/login" \
+  -d "email=bobsession@hbtn.io" -d "password=fake pwd" -c cookie.txt
+{"created_at":"2025-08-05T22:56:04","email":"bobsession@hbtn.io","first_name":"Bob","id":"861726af-af4a-4a54-9374-e90c2f63393f","last_name":"Session","updated_at":"2025-08-05T22:56:04"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" -b cookie.txt
+{"created_at":"2025-08-05T22:56:04","email":"bobsession@hbtn.io","first_name":"Bob","id":"861726af-af4a-4a54-9374-e90c2f63393f","last_name":"Session","updated_at":"2025-08-05T22:56:04"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" -b cookie.txt
+{"created_at":"2025-08-05T22:56:04","email":"bobsession@hbtn.io","first_name":"Bob","id":"861726af-af4a-4a54-9374-e90c2f63393f","last_name":"Session","updated_at":"2025-08-05T22:56:04"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" -b cookie.txt
+{"created_at":"2025-08-05T22:56:04","email":"bobsession@hbtn.io","first_name":"Bob","id":"861726af-af4a-4a54-9374-e90c2f63393f","last_name":"Session","updated_at":"2025-08-05T22:56:04"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# curl "http://0.0.0.0:5000/api/v1/users/me" -b cookie.txt
+{"error":"Forbidden"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication#
+```
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# python3 main_8.py
+🔄 Rechargement des utilisateurs...
+📦 Création d'une instance SessionDBAuth...
+👤 Recherche de l'utilisateur bobsession@hbtn.io...
+✅ Utilisateur trouvé : 861726af-af4a-4a54-9374-e90c2f63393f
+🔐 Création d'une session pour cet utilisateur...
+✅ Session ID : 10dce793-5dc2-47f8-ab0b-cb1dc7956b61
+📂 Vérification de la session créée en base...
+✅ Session trouvée : user_id = 861726af-af4a-4a54-9374-e90c2f63393f
+🔎 Récupération de l'user_id depuis la session...
+✅ user_id récupéré : 861726af-af4a-4a54-9374-e90c2f63393f
+⏳ Attente 3 secondes (durée de session courte recommandée pour test)...
+❌ Suppression de la session...
+🗑️ Suppression de l'objet 206f7d92-b193-4828-a222-85ace66a5cd8 danss UserSession
+✅ Session supprimée ? True
+🔍 Nouvelle tentative de récupération après suppression...
+>>> Aucune session trouvée avec cet ID
+Résultat attendu : None → Résultat réel : None
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication#
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
+ool-web_back_end/Session_authentication# python3 test/python_e2e.py
+Session ID: c58edd70-e675-4aa7-b284-ec8dc072777e
+User me (immédiat) OK
+User me (10s) OK
+Waiting for session to expire (65s)...
+User me (session expirée) OK
+```

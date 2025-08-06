@@ -35,7 +35,9 @@ class SessionDBAuth(SessionExpAuth):
             # print(">>> Aucune session_id fournie.")
             return None
 
-        storage.reload()
+        # storage.reload()
+        UserSession.load_from_file()
+
         sessions = UserSession.search({'session_id': session_id})
 
         # print(f">>> session_id reçu: {session_id}")
@@ -120,6 +122,9 @@ class SessionDBAuth(SessionExpAuth):
         Returns:
             True if the session was successfully found and deleted, else False.
         """
+        if request is None:
+            return False
+
         session_id = self.session_cookie(request)
         if session_id is None:
             return False
@@ -131,12 +136,29 @@ class SessionDBAuth(SessionExpAuth):
         #         return True
         # return False
 
-        storage.reload()
+        # storage.reload()
+        # sessions = UserSession.search({'session_id': session_id})
+        # if not sessions:
+        #     return False
+
+        # sessions[0].remove()  # ✅ C’est ce que le checker attend
+        # return True
+
+        # ✅ Recharge les sessions avant de chercher
+        UserSession.load_from_file()
+
         sessions = UserSession.search({'session_id': session_id})
         if not sessions:
             return False
 
-        sessions[0].remove()  # ✅ C’est ce que le checker attend
+        # # ✅ Supprime l'objet puis sauvegarde
+        # sessions[0].remove()
+        # UserSession.save_to_file()  # ← MANQUAIT CETTE LIGNE
+        # return True
+        # 🧨 Suppression manuelle depuis DATA (en contournant remove())
+        session_obj = sessions[0]
+        session_obj.remove()            # ✅ Remove from memory (Base.DATA)
+        UserSession.save_to_file()      # ✅ Save updated file
         return True
 
 

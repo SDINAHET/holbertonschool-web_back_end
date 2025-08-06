@@ -11,10 +11,14 @@ class UserSession(Base):
     """UserSession model for storing sessions in DB (file)."""
 
     def __init__(self, *args: list, **kwargs: dict):
+    # def __init__(self, *args, **kwargs):
         """Initialize session with user_id and session_id"""
         # super().__init__(*args, **kwargs)
+        # self.user_id = kwargs.get('user_id')
+        # self.session_id = kwargs.get('session_id')
+        # # print("[DEBUG] session stored:", self.__dict__)
+        # super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)  # 👈 D'abord, appelle le constructeur de Base
         self.user_id = kwargs.get('user_id')
         self.session_id = kwargs.get('session_id')
-        # print("[DEBUG] session stored:", self.__dict__)
-        super().__init__(*args, **kwargs)
 
