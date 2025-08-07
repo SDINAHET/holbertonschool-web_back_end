@@ -81,4 +81,3 @@ class DB:
 
         # enregistre en base
         self._session.commit()
-
