@@ -4706,6 +4706,7 @@ Waiting for session to expire (65s)...
 User me (session expirée) OK
 ```
 
+
 ```bash
 root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonsch
 ool-web_back_end/Session_authentication# pycodestyle models/user_session.py api/v1/auth/session_db_auth.py
