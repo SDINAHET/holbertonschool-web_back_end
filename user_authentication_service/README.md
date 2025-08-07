@@ -495,6 +495,15 @@ rtonschool-web_back_end/user_authentication_service#
 Task4
 auth.py
 ```python
+#!/usr/bin/env python3
+"""Auth module
+"""
+import bcrypt
+
+
+def _hash_password(password: str) -> bytes:
+    """Retourne un hash bcrypt (bytes) du mot de passe fourni."""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
 ```
 
@@ -510,7 +519,11 @@ print(_hash_password("Hello Holberton"))
 ```
 
 ```bash
-
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbe
+rtonschool-web_back_end/user_authentication_service# python3 main.py
+b'$2b$12$DyuwYcoqvO5c9D9V8rmFS.IYKIuQtuaWgJwhsBZIWmJEbM/2l.Lti'
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbe
+rtonschool-web_back_end/user_authentication_service#
 ```
 
 Task5
