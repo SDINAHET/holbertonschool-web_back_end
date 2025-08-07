@@ -73,7 +73,44 @@ users.reset_token: VARCHAR(250)
 Task1
 db.py
 ```python
+#!/usr/bin/env python3
+"""DB module
+"""
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.session import Session
 
+from user import Base, User  # 👈 N'oublie pas d'importer User
+
+
+class DB:
+    """DB class
+    """
+
+    def __init__(self) -> None:
+        """Initialize a new DB instance
+        """
+        self._engine = create_engine("sqlite:///a.db", echo=True)
+        Base.metadata.drop_all(self._engine)
+        Base.metadata.create_all(self._engine)
+        self.__session = None
+
+    @property
+    def _session(self) -> Session:
+        """Memoized session object
+        """
+        if self.__session is None:
+            DBSession = sessionmaker(bind=self._engine)
+            self.__session = DBSession()
+        return self.__session
+
+    def add_user(self, email: str, hashed_password: str) -> User:
+        """Add a new user to the database and return the User object."""
+        user = User(email=email, hashed_password=hashed_password)
+        self._session.add(user)
+        self._session.commit()
+        return user
 ```
 
 main.py
@@ -96,7 +133,121 @@ print(user_2.id)
 ```
 
 ```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbe
+rtonschool-web_back_end/user_authentication_service# python3 main.py
+2025-08-07 15:45:01,878 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-07 15:45:01,879 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("users")
+2025-08-07 15:45:01,879 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-08-07 15:45:01,885 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("users")
+2025-08-07 15:45:01,885 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-08-07 15:45:01,886 INFO sqlalchemy.engine.Engine COMMIT
+2025-08-07 15:45:01,886 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-07 15:45:01,886 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("users")
+2025-08-07 15:45:01,886 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-08-07 15:45:01,890 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("users")
+2025-08-07 15:45:01,890 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-08-07 15:45:01,891 INFO sqlalchemy.engine.Engine
+CREATE TABLE users (
+        id INTEGER NOT NULL,
+        email VARCHAR(250) NOT NULL,
+        hashed_password VARCHAR(250) NOT NULL,
+        session_id VARCHAR(250),
+        reset_token VARCHAR(250),
+        PRIMARY KEY (id)
+)
 
+
+2025-08-07 15:45:01,892 INFO sqlalchemy.engine.Engine [no key 0.00028s] ()
+2025-08-07 15:45:01,923 INFO sqlalchemy.engine.Engine COMMIT
+2025-08-07 15:45:01,928 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-07 15:45:01,930 INFO sqlalchemy.engine.Engine INSERT INTO users (email, hashed_password, session_id, reset_token) VALUES (?, ?, ?, ?)
+2025-08-07 15:45:01,931 INFO sqlalchemy.engine.Engine [generated in 0.00039s] ('test@test.com', 'SuperHashedPwd', None, None)
+2025-08-07 15:45:01,940 INFO sqlalchemy.engine.Engine COMMIT
+2025-08-07 15:45:01,957 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-07 15:45:01,961 INFO sqlalchemy.engine.Engine SELECT users.id AS users_id, users.email AS users_email, users.hashed_password AS users_hashed_password, users.session_id AS users_session_id, users.reset_token AS users_reset_token
+FROM users
+WHERE users.id = ?
+2025-08-07 15:45:01,961 INFO sqlalchemy.engine.Engine [generated in 0.00042s] (1,)
+1
+2025-08-07 15:45:01,965 INFO sqlalchemy.engine.Engine INSERT INTO users (email, hashed_password, session_id, reset_token) VALUES (?, ?, ?, ?)
+2025-08-07 15:45:01,965 INFO sqlalchemy.engine.Engine [cached since 0.0352s ago] ('test1@test.com', 'SuperHashedPwd1', None, None)
+2025-08-07 15:45:01,975 INFO sqlalchemy.engine.Engine COMMIT
+2025-08-07 15:45:01,991 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-07 15:45:01,991 INFO sqlalchemy.engine.Engine SELECT users.id AS users_id, users.email AS users_email, users.hashed_password AS users_hashed_password, users.session_id AS users_session_id, users.reset_token AS users_reset_token
+FROM users
+WHERE users.id = ?
+2025-08-07 15:45:01,992 INFO sqlalchemy.engine.Engine [cached since 0.03122s ago] (2,)
+2
+```
+
+db.py
+```python
+#!/usr/bin/env python3
+"""DB module
+"""
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.session import Session
+
+from user import Base, User  # 👈 N'oublie pas d'importer User
+
+
+class DB:
+    """DB class
+    """
+
+    def __init__(self) -> None:
+        """Initialize a new DB instance
+        """
+        self._engine = create_engine("sqlite:///a.db", echo=False)
+        Base.metadata.drop_all(self._engine)
+        Base.metadata.create_all(self._engine)
+        self.__session = None
+
+    @property
+    def _session(self) -> Session:
+        """Memoized session object
+        """
+        if self.__session is None:
+            DBSession = sessionmaker(bind=self._engine)
+            self.__session = DBSession()
+        return self.__session
+
+    def add_user(self, email: str, hashed_password: str) -> User:
+        """Add a new user to the database and return the User object."""
+        user = User(email=email, hashed_password=hashed_password)
+        self._session.add(user)
+        self._session.commit()
+        return user
+```
+
+main.py
+```python
+#!/usr/bin/env python3
+"""
+Main file
+"""
+
+from db import DB
+from user import User
+
+my_db = DB()
+
+user_1 = my_db.add_user("test@test.com", "SuperHashedPwd")
+print(user_1.id)
+
+user_2 = my_db.add_user("test1@test.com", "SuperHashedPwd1")
+print(user_2.id)
+```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbe
+rtonschool-web_back_end/user_authentication_service# python3 main.py
+1
+2
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbe
+rtonschool-web_back_end/user_authentication_service#
 ```
 
 Task2
