@@ -65,3 +65,20 @@ class DB:
             raise NoResultFound
 
         return user
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """Met à jour un utilisateur puis commit.
+        Lève ValueError si un champ est invalide.
+        """
+        # récupère l'utilisateur (lèvera NoResultFound si introuvable)
+        user = self.find_user_by(id=user_id)
+
+        # applique les mises à jour demandées
+        for field, value in kwargs.items():
+            if not hasattr(user, field):
+                raise ValueError(f"Invalid field: {field}")
+            setattr(user, field, value)
+
+        # enregistre en base
+        self._session.commit()
+
