@@ -1,13 +1,72 @@
 user_authentication_service
 
-Task0
-app.py
 ```python
+python3 -m venv venv
+```
+
+```python
+pip3 install bcrypt
+pip3 install sqlalchemy
 
 ```
 
 ```bash
+source venv/bin/activate
+pip install -r requirements.txt
 
+pip install sqlalchemy bcrypt
+deactivate
+```
+
+Task0
+user.py
+```python
+#!/usr/bin/env python3
+"""
+This module defines the User model for authentication.
+"""
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String
+
+Base = declarative_base()
+
+class User(Base):
+    """
+    SQLAlchemy model for the users table.
+    """
+    __tablename__ = 'users'
+
+    id: int = Column(Integer, primary_key=True)
+    email: str = Column(String(250), nullable=False)
+    hashed_password: str = Column(String(250), nullable=False)
+    session_id: str = Column(String(250), nullable=True)
+    reset_token: str = Column(String(250), nullable=True)
+```
+
+main.py
+```python
+#!/usr/bin/env python3
+"""
+Main file
+"""
+from user import User
+
+print(User.__tablename__)
+
+for column in User.__table__.columns:
+    print("{}: {}".format(column, column.type))
+```
+
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbe
+rtonschool-web_back_end/user_authentication_service# python3 main.py
+users
+users.id: INTEGER
+users.email: VARCHAR(250)
+users.hashed_password: VARCHAR(250)
+users.session_id: VARCHAR(250)
+users.reset_token: VARCHAR(250)
 ```
 
 Task1
