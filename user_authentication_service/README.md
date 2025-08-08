@@ -3842,20 +3842,705 @@ _back_end/user_authentication_service#
 
 
 Task19
-main.py
+app.py
 ```python
+#!/usr/bin/env python3
+"""Basic Flask app"""
+from flask import Flask, jsonify, request, abort, redirect
+from flasgger import Swagger
+from auth import Auth
+
+app = Flask(__name__)
+AUTH = Auth()
+
+# (Optionnel) Métadonnées OpenAPI
+# swagger = Swagger(app, template={
+#     "swagger": "2.0",
+#     "info": {
+#         "title": "My Flask API",
+#         "description": "Simple API with Swagger UI (Flasgger)",
+#         "version": "1.0.0"
+#     },
+#     "basePath": "/",
+#     "schemes": ["http"]
+# })
+
+app.config["SWAGGER"] = {
+    "title": "My Flask API",
+    "uiversion": 3,
+}
+Swagger(app, template={
+    "swagger": "2.0",
+    "info": {"title": "My Flask API", "version": "1.0.0"},
+    "basePath": "/",
+    "schemes": ["http"],
+    "tags": [
+        {"name": "Root", "description": "General endpoints"},
+        {"name": "Auth", "description": "Authentication endpoints"},
+    ],
+    # 👉 clé pour afficher le bouton "Authorize"
+    "securityDefinitions": {
+        "CookieAuth": {
+            "type": "apiKey",
+            "name": "Cookie",   # on passera "session_id=<uuid>"
+            "in": "header"
+        }
+    },
+    # 👇 IMPORTANT: active un requirement de sécurité par défaut
+    "security": [
+        {"CookieAuth": []}
+    ]
+})
+
+
+@app.route("/", methods=["GET"])
+def index():
+    """
+    Index endpoint
+    ---
+    tags:
+      - Root
+    security: []          # 👈 pas d’auth requise sur cette route
+    summary: Welcome message
+    description: Returns a JSON message welcoming the user to the API.
+    produces:
+      - application/json
+    responses:
+      200:
+        description: A welcome message
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Bienvenue
+    """
+    # """GET / route - retourne un message JSON"""
+    return jsonify({"message": "Bienvenue"})
+
+
+@app.route("/users", methods=["POST"])
+def users():
+    """
+    Register a new user
+    ---
+    tags: [Auth]
+    security: []              # 👈 login est public
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+      - in: formData
+        name: password
+        type: string
+        required: true
+        description: User password
+    responses:
+      200:
+        description: User created
+        schema:
+          type: object
+          properties:
+            email: {type: string, example: bob@me.com}
+            message: {type: string, example: user created}
+      400:
+        description: Email already registered or missing fields
+        schema:
+          type: object
+          properties:
+            message: {type: string, example: email already registered}
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    try:
+        user = AUTH.register_user(email, password)
+        return jsonify({"email": email, "message": "user created"})
+    except ValueError:
+        return jsonify({"message": "email already registered"}), 400
+
+
+@app.route("/sessions", methods=["POST"])
+def login():
+    """
+    Log in user and create a session
+    ---
+    tags:
+      - Auth
+    security: []              # 👈 login est public
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+      - in: formData
+        name: password
+        type: string
+        required: true
+        description: User password
+    responses:
+      200:
+        description: Login successful, session created
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: bob@bob.com
+            message:
+              type: string
+              example: logged in
+        headers:
+          Set-Cookie:
+            description: Session cookie
+            type: string
+            example: session_id=163fe508-19a2-48ed-a7c8-d9c6e56fabd1; Path=/
+      401:
+        description: Unauthorized (invalid credentials)
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    if not email or not password or not AUTH.valid_login(email, password):
+        abort(401)
+
+    session_id = AUTH.create_session(email)
+    if session_id is None:
+        abort(401)
+
+    resp = jsonify({"email": email, "message": "logged in"})
+    resp.set_cookie("session_id", session_id, path="/")
+    return resp
+
+
+@app.route("/sessions", methods=["DELETE"])
+def logout():
+    """
+    Log out (destroy session)
+    ---
+    tags: [Auth]
+    security:
+      - CookieAuth: []
+    parameters:
+      - in: header
+        name: Cookie
+        type: string
+        required: true
+        description: "Session cookie: session_id=<uuid>"
+        default: "session_id=11111111-1111-1111-1111-111111111111"
+    responses:
+      302:
+        description: Redirects to /
+      403:
+        description: Forbidden (no valid session)
+    """
+    # """
+    # Log out (destroy session)
+    # ---
+    # tags: [Auth]
+    # summary: Logout user and destroy session
+    # responses:
+    #   302:
+    #     description: Redirects to /
+    #   403:
+    #     description: Forbidden (no valid session)
+    # """
+    session_id = request.cookies.get("session_id")
+    if not session_id:
+        abort(403)
+
+    user = AUTH.get_user_from_session_id(session_id)
+    if user is None:
+        abort(403)
+
+    AUTH.destroy_session(user.id)
+    # Redirection 302 par défaut vers la racine
+    return redirect("/")
+
+
+@app.route("/profile", methods=["GET"])
+def profile():
+    """
+    Get user profile by session cookie
+    ---
+    tags: [Auth]
+    security:
+      - CookieAuth: []
+    parameters:
+      - in: header
+        name: Cookie
+        type: string
+        required: true
+        description: "Session cookie: session_id=<uuid>"
+        default: "session_id=11111111-1111-1111-1111-111111111111"
+    responses:
+      200:
+        description: Profile found
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: bob@bob.com
+      403:
+        description: Forbidden (invalid or missing session)
+    """
+    # """
+    # Get user profile by session cookie
+    # ---
+    # tags: [Auth]
+    # responses:
+    #   200:
+    #     description: Profile found
+    #     schema:
+    #       type: object
+    #       properties:
+    #         email:
+    #           type: string
+    #           example: bob@bob.com
+    #   403:
+    #     description: Forbidden (invalid or missing session)
+    # """
+    session_id = request.cookies.get("session_id")
+    if not session_id:
+        abort(403)
+
+    user = AUTH.get_user_from_session_id(session_id)
+    if user is None:
+        abort(403)
+
+    return jsonify({"email": user.email}), 200
+
+
+@app.route("/reset_password", methods=["POST"])
+def get_reset_password_token():
+    """
+    Generate a reset password token
+    ---
+    tags: [Auth]
+    security: []  # Accessible sans être connecté
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+    responses:
+      200:
+        description: Token generated
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: bob@bob.com
+            reset_token:
+              type: string
+              example: 163fe508-19a2-48ed-a7c8-d9c6e56fabd1
+      403:
+        description: Email not found
+    """
+    email = request.form.get("email")
+    if not email:
+        abort(403)
+
+    try:
+        token = AUTH.get_reset_password_token(email)
+        return jsonify({"email": email, "reset_token": token}), 200
+    except ValueError:
+        abort(403)
+
+
+@app.route("/reset_password", methods=["PUT"])
+def update_password():
+    """
+    Update the user's password using reset token
+    ---
+    tags: [Auth]
+    security: []  # Public
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+      - in: formData
+        name: reset_token
+        type: string
+        required: true
+        description: Reset token
+      - in: formData
+        name: new_password
+        type: string
+        required: true
+        description: New password
+    responses:
+      200:
+        description: Password updated
+        schema:
+          type: object
+          properties:
+            email: {type: string, example: bob@bob.com}
+            message: {type: string, example: Password updated}
+      403:
+        description: Invalid reset token
+    """
+    email = request.form.get("email")
+    reset_token = request.form.get("reset_token")
+    new_password = request.form.get("new_password")
+
+    if not email or not reset_token or not new_password:
+        abort(403)
+
+    try:
+        AUTH.update_password(reset_token, new_password)
+        return jsonify({"email": email, "message": "Password updated"}), 200
+    except ValueError:
+        abort(403)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port="5000")
+
+```
+
+19_main.py
+```python
+#!/usr/bin/env python3
+from app import app, AUTH
+
+def main():
+    email = "user19@example.com"
+    old_pwd = "oldpass"
+    new_pwd = "newpass"
+
+    # Register (idempotent)
+    try:
+        AUTH.register_user(email, old_pwd)
+        print("[OK] Registered")
+    except ValueError:
+        print("[i] Already registered")
+
+    with app.test_client() as client:
+        # 1) Générer un reset_token via l'endpoint POST /reset_password
+        r = client.post("/reset_password", data={"email": email})
+        assert r.status_code == 200, r.data
+        token = r.get_json().get("reset_token")
+        print(f"[OK] token: {token}")
+
+        # 2) PUT /reset_password sans champs -> 403
+        r = client.put("/reset_password", data={})
+        assert r.status_code == 403
+        print("[OK] PUT /reset_password without fields -> 403")
+
+        # 3) PUT /reset_password avec mauvais token -> 403
+        r = client.put("/reset_password", data={
+            "email": email,
+            "reset_token": "bad-token",
+            "new_password": new_pwd
+        })
+        assert r.status_code == 403
+        print("[OK] PUT /reset_password invalid token -> 403")
+
+        # 4) PUT /reset_password avec bon token -> 200
+        r = client.put("/reset_password", data={
+            "email": email,
+            "reset_token": token,
+            "new_password": new_pwd
+        })
+        assert r.status_code == 200, r.data
+        assert r.get_json() == {"email": email, "message": "Password updated"}
+        print("[OK] PUT /reset_password valid token -> 200 + message")
+
+        # 5) Vérifier que le mot de passe a bien changé
+        assert not AUTH.valid_login(email, old_pwd)
+        assert AUTH.valid_login(email, new_pwd)
+        print("[OK] valid_login switches to new password")
+
+        # 6) Token ne doit plus être réutilisable
+        r = client.put("/reset_password", data={
+            "email": email,
+            "reset_token": token,
+            "new_password": "another"
+        })
+        assert r.status_code == 403
+        print("[OK] token cannot be reused")
+
+if __name__ == "__main__":
+    main()
+
+```
+
+test_app_update_password_19.py
+```python
+import unittest
+from app import app, AUTH
+
+class TestUpdatePasswordEndpoint(unittest.TestCase):
+    def setUp(self):
+        self.client = app.test_client()
+        self.email = "unit19@example.com"
+        self.old_pwd = "oldpwd"
+        self.new_pwd = "newpwd"
+        try:
+            AUTH.register_user(self.email, self.old_pwd)
+        except ValueError:
+            pass
+
+    def test_put_reset_password_missing_fields(self):
+        # Manque tout -> 403
+        resp = self.client.put("/reset_password", data={})
+        self.assertEqual(resp.status_code, 403)
+
+        # Manque un champ -> 403
+        resp = self.client.put("/reset_password", data={
+            "email": self.email,
+            "reset_token": "anything"
+        })
+        self.assertEqual(resp.status_code, 403)
+
+        resp = self.client.put("/reset_password", data={
+            "email": self.email,
+            "new_password": self.new_pwd
+        })
+        self.assertEqual(resp.status_code, 403)
+
+    def test_put_reset_password_invalid_token(self):
+        resp = self.client.put("/reset_password", data={
+            "email": self.email,
+            "reset_token": "not-a-real-token",
+            "new_password": self.new_pwd
+        })
+        self.assertEqual(resp.status_code, 403)
+
+    def test_put_reset_password_success_and_invalidate_token(self):
+        # Obtenir un token via POST /reset_password
+        r = self.client.post("/reset_password", data={"email": self.email})
+        self.assertEqual(r.status_code, 200)
+        token = r.get_json().get("reset_token")
+        self.assertTrue(token)
+
+        # Mettre à jour le password avec PUT /reset_password
+        resp = self.client.put("/reset_password", data={
+            "email": self.email,
+            "reset_token": token,
+            "new_password": self.new_pwd
+        })
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.get_json(), {
+            "email": self.email,
+            "message": "Password updated"
+        })
+
+        # Vérifier le changement de mot de passe
+        self.assertFalse(AUTH.valid_login(self.email, self.old_pwd))
+        self.assertTrue(AUTH.valid_login(self.email, self.new_pwd))
+
+        # Token ne doit plus être réutilisable
+        resp = self.client.put("/reset_password", data={
+            "email": self.email,
+            "reset_token": token,
+            "new_password": "anotherpwd"
+        })
+        self.assertEqual(resp.status_code, 403)
+
+if __name__ == "__main__":
+    unittest.main()
 
 ```
 
 ```bash
+python3 19_main.py
+python3 -m unittest test_app_update_password_19.py -v
+python3 -m unittest discover -v
+```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# python3 19_main.py
+[OK] Registered
+[OK] token: f2850bad-7383-4285-9692-89bbe19d8c55
+[OK] PUT /reset_password without fields -> 403
+[OK] PUT /reset_password invalid token -> 403
+[OK] PUT /reset_password valid token -> 200 + message
+[OK] valid_login switches to new password
+[OK] token cannot be reused
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# python3 -m unittest test_app_update_password_19.py -v
+test_put_reset_password_invalid_token (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+test_put_reset_password_missing_fields (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+test_put_reset_password_success_and_invalidate_token (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.337s
+
+OK
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# python3 -m unittest discover -v
+test_logout_with_cookie (test_app_logout_14.TestLogoutEndpoint) ... ok
+test_logout_without_cookie (test_app_logout_14.TestLogoutEndpoint) ... ok
+test_profile_with_cookie (test_app_profile_15.TestProfileEndpoint) ... ok
+test_profile_without_cookie (test_app_profile_15.TestProfileEndpoint) ... ok
+test_known_email_generates_token (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_missing_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_unknown_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_put_reset_password_invalid_token (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+test_put_reset_password_missing_fields (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+test_put_reset_password_success_and_invalidate_token (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+test_destroy_session (test_auth_destroy_session_13.TestDestroySession) ... ok
+test_destroy_session_none (test_auth_destroy_session_13.TestDestroySession) ...ook
+test_get_reset_password_token_ok (test_auth_reset_token_16.TestResetToken) ... ok
+test_get_reset_password_token_unknown_email (test_auth_reset_token_16.TestResetToken) ... ok
+test_update_password_bad_token (test_auth_update_password_18.TestUpdatePassword) ... ok
+test_update_password_ok (test_auth_update_password_18.TestUpdatePassword) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 6.050s
+
+OK
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
+```
+
+```bash
+python3 -m unittest \
+test_app_logout_14.py \
+test_auth_destroy_session_13.py \
+test_app_profile_15.py \
+test_auth_reset_token_16.py \
+test_app_reset_password_token_17.py \
+test_auth_update_password_18.py \
+test_app_update_password_19.py -v
+```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# python3 -m unittest \
+test_app_logout_14.py \
+test_auth_destroy_session_13.py \
+test_app_profile_15.py \
+test_auth_reset_token_16.py \
+test_app_reset_password_token_17.py \
+test_auth_update_password_18.py \
+test_app_update_password_19.py -v
+test_logout_with_cookie (test_app_logout_14.TestLogoutEndpoint) ... ok
+test_logout_without_cookie (test_app_logout_14.TestLogoutEndpoint) ... ok
+test_destroy_session (test_auth_destroy_session_13.TestDestroySession) ... ok
+test_destroy_session_none (test_auth_destroy_session_13.TestDestroySession) ...ook
+test_profile_with_cookie (test_app_profile_15.TestProfileEndpoint) ... ok
+test_profile_without_cookie (test_app_profile_15.TestProfileEndpoint) ... ok
+test_get_reset_password_token_ok (test_auth_reset_token_16.TestResetToken) ... ok
+test_get_reset_password_token_unknown_email (test_auth_reset_token_16.TestResetToken) ... ok
+test_known_email_generates_token (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_missing_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_unknown_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_update_password_bad_token (test_auth_update_password_18.TestUpdatePassword) ... ok
+test_update_password_ok (test_auth_update_password_18.TestUpdatePassword) ... ok
+test_put_reset_password_invalid_token (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+test_put_reset_password_missing_fields (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+test_put_reset_password_success_and_invalidate_token (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 6.216s
+
+OK
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
+```
+
+all_tests.py
+```python
+import unittest
+
+if __name__ == "__main__":
+    loader = unittest.TestLoader()
+    suite = unittest.TestSuite()
+
+    # Ajout des tests dans l'ordre souhaité
+    for test_file in [
+        "test_app_logout_14",
+        "test_auth_destroy_session_13",
+        "test_app_profile_15",
+        "test_auth_reset_token_16",
+        "test_app_reset_password_token_17",
+        "test_auth_update_password_18",
+        "test_app_update_password_19",
+    ]:
+        suite.addTests(loader.loadTestsFromName(test_file))
+
+    runner = unittest.TextTestRunner(verbosity=2)
+    runner.run(suite)
 
 ```
 
+```bash
+python3 all_tests.py
+```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# python3 all_tests.py
+test_logout_with_cookie (test_app_logout_14.TestLogoutEndpoint) ... ok
+test_logout_without_cookie (test_app_logout_14.TestLogoutEndpoint) ... ok
+test_destroy_session (test_auth_destroy_session_13.TestDestroySession) ... ok
+test_destroy_session_none (test_auth_destroy_session_13.TestDestroySession) ...ook
+test_profile_with_cookie (test_app_profile_15.TestProfileEndpoint) ... ok
+test_profile_without_cookie (test_app_profile_15.TestProfileEndpoint) ... ok
+test_get_reset_password_token_ok (test_auth_reset_token_16.TestResetToken) ... ok
+test_get_reset_password_token_unknown_email (test_auth_reset_token_16.TestResetToken) ... ok
+test_known_email_generates_token (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_missing_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_unknown_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_update_password_bad_token (test_auth_update_password_18.TestUpdatePassword) ... ok
+test_update_password_ok (test_auth_update_password_18.TestUpdatePassword) ... ok
+test_put_reset_password_invalid_token (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+test_put_reset_password_missing_fields (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+test_put_reset_password_success_and_invalidate_token (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 6.057s
+
+OK
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
+```
+
+| Étape | Fichier de test                                   | Test                                           | Résultat |
+|-------|---------------------------------------------------|------------------------------------------------|----------|
+| 14    | test_app_logout_14.py                             | test_logout_with_cookie                        | OK       |
+| 14    | test_app_logout_14.py                             | test_logout_without_cookie                     | OK       |
+| 14    | test_auth_destroy_session_13.py                   | test_destroy_session                           | OK       |
+| 14    | test_auth_destroy_session_13.py                   | test_destroy_session_none                      | OK       |
+| 15    | test_app_profile_15.py                            | test_profile_with_cookie                       | OK       |
+| 15    | test_app_profile_15.py                            | test_profile_without_cookie                    | OK       |
+| 16    | test_auth_reset_token_16.py                       | test_get_reset_password_token_ok               | OK       |
+| 16    | test_auth_reset_token_16.py                       | test_get_reset_password_token_unknown_email    | OK       |
+| 17    | test_app_reset_password_token_17.py               | test_known_email_generates_token               | OK       |
+| 17    | test_app_reset_password_token_17.py               | test_missing_email                             | OK       |
+| 17    | test_app_reset_password_token_17.py               | test_unknown_email                             | OK       |
+| 18    | test_auth_update_password_18.py                   | test_update_password_bad_token                 | OK       |
+| 18    | test_auth_update_password_18.py                   | test_update_password_ok                        | OK       |
+| 19    | test_app_update_password_19.py                    | test_put_reset_password_invalid_token          | OK       |
+| 19    | test_app_update_password_19.py                    | test_put_reset_password_missing_fields         | OK       |
+| 19    | test_app_update_password_19.py                    | test_put_reset_password_success_and_invalidate_token | OK       |
 
 
 
-Taskx
-app.py
+
+
+Task20
+main.py
 ```python
 
 ```
