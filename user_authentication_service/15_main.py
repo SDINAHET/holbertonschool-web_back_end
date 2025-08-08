@@ -2,8 +2,8 @@
 from app import app, AUTH
 
 def main():
-    email = "profile@example.com"
-    password = "pwd12345"
+    email = "bob@bob.com"
+    password = "mySuperPwd"
     try:
         AUTH.register_user(email, password)
         print("[OK] Registered")

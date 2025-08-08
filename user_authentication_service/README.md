@@ -2244,6 +2244,7 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
 
 ```
+
 15_main.py
 ```python
 #!/usr/bin/env python3
@@ -2333,6 +2334,225 @@ test_destroy_session_none (test_auth_destroy_session_13.TestDestroySession) ... 
 Ran 6 tests in 2.861s
 
 OK
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service#
+```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# curl -XPOST localhost:5000/users \
+     -d 'email=bob@bob.com' \
+     -d 'password=mySuperPwd'
+{"email":"bob@bob.com","message":"user created"}
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# curl -XPOST localhost:5000/sessions -d 'email=bob@bob.com' -d 'password=mySuperPwd' -v
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 127.0.0.1:5000...
+* Connected to localhost (127.0.0.1) port 5000 (#0)
+> POST /sessions HTTP/1.1
+> Host: localhost:5000
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Content-Length: 37
+> Content-Type: application/x-www-form-urlencoded
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Server: Werkzeug/3.1.3 Python/3.10.12
+< Date: Fri, 08 Aug 2025 17:42:25 GMT
+< Content-Type: application/json
+< Content-Length: 46
+< Set-Cookie: session_id=d0886a77-e0d3-4d8c-9142-9ef01d65e1b1; Path=/
+< Connection: close
+<
+{"email":"bob@bob.com","message":"logged in"}
+* Closing connection 0
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# curl -XGET localhost:5000/profile -b "session_id=d0886a77-e0d3-4d8c-9142-9ef01d65e1b1"
+{"email":"bob@bob.com"}
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# curl -XGET localhost:5000/profile -b "session_id=nope" -v
+Note: Unnecessary use of -X or --request, GET is already inferred.
+*   Trying 127.0.0.1:5000...
+* Connected to localhost (127.0.0.1) port 5000 (#0)
+> GET /profile HTTP/1.1
+> Host: localhost:5000
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Cookie: session_id=nope
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 403 FORBIDDEN
+< Server: Werkzeug/3.1.3 Python/3.10.12
+< Date: Fri, 08 Aug 2025 17:44:57 GMT
+< Content-Type: text/html; charset=utf-8
+< Content-Length: 213
+< Connection: close
+<
+<!doctype html>
+<html lang=en>
+<title>403 Forbidden</title>
+<h1>Forbidden</h1>
+<p>You don&#39;t have the permission to access the requested resource. It is either read-protected or not readable by the server.</p>
+* Closing connection 0
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service#
+```
+
+
+
+Vérifier /profile
+```bash
+# réutilise le cookie renvoyé par /sessions
+curl -XGET localhost:5000/profile -b "session_id=d0886a77-e0d3-4d8c-9142-9ef01d65e1b1"
+# attendu:
+# {"email":"bob@bob.com"}
+```
+
+Tester le logout
+```bash
+curl -i -XDELETE localhost:5000/sessions -b "session_id=d0886a77-e0d3-4d8c-9142-9ef01d65e1b1"
+# attendu: HTTP/1.1 302 Found + Location: /
+```
+
+Re-vérifier que la session est invalide
+```bash
+curl -XGET localhost:5000/profile -b "session_id=d0886a77-e0d3-4d8c-9142-9ef01d65e1b1" -v
+# attendu: 403 Forbidden
+```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# curl -i -XDELETE localhost:5000/sessions -b "session_id=d0886a77-e0d3-4d8c-9142-9ef01d65e1b1"
+# attendu: HTTP/1.1 302 Found + Location: /
+HTTP/1.1 302 FOUND
+Server: Werkzeug/3.1.3 Python/3.10.12
+Date: Fri, 08 Aug 2025 17:46:53 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 189
+Location: /
+Connection: close
+
+<!doctype html>
+<html lang=en>
+<title>Redirecting...</title>
+<h1>Redirecting...</h1>
+<p>You should be redirected automatically to the target URL: <a href="/">/</a>. If not, click the link.
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# curl -XGET localhost:5000/profile -b "session_id=d0886a77-e0d3-4d8c-9142-9ef01d65e1b1" -v
+# attendu: 403 Forbidden
+Note: Unnecessary use of -X or --request, GET is already inferred.
+*   Trying 127.0.0.1:5000...
+* Connected to localhost (127.0.0.1) port 5000 (#0)
+> GET /profile HTTP/1.1
+> Host: localhost:5000
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Cookie: session_id=d0886a77-e0d3-4d8c-9142-9ef01d65e1b1
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 403 FORBIDDEN
+< Server: Werkzeug/3.1.3 Python/3.10.12
+< Date: Fri, 08 Aug 2025 17:47:08 GMT
+< Content-Type: text/html; charset=utf-8
+< Content-Length: 213
+< Connection: close
+<
+<!doctype html>
+<html lang=en>
+<title>403 Forbidden</title>
+<h1>Forbidden</h1>
+<p>You don&#39;t have the permission to access the requested resource. It is either read-protected or not readable by the server.</p>
+* Closing connection 0
+```
+
+test_auth_flow_15.sh
+```bash
+#!/bin/bash
+BASE_URL="http://localhost:5000"
+EMAIL="bob@bob.com"
+PASSWORD="mySuperPwd"
+
+echo "=== 1) Login ==="
+LOGIN_RESPONSE=$(curl -s -XPOST "$BASE_URL/sessions" \
+  -d "email=$EMAIL" \
+  -d "password=$PASSWORD" \
+  -i)
+
+echo "$LOGIN_RESPONSE"
+
+# Extraire le session_id du cookie
+SESSION_ID=$(echo "$LOGIN_RESPONSE" | grep -i "Set-Cookie:" | sed -E 's/.*session_id=([^;]+);.*/\1/')
+if [ -z "$SESSION_ID" ]; then
+  echo "[ERR] Impossible de récupérer le session_id"
+  exit 1
+fi
+echo "[OK] Session ID: $SESSION_ID"
+
+echo
+echo "=== 2) GET /profile (avec cookie) ==="
+curl -s -XGET "$BASE_URL/profile" -b "session_id=$SESSION_ID"
+echo
+
+echo
+echo "=== 3) DELETE /sessions (logout) ==="
+curl -i -XDELETE "$BASE_URL/sessions" -b "session_id=$SESSION_ID"
+echo
+
+echo
+echo "=== 4) GET /profile (session invalide) ==="
+curl -i -XGET "$BASE_URL/profile" -b "session_id=$SESSION_ID"
+
+```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# ./test_auth_flow_15.sh
+=== 1) Login ===
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.3 Python/3.10.12
+Date: Fri, 08 Aug 2025 17:51:22 GMT
+Content-Type: application/json
+Content-Length: 46
+Set-Cookie: session_id=a9c04d97-ddeb-44cd-966a-b750037fdfa4; Path=/
+Connection: close
+
+{"email":"bob@bob.com","message":"logged in"}
+[OK] Session ID: a9c04d97-ddeb-44cd-966a-b750037fdfa4
+
+=== 2) GET /profile (avec cookie) ===
+{"email":"bob@bob.com"}
+
+
+=== 3) DELETE /sessions (logout) ===
+HTTP/1.1 302 FOUND
+Server: Werkzeug/3.1.3 Python/3.10.12
+Date: Fri, 08 Aug 2025 17:51:22 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 189
+Location: /
+Connection: close
+
+<!doctype html>
+<html lang=en>
+<title>Redirecting...</title>
+<h1>Redirecting...</h1>
+<p>You should be redirected automatically to the target URL: <a href="/">/</a>. If not, click the link.
+
+
+=== 4) GET /profile (session invalide) ===
+HTTP/1.1 403 FORBIDDEN
+Server: Werkzeug/3.1.3 Python/3.10.12
+Date: Fri, 08 Aug 2025 17:51:22 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 213
+Connection: close
+
+<!doctype html>
+<html lang=en>
+<title>403 Forbidden</title>
+<h1>Forbidden</h1>
+<p>You don&#39;t have the permission to access the requested resource. It is either read-protected or not readable by the server.</p>
 (venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
 bertonschool-web_back_end/user_authentication_service#
 ```

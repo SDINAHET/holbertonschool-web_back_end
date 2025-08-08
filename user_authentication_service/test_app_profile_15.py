@@ -4,8 +4,8 @@ from app import app, AUTH
 class TestProfileEndpoint(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
-        self.email = "unitprofile@example.com"
-        self.password = "pwd12345"
+        self.email = "bob@bob.com"
+        self.password = "mySuperPwd"
         try:
             AUTH.register_user(self.email, self.password)
         except ValueError:
