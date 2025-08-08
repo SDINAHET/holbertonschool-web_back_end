@@ -2024,15 +2024,317 @@ OK
 bertonschool-web_back_end/user_authentication_service#
 ```
 
+Petit piège à venir (à corriger aussi)
+Dans app.py, tu utilises redirect("/") mais tu n’as pas importé redirect dans ce snippet.
+En haut de fichier, passe à :
+```python
+from flask import Flask, jsonify, request, abort, redirect
+```
+Relance
+```bash
+python3 14_main.py
+python -m unittest -v
+```
 
 Task15
 app.py
 ```python
+#!/usr/bin/env python3
+"""Basic Flask app"""
+from flask import Flask, jsonify, request, abort, redirect
+from flasgger import Swagger
+from auth import Auth
+
+app = Flask(__name__)
+AUTH = Auth()
+
+# (Optionnel) Métadonnées OpenAPI
+swagger = Swagger(app, template={
+    "swagger": "2.0",
+    "info": {
+        "title": "My Flask API",
+        "description": "Simple API with Swagger UI (Flasgger)",
+        "version": "1.0.0"
+    },
+    "basePath": "/",
+    "schemes": ["http"]
+})
+
+
+@app.route("/", methods=["GET"])
+def index():
+    """
+    Index endpoint
+    ---
+    tags:
+      - Root
+    summary: Welcome message
+    description: Returns a JSON message welcoming the user to the API.
+    produces:
+      - application/json
+    responses:
+      200:
+        description: A welcome message
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Bienvenue
+    """
+    # """GET / route - retourne un message JSON"""
+    return jsonify({"message": "Bienvenue"})
+
+
+@app.route("/users", methods=["POST"])
+def users():
+    """
+    Register a new user
+    ---
+    tags: [Auth]
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+      - in: formData
+        name: password
+        type: string
+        required: true
+        description: User password
+    responses:
+      200:
+        description: User created
+        schema:
+          type: object
+          properties:
+            email: {type: string, example: bob@me.com}
+            message: {type: string, example: user created}
+      400:
+        description: Email already registered or missing fields
+        schema:
+          type: object
+          properties:
+            message: {type: string, example: email already registered}
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    try:
+        user = AUTH.register_user(email, password)
+        return jsonify({"email": email, "message": "user created"})
+    except ValueError:
+        return jsonify({"message": "email already registered"}), 400
+
+
+@app.route("/sessions", methods=["POST"])
+def login():
+    """
+    Log in user and create a session
+    ---
+    tags:
+      - Auth
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+      - in: formData
+        name: password
+        type: string
+        required: true
+        description: User password
+    responses:
+      200:
+        description: Login successful, session created
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: bob@bob.com
+            message:
+              type: string
+              example: logged in
+        headers:
+          Set-Cookie:
+            description: Session cookie
+            type: string
+            example: session_id=163fe508-19a2-48ed-a7c8-d9c6e56fabd1; Path=/
+      401:
+        description: Unauthorized (invalid credentials)
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    if not email or not password or not AUTH.valid_login(email, password):
+        abort(401)
+
+    session_id = AUTH.create_session(email)
+    if session_id is None:
+        abort(401)
+
+    resp = jsonify({"email": email, "message": "logged in"})
+    resp.set_cookie("session_id", session_id, path="/")
+    return resp
+
+
+@app.route("/sessions", methods=["DELETE"])
+def logout():
+    """
+    Log out (destroy session)
+    ---
+    tags: [Auth]
+    summary: Logout user and destroy session
+    responses:
+      302:
+        description: Redirects to /
+      403:
+        description: Forbidden (no valid session)
+    """
+    session_id = request.cookies.get("session_id")
+    if not session_id:
+        abort(403)
+
+    user = AUTH.get_user_from_session_id(session_id)
+    if user is None:
+        abort(403)
+
+    AUTH.destroy_session(user.id)
+    # Redirection 302 par défaut vers la racine
+    return redirect("/")
+
+
+@app.route("/profile", methods=["GET"])
+def profile():
+    """
+    Get user profile by session cookie
+    ---
+    tags: [Auth]
+    responses:
+      200:
+        description: Profile found
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: bob@bob.com
+      403:
+        description: Forbidden (invalid or missing session)
+    """
+    session_id = request.cookies.get("session_id")
+    if not session_id:
+        abort(403)
+
+    user = AUTH.get_user_from_session_id(session_id)
+    if user is None:
+        abort(403)
+
+    return jsonify({"email": user.email}), 200
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port="5000")
+
+```
+15_main.py
+```python
+#!/usr/bin/env python3
+from app import app, AUTH
+
+def main():
+    email = "profile@example.com"
+    password = "pwd12345"
+    try:
+        AUTH.register_user(email, password)
+        print("[OK] Registered")
+    except ValueError:
+        print("[i] Already registered")
+
+    assert AUTH.valid_login(email, password)
+    sid = AUTH.create_session(email)
+    assert sid
+    print(f"[OK] Session created: {sid}")
+
+    with app.test_client() as client:
+        # 1) sans cookie -> 403
+        r = client.get("/profile")
+        assert r.status_code == 403
+        print("[OK] GET /profile without cookie -> 403")
+
+        # 2) avec cookie -> 200 + email
+        client.set_cookie("session_id", sid)   # Flask 3.x signature
+        r = client.get("/profile")
+        assert r.status_code == 200, r.status_code
+        assert r.json == {"email": email}, r.json
+        print("[OK] GET /profile with cookie -> 200 + email")
+
+if __name__ == "__main__":
+    main()
+
+```
+
+test_app_profile_15.py
+```python
+import unittest
+from app import app, AUTH
+
+class TestProfileEndpoint(unittest.TestCase):
+    def setUp(self):
+        self.client = app.test_client()
+        self.email = "unitprofile@example.com"
+        self.password = "pwd12345"
+        try:
+            AUTH.register_user(self.email, self.password)
+        except ValueError:
+            pass
+        self.assertTrue(AUTH.valid_login(self.email, self.password))
+        self.sid = AUTH.create_session(self.email)
+        self.assertIsNotNone(self.sid)
+
+    def test_profile_without_cookie(self):
+        resp = self.client.get("/profile")
+        self.assertEqual(resp.status_code, 403)
+
+    def test_profile_with_cookie(self):
+        self.client.set_cookie("session_id", self.sid)  # Flask 3.x
+        resp = self.client.get("/profile")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.get_json(), {"email": self.email})
+
+if __name__ == "__main__":
+    unittest.main()
 
 ```
 
 ```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# python3 15_main.py
+python -m unittest -v
+[OK] Registered
+[OK] Session created: 2fc19271-bb86-4151-8e33-e98921c54521
+[OK] GET /profile without cookie -> 403
+[OK] GET /profile with cookie -> 200 + email
+test_logout_with_cookie (test_app_logout_14.TestLogoutEndpoint) ... ok
+test_logout_without_cookie (test_app_logout_14.TestLogoutEndpoint) ... ok
+test_profile_with_cookie (test_app_profile_15.TestProfileEndpoint) ... ok
+test_profile_without_cookie (test_app_profile_15.TestProfileEndpoint) ... ok
+test_destroy_session (test_auth_destroy_session_13.TestDestroySession) ... ok
+test_destroy_session_none (test_auth_destroy_session_13.TestDestroySession) ... ok
 
+----------------------------------------------------------------------
+Ran 6 tests in 2.861s
+
+OK
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service#
 ```
 
 Task16
