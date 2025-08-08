@@ -3409,8 +3409,6 @@ if __name__ == "__main__":
 from app import app, AUTH
 
 def main():
-    # email = "reset17@example.com"
-    # password = "pwd12345"
     email = "bob@bob.com"
     password = "MyPwdOfBob"
 
@@ -3436,8 +3434,16 @@ def main():
         r = client.post("/reset_password", data={"email": email})
         assert r.status_code == 200, r.data
         j = r.get_json()
-        assert j["email"] == email and "reset_token" in j and j["reset_token"]
-        print(f"[OK] Token generated: {j['reset_token']}")
+
+        # Affiche le token même si un test échoue
+        if j and j.get("reset_token"):
+            print(f"[OK] Token generated: {j['reset_token']}")
+        else:
+            print("[ERROR] reset_token missing in response")
+
+        # Vérifications après affichage
+        assert j["email"] == email
+        assert "reset_token" in j and j["reset_token"]
 
 if __name__ == "__main__":
     main()
@@ -3492,21 +3498,20 @@ python3 -m unittest test_app_reset_password_token_17.py -v
 ```
 
 ```bash
-(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/user_authentication(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
-bertonschool-web_back_end/user_authentication_service# p                                                     p
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/user_authentication_service# p
 ython3 17_main.py
 [OK] Registered
 [OK] POST /reset_password without email -> 403
 [OK] POST /reset_password unknown email -> 403
-(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_tri44d
-mestre/holbertonschool-web_back_end/user_authentication
-_service# python3 -m unittest test_app_reset_password_token_17.py -v
+[OK] Token generated: a0ee3192-fa79-4ba2-82bf-46acb30cb5b6
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# python3 -m unittest test_app_reset_password_token_17.py -v
 test_known_email_generates_token (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
 test_missing_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
 test_unknown_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
 
 ----------------------------------------------------------------------
-Ran 3 tests in 0.342s
+Ran 3 tests in 0.331s
 
 OK
 (venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web

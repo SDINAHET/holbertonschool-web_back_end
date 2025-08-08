@@ -2,8 +2,6 @@
 from app import app, AUTH
 
 def main():
-    # email = "reset17@example.com"
-    # password = "pwd12345"
     email = "bob@bob.com"
     password = "MyPwdOfBob"
 
@@ -29,8 +27,16 @@ def main():
         r = client.post("/reset_password", data={"email": email})
         assert r.status_code == 200, r.data
         j = r.get_json()
-        assert j["email"] == email and "reset_token" in j and j["reset_token"]
-        print(f"[OK] Token generated: {j['reset_token']}")
+
+        # Affiche le token même si un test échoue
+        if j and j.get("reset_token"):
+            print(f"[OK] Token generated: {j['reset_token']}")
+        else:
+            print("[ERROR] reset_token missing in response")
+
+        # Vérifications après affichage
+        assert j["email"] == email
+        assert "reset_token" in j and j["reset_token"]
 
 if __name__ == "__main__":
     main()
