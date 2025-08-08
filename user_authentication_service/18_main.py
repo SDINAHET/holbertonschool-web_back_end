@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from auth import Auth
 
+
 def main():
     auth = Auth()
     email = "update18@example.com"
@@ -33,6 +34,7 @@ def main():
         print("[ERR] token should not be reusable")
     except ValueError:
         print("[OK] token cannot be reused")
+
 
 if __name__ == "__main__":
     main()
