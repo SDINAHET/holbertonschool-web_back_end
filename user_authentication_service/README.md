@@ -592,15 +592,43 @@ rtonschool-web_back_end/user_authentication_service#
 
 
 Task6
+
+```python
+pip install flask
+python3 app.py
+```
+
 app.py
 ```python
+#!/usr/bin/env python3
+"""Basic Flask app"""
+from flask import Flask, jsonify
 
+app = Flask(__name__)
+
+
+@app.route("/", methods=["GET"])
+def index():
+    """GET / route - retourne un message JSON"""
+    return jsonify({"message": "Bienvenue"})
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port="5000")
 ```
 
 
 
 ```bash
-
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbe
+rtonschool-web_back_end/user_authentication_service# python3 app.py
+ * Serving Flask app 'app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000
+Press CTRL+C to quit
 ```
 
 Task7
