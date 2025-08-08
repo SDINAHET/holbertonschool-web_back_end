@@ -5163,3 +5163,69 @@ _back_end/user_authentication_service#
 | 19 | test_app_update_password_19                             | test_put_reset_password_invalid_token                                                            | ✅ OK  |
 | 19 | test_app_update_password_19                             | test_put_reset_password_missing_fields                                                           | ✅ OK  |
 | 19 | test_app_update_password_19                             | test_put_reset_password_success_and_invalidate_token                                             | ✅ OK  |
+
+
+```bash
+pip install pytest
+```
+
+pytest.ini
+```bash
+[pytest]
+python_files = test_*.py
+addopts = -q
+testpaths = .
+filterwarnings =
+    ignore:The ``declarative_base\(\)`` function is now available as sqlalchemy\.orm\.declarative_base\(\)\.:sqlalchemy.exc.MovedIn20Warning
+```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# pytest
+...............................                                           [100%]
+31 passed in 9.21s
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# pytest -k "test_users_7 or test_valid_login_8 or test_generate_uuid_9 or test_auth_create_session_10 or test_app_login_11 or test_auth_get_user_from_session_id_12 or test_auth_destroy_session_13 or test_app_logout_14 or test_app_profile_15 or test_auth_reset_token_16 or test_app_reset_password_token_17 or test_auth_update_password_18 or test_app_update_password_19"
+...............................                                           [100%]
+31 passed in 9.32s
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
+```
+
+| #  | Fichier de test | Classe | Méthode | Résultat |
+|----|-----------------|--------|---------|----------|
+| 1  | `test_users_7.py` | TestTask7RegisterUser | test_register_user_already_registered | ✅ Pass |
+| 2  | `test_users_7.py` | TestTask7RegisterUser | test_register_user_created | ✅ Pass |
+| 3  | `test_valid_login_8.py` | TestValidLogin | test_valid_login_correct_credentials | ✅ Pass |
+| 4  | `test_valid_login_8.py` | TestValidLogin | test_valid_login_unknown_email | ✅ Pass |
+| 5  | `test_valid_login_8.py` | TestValidLogin | test_valid_login_wrong_password | ✅ Pass |
+| 6  | `test_generate_uuid_9.py` | TestGenerateUUID | test_returns_different_values_each_time | ✅ Pass |
+| 7  | `test_generate_uuid_9.py` | TestGenerateUUID | test_returns_string_and_valid_uuid | ✅ Pass |
+| 8  | `test_generate_uuid_9.py` | TestGenerateUUID | test_uses_uuid4_under_the_hood | ✅ Pass |
+| 9  | `test_auth_create_session_10.py` | TestCreateSession | test_create_session_success | ✅ Pass |
+| 10 | `test_auth_create_session_10.py` | TestCreateSession | test_create_session_unknown_email | ✅ Pass |
+| 11 | `test_app_login_11.py` | TestLoginEndpoint | test_login_failure_returns_401 | ✅ Pass |
+| 12 | `test_app_login_11.py` | TestLoginEndpoint | test_login_success_sets_cookie_and_returns_json | ✅ Pass |
+| 13 | `test_auth_get_user_from_session_id_12.py` | TestGetUserFromSessionId | test_none_session_id_returns_none_and_skips_db | ✅ Pass |
+| 14 | `test_auth_get_user_from_session_id_12.py` | TestGetUserFromSessionId | test_returns_user_when_session_exists | ✅ Pass |
+| 15 | `test_auth_get_user_from_session_id_12.py` | TestGetUserFromSessionId | test_unknown_session_id_returns_none | ✅ Pass |
+| 16 | `test_auth_destroy_session_13.py` | TestDestroySession | test_destroy_session | ✅ Pass |
+| 17 | `test_auth_destroy_session_13.py` | TestDestroySession | test_destroy_session_none | ✅ Pass |
+| 18 | `test_app_logout_14.py` | TestLogoutEndpoint | test_logout_with_cookie | ✅ Pass |
+| 19 | `test_app_logout_14.py` | TestLogoutEndpoint | test_logout_without_cookie | ✅ Pass |
+| 20 | `test_app_profile_15.py` | TestProfileEndpoint | test_profile_with_cookie | ✅ Pass |
+| 21 | `test_app_profile_15.py` | TestProfileEndpoint | test_profile_without_cookie | ✅ Pass |
+| 22 | `test_auth_reset_token_16.py` | TestResetToken | test_get_reset_password_token_ok | ✅ Pass |
+| 23 | `test_auth_reset_token_16.py` | TestResetToken | test_get_reset_password_token_unknown_email | ✅ Pass |
+| 24 | `test_app_reset_password_token_17.py` | TestGetResetPasswordToken | test_known_email_generates_token | ✅ Pass |
+| 25 | `test_app_reset_password_token_17.py` | TestGetResetPasswordToken | test_missing_email | ✅ Pass |
+| 26 | `test_app_reset_password_token_17.py` | TestGetResetPasswordToken | test_unknown_email | ✅ Pass |
+| 27 | `test_auth_update_password_18.py` | TestUpdatePassword | test_update_password_bad_token | ✅ Pass |
+| 28 | `test_auth_update_password_18.py` | TestUpdatePassword | test_update_password_ok | ✅ Pass |
+| 29 | `test_app_update_password_19.py` | TestUpdatePasswordEndpoint | test_put_reset_password_invalid_token | ✅ Pass |
+| 30 | `test_app_update_password_19.py` | TestUpdatePasswordEndpoint | test_put_reset_password_missing_fields | ✅ Pass |
+| 31 | `test_app_update_password_19.py` | TestUpdatePasswordEndpoint | test_put_reset_password_success_and_invalidate_token | ✅ Pass |
+
+✅ **Total : 31 tests passés avec succès — 100 % OK**
+⏱ Temps d’exécution : **9.32s**
+⚠ **1 warning SQLAlchemy** (dépréciation `declarative_base`)
