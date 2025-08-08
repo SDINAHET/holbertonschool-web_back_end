@@ -9,7 +9,8 @@ BASE_URL = "http://localhost:5000"
 
 def register_user(email: str, password: str) -> None:
     """Register a new user"""
-    resp = requests.post(f"{BASE_URL}/users", data={"email": email, "password": password})
+    payload = {"email": email, "password": password}
+    resp = requests.post(f"{BASE_URL}/users", data=payload)
     assert resp.status_code == 200 or resp.status_code == 400
     if resp.status_code == 200:
         assert resp.json() == {"email": email, "message": "user created"}
@@ -19,15 +20,20 @@ def register_user(email: str, password: str) -> None:
 
 def log_in_wrong_password(email: str, password: str) -> None:
     """Attempt login with wrong password"""
-    resp = requests.post(f"{BASE_URL}/sessions", data={"email": email, "password": password})
+    payload = {"email": email, "password": password}
+    resp = requests.post(f"{BASE_URL}/sessions", data=payload)
+    # print("wrong-pwd =>", resp.status_code, resp.headers.get("content-type"),
+    #       resp.text)
     assert resp.status_code == 401
 
 
 def log_in(email: str, password: str) -> str:
     """Log in with correct credentials, return session_id"""
-    resp = requests.post(f"{BASE_URL}/sessions", data={"email": email, "password": password})
+    payload = {"email": email, "password": password}
+    resp = requests.post(f"{BASE_URL}/sessions", data=payload)
     assert resp.status_code == 200
-    assert resp.json().get("email") == email and resp.json().get("message") == "logged in"
+    body = resp.json()
+    assert body.get("email") == email and body.get("message") == "logged in"
     return resp.cookies.get("session_id")
 
 
@@ -39,14 +45,15 @@ def profile_unlogged() -> None:
 
 def profile_logged(session_id: str) -> None:
     """Profile access with valid session"""
-    resp = requests.get(f"{BASE_URL}/profile", cookies={"session_id": session_id})
-    assert resp.status_code == 200
+    cookies = {"session_id": session_id}
+    resp = requests.get(f"{BASE_URL}/profile", cookies=cookies)
     assert "email" in resp.json()
 
 
 def log_out(session_id: str) -> None:
     """Log out user by deleting the session"""
-    resp = requests.delete(f"{BASE_URL}/sessions", cookies={"session_id": session_id})
+    cookies = {"session_id": session_id}
+    resp = requests.delete(f"{BASE_URL}/sessions", cookies=cookies)
     assert resp.status_code == 200
     assert resp.json().get("message") == "Bienvenue"
 
@@ -61,9 +68,14 @@ def reset_password_token(email: str) -> str:
 
 def update_password(email: str, reset_token: str, new_password: str) -> None:
     """Update password with the reset token"""
+    data = {
+        "email": email,
+        "reset_token": reset_token,
+        "new_password": new_password,
+    }
     resp = requests.put(
         f"{BASE_URL}/reset_password",
-        data={"email": email, "reset_token": reset_token, "new_password": new_password}
+        data=data
     )
     assert resp.status_code == 200
     assert resp.json() == {"email": email, "message": "Password updated"}
