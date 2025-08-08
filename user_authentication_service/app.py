@@ -1,14 +1,92 @@
 #!/usr/bin/env python3
 """Basic Flask app"""
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+from flasgger import Swagger
+from auth import Auth
 
 app = Flask(__name__)
+AUTH = Auth()
+
+# (Optionnel) Métadonnées OpenAPI
+swagger = Swagger(app, template={
+    "swagger": "2.0",
+    "info": {
+        "title": "My Flask API",
+        "description": "Simple API with Swagger UI (Flasgger)",
+        "version": "1.0.0"
+    },
+    "basePath": "/",
+    "schemes": ["http"]
+})
 
 
 @app.route("/", methods=["GET"])
 def index():
-    """GET / route - retourne un message JSON"""
+    """
+    Index endpoint
+    ---
+    tags:
+      - Root
+    summary: Welcome message
+    description: Returns a JSON message welcoming the user to the API.
+    produces:
+      - application/json
+    responses:
+      200:
+        description: A welcome message
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Bienvenue
+    """
+    # """GET / route - retourne un message JSON"""
     return jsonify({"message": "Bienvenue"})
+
+
+@app.route("/users", methods=["POST"])
+def users():
+    """
+    Register a new user
+    ---
+    tags: [Auth]
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+      - in: formData
+        name: password
+        type: string
+        required: true
+        description: User password
+    responses:
+      200:
+        description: User created
+        schema:
+          type: object
+          properties:
+            email: {type: string, example: bob@me.com}
+            message: {type: string, example: user created}
+      400:
+        description: Email already registered or missing fields
+        schema:
+          type: object
+          properties:
+            message: {type: string, example: email already registered}
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    try:
+        user = AUTH.register_user(email, password)
+        return jsonify({"email": email, "message": "user created"})
+    except ValueError:
+        return jsonify({"message": "email already registered"}), 400
 
 
 if __name__ == "__main__":

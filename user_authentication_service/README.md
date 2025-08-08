@@ -617,8 +617,6 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
 ```
 
-
-
 ```bash
 (venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbe
 rtonschool-web_back_end/user_authentication_service# python3 app.py
@@ -631,18 +629,244 @@ WARNING: This is a development server. Do not use it in a production deployment.
 Press CTRL+C to quit
 ```
 
+app.py
+```python
+#!/usr/bin/env python3
+"""Basic Flask app"""
+from flask import Flask, jsonify
+from flasgger import Swagger
+
+app = Flask(__name__)
+
+# (Optionnel) Métadonnées OpenAPI
+swagger = Swagger(app, template={
+    "swagger": "2.0",
+    "info": {
+        "title": "My Flask API",
+        "description": "Simple API with Swagger UI (Flasgger)",
+        "version": "1.0.0"
+    },
+    "basePath": "/",
+    "schemes": ["http"]
+})
+
+
+@app.route("/", methods=["GET"])
+def index():
+    """
+    Index endpoint
+    ---
+    tags:
+      - Root
+    summary: Welcome message
+    description: Returns a JSON message welcoming the user to the API.
+    produces:
+      - application/json
+    responses:
+      200:
+        description: A welcome message
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Bienvenue
+    """
+    # """GET / route - retourne un message JSON"""
+    return jsonify({"message": "Bienvenue"})
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port="5000")
+```
+
+
+```bash
+((venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbe
+rtonschool-web_back_end/user_authentication_service# python3 app.py
+ * Serving Flask app 'app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000
+Press CTRL+C to quit
+127.0.0.1 - - [08/Aug/2025 11:22:39] "GET /apidocs/ HTTP/1.1" 200 -
+127.0.0.1 - - [08/Aug/2025 11:22:39] "GET /flasgger_static/swagger-ui.css HTTP/1.1" 200 -
+127.0.0.1 - - [08/Aug/2025 11:22:39] "GET /flasgger_static/swagger-ui-standalone-preset.js HTTP/1.1" 200 -
+127.0.0.1 - - [08/Aug/2025 11:22:39] "GET /flasgger_static/swagger-ui-bundle.js HTTP/1.1" 200 -
+127.0.0.1 - - [08/Aug/2025 11:22:40] "GET /flasgger_static/lib/jquery.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [08/Aug/2025 11:22:40] "GET /apispec_1.json HTTP/1.1" 200 -
+127.0.0.1 - - [08/Aug/2025 11:22:40] "GET /flasgger_static/favicon-32x32.png HTTP/1.1" 200 -
+127.0.0.1 - - [08/Aug/2025 11:22:49] "GET / HTTP/1.1" 200 -
+```
+
+![alt text](image.png)
+
 Task7
 app.py
 ```python
+#!/usr/bin/env python3
+"""Basic Flask app"""
+from flask import Flask, jsonify, request
+from flasgger import Swagger
+from auth import Auth
 
+app = Flask(__name__)
+AUTH = Auth()
+
+# (Optionnel) Métadonnées OpenAPI
+swagger = Swagger(app, template={
+    "swagger": "2.0",
+    "info": {
+        "title": "My Flask API",
+        "description": "Simple API with Swagger UI (Flasgger)",
+        "version": "1.0.0"
+    },
+    "basePath": "/",
+    "schemes": ["http"]
+})
+
+
+@app.route("/", methods=["GET"])
+def index():
+    """
+    Index endpoint
+    ---
+    tags:
+      - Root
+    summary: Welcome message
+    description: Returns a JSON message welcoming the user to the API.
+    produces:
+      - application/json
+    responses:
+      200:
+        description: A welcome message
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Bienvenue
+    """
+    # """GET / route - retourne un message JSON"""
+    return jsonify({"message": "Bienvenue"})
+
+
+@app.route("/users", methods=["POST"])
+def users():
+    """
+    Register a new user
+    ---
+    tags: [Auth]
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+      - in: formData
+        name: password
+        type: string
+        required: true
+        description: User password
+    responses:
+      200:
+        description: User created
+        schema:
+          type: object
+          properties:
+            email: {type: string, example: bob@me.com}
+            message: {type: string, example: user created}
+      400:
+        description: Email already registered or missing fields
+        schema:
+          type: object
+          properties:
+            message: {type: string, example: email already registered}
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    try:
+        user = AUTH.register_user(email, password)
+        return jsonify({"email": email, "message": "user created"})
+    except ValueError:
+        return jsonify({"message": "email already registered"}), 400
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port="5000")
 ```
 
 ```bash
-
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbe
+rtonschool-web_back_end/user_authentication_service# python3 app.py
+ * Serving Flask app 'app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000
+Press CTRL+C to quit
+127.0.0.1 - - [08/Aug/2025 13:32:20] "GET /apidocs/ HTTP/1.1" 200 -
+127.0.0.1 - - [08/Aug/2025 13:32:20] "GET /flasgger_static/swagger-ui.css HTTP/1.1" 304 -
+127.0.0.1 - - [08/Aug/2025 13:32:20] "GET /flasgger_static/swagger-ui-bundle.js HTTP/1.1" 304 -
+127.0.0.1 - - [08/Aug/2025 13:32:20] "GET /flasgger_static/swagger-ui-standalone-preset.js HTTP/1.1" 304 -
+127.0.0.1 - - [08/Aug/2025 13:32:20] "GET /flasgger_static/lib/jquery.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [08/Aug/2025 13:32:21] "GET /apispec_1.json HTTP/1.1" 200 -
+127.0.0.1 - - [08/Aug/2025 13:32:21] "GET /flasgger_static/favicon-32x32.png HTTP/1.1" 304 -
 ```
 
 ```bash
-
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbe
+rtonschool-web_back_end/user_authentication_service# curl -XPOST localhost:5000/users -d 'email=bob@me.com' -d 'password=mySuperPwd' -v
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 127.0.0.1:5000...
+* Connected to localhost (127.0.0.1) port 5000 (#0)
+> POST /users HTTP/1.1
+> Host: localhost:5000
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Content-Length: 36
+> Content-Type: application/x-www-form-urlencoded
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Server: Werkzeug/3.1.3 Python/3.10.12
+< Date: Fri, 08 Aug 2025 11:36:36 GMT
+< Content-Type: application/json
+< Content-Length: 48
+< Connection: close
+<
+{"email":"bob@me.com","message":"user created"}
+* Closing connection 0
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbe
+rtonschool-web_back_end/user_authentication_service# curl -XPOST localhost:5000/users -d 'email=bob@me.com' -d 'password=mySuperPwd' -v
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 127.0.0.1:5000...
+* Connected to localhost (127.0.0.1) port 5000 (#0)
+> POST /users HTTP/1.1
+> Host: localhost:5000
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Content-Length: 36
+> Content-Type: application/x-www-form-urlencoded
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 400 BAD REQUEST
+< Server: Werkzeug/3.1.3 Python/3.10.12
+< Date: Fri, 08 Aug 2025 11:36:39 GMT
+< Content-Type: application/json
+< Content-Length: 39
+< Connection: close
+<
+{"message":"email already registered"}
+* Closing connection 0
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbe
+rtonschool-web_back_end/user_authentication_service#
 ```
 
 Task8
