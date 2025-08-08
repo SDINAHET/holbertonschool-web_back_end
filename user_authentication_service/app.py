@@ -88,6 +88,7 @@ def users():
     except ValueError:
         return jsonify({"message": "email already registered"}), 400
 
+
 @app.route("/sessions", methods=["POST"])
 def login():
     """
@@ -141,6 +142,7 @@ def login():
     resp = jsonify({"email": email, "message": "logged in"})
     resp.set_cookie("session_id", session_id, path="/")
     return resp
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
