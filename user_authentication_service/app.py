@@ -39,7 +39,11 @@ Swagger(app, template={
             "name": "Cookie",   # on passera "session_id=<uuid>"
             "in": "header"
         }
-    }
+    },
+    # 👇 IMPORTANT: active un requirement de sécurité par défaut
+    "security": [
+        {"CookieAuth": []}
+    ]
 })
 
 
@@ -50,6 +54,7 @@ def index():
     ---
     tags:
       - Root
+    security: []          # 👈 pas d’auth requise sur cette route
     summary: Welcome message
     description: Returns a JSON message welcoming the user to the API.
     produces:
@@ -74,6 +79,7 @@ def users():
     Register a new user
     ---
     tags: [Auth]
+    security: []              # 👈 login est public
     consumes:
       - application/x-www-form-urlencoded
     parameters:
@@ -119,6 +125,7 @@ def login():
     ---
     tags:
       - Auth
+    security: []              # 👈 login est public
     consumes:
       - application/x-www-form-urlencoded
     parameters:
@@ -173,6 +180,8 @@ def logout():
     Log out (destroy session)
     ---
     tags: [Auth]
+    security:
+      - CookieAuth: []
     parameters:
       - in: header
         name: Cookie
@@ -216,6 +225,8 @@ def profile():
     Get user profile by session cookie
     ---
     tags: [Auth]
+    security:
+      - CookieAuth: []
     parameters:
       - in: header
         name: Cookie
