@@ -8,15 +8,38 @@ app = Flask(__name__)
 AUTH = Auth()
 
 # (Optionnel) Métadonnées OpenAPI
-swagger = Swagger(app, template={
+# swagger = Swagger(app, template={
+#     "swagger": "2.0",
+#     "info": {
+#         "title": "My Flask API",
+#         "description": "Simple API with Swagger UI (Flasgger)",
+#         "version": "1.0.0"
+#     },
+#     "basePath": "/",
+#     "schemes": ["http"]
+# })
+
+app.config["SWAGGER"] = {
+    "title": "My Flask API",
+    "uiversion": 3,
+}
+Swagger(app, template={
     "swagger": "2.0",
-    "info": {
-        "title": "My Flask API",
-        "description": "Simple API with Swagger UI (Flasgger)",
-        "version": "1.0.0"
-    },
+    "info": {"title": "My Flask API", "version": "1.0.0"},
     "basePath": "/",
-    "schemes": ["http"]
+    "schemes": ["http"],
+    "tags": [
+        {"name": "Root", "description": "General endpoints"},
+        {"name": "Auth", "description": "Authentication endpoints"},
+    ],
+    # 👉 clé pour afficher le bouton "Authorize"
+    "securityDefinitions": {
+        "CookieAuth": {
+            "type": "apiKey",
+            "name": "Cookie",   # on passera "session_id=<uuid>"
+            "in": "header"
+        }
+    }
 })
 
 
@@ -150,13 +173,30 @@ def logout():
     Log out (destroy session)
     ---
     tags: [Auth]
-    summary: Logout user and destroy session
+    parameters:
+      - in: header
+        name: Cookie
+        type: string
+        required: true
+        description: "Session cookie: session_id=<uuid>"
+        default: "session_id=11111111-1111-1111-1111-111111111111"
     responses:
       302:
         description: Redirects to /
       403:
         description: Forbidden (no valid session)
     """
+    # """
+    # Log out (destroy session)
+    # ---
+    # tags: [Auth]
+    # summary: Logout user and destroy session
+    # responses:
+    #   302:
+    #     description: Redirects to /
+    #   403:
+    #     description: Forbidden (no valid session)
+    # """
     session_id = request.cookies.get("session_id")
     if not session_id:
         abort(403)
@@ -176,6 +216,13 @@ def profile():
     Get user profile by session cookie
     ---
     tags: [Auth]
+    parameters:
+      - in: header
+        name: Cookie
+        type: string
+        required: true
+        description: "Session cookie: session_id=<uuid>"
+        default: "session_id=11111111-1111-1111-1111-111111111111"
     responses:
       200:
         description: Profile found
@@ -188,6 +235,22 @@ def profile():
       403:
         description: Forbidden (invalid or missing session)
     """
+    # """
+    # Get user profile by session cookie
+    # ---
+    # tags: [Auth]
+    # responses:
+    #   200:
+    #     description: Profile found
+    #     schema:
+    #       type: object
+    #       properties:
+    #         email:
+    #           type: string
+    #           example: bob@bob.com
+    #   403:
+    #     description: Forbidden (invalid or missing session)
+    # """
     session_id = request.cookies.get("session_id")
     if not session_id:
         abort(403)
