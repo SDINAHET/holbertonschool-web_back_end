@@ -5229,3 +5229,21 @@ _back_end/user_authentication_service#
 ✅ **Total : 31 tests passés avec succès — 100 % OK**
 ⏱ Temps d’exécution : **9.32s**
 ⚠ **1 warning SQLAlchemy** (dépréciation `declarative_base`)
+
+résumé des tests
+| N° Tâche | Fichier de test                              | Résultat  | Durée approx. |
+|----------|----------------------------------------------|-----------|---------------|
+| 7        | test_users_7                                 | ✅ Passed |               |
+| 8        | test_valid_login_8                           | ✅ Passed |               |
+| 9        | test_generate_uuid_9                         | ✅ Passed |               |
+| 10       | test_auth_create_session_10                  | ✅ Passed |               |
+| 11       | test_app_login_11                            | ✅ Passed |               |
+| 12       | test_auth_get_user_from_session_id_12        | ✅ Passed |               |
+| 13       | test_auth_destroy_session_13                 | ✅ Passed |               |
+| 14       | test_app_logout_14                           | ✅ Passed |               |
+| 15       | test_app_profile_15                          | ✅ Passed |               |
+| 16       | test_auth_reset_token_16                     | ✅ Passed |               |
+| 17       | test_app_reset_password_token_17             | ✅ Passed |               |
+| 18       | test_auth_update_password_18                 | ✅ Passed |               |
+| 19       | test_app_update_password_19                  | ✅ Passed |               |
+| **Total**| **31 tests**                                 | ✅ 100%   | **~9.32 s**   |
