@@ -1491,15 +1491,245 @@ Utilisateur trouvé : bob@bob.com
 Avec UUID invalide : None
 Avec None : None
 ```
+![alt text](image-4.png)
 
 Task13
 auth.py
 ```python
+#!/usr/bin/env python3
+"""Auth module: enregistrement et gestion des utilisateurs."""
+from typing import Optional
+import bcrypt
+from sqlalchemy.orm.exc import NoResultFound
+import uuid  # ✅ Ajout de l'import pour Task 9
+
+from db import DB
+from user import User
+
+
+def _hash_password(password: str) -> bytes:
+    """Retourne un hash bcrypt (bytes) du mot de passe fourni."""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+
+def _generate_uuid() -> str:
+    """Génère et retourne un UUID4 en chaîne de caractères."""
+    return str(uuid.uuid4())
+
+
+class Auth:
+    """Auth class to interact with the authentication database."""
+
+    def __init__(self) -> None:
+        self._db = DB()
+
+    def register_user(self, email: str, password: str) -> User:
+        """Crée un nouvel utilisateur si l'email n'existe pas.
+
+        - Si l'utilisateur existe déjà: lève ValueError("User <email> already
+        exists")
+        - Sinon: hash le mot de passe, crée l'utilisateur et le retourne.
+        """
+        try:
+            # S'il existe déjà, find_user_by ne lèvera pas d'exception
+            self._db.find_user_by(email=email)
+        except NoResultFound:
+            hashed = _hash_password(password)
+            # On enregistre en base sous forme de str (bcrypt renvoie des bytes
+            return self._db.add_user(email, hashed.decode("utf-8"))
+
+        # Si on arrive ici, un user existe déjà
+        raise ValueError(f"User {email} already exists")
+
+    def valid_login(self, email: str, password: str) -> bool:
+        """Valide les identifiants d'un utilisateur."""
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            return False
+
+        if user.hashed_password is None:
+            return False
+
+        # bcrypt.checkpw attend les deux valeurs en bytes
+        return bcrypt.checkpw(
+            password.encode('utf-8'),
+            user.hashed_password.encode('utf-8')
+        )
+
+    def create_session(self, email: str) -> Optional[str]:
+        """Create a session for the user and return the session_id.
+        Returns None if the email is unknown.
+        """
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            return None
+
+        session_id = _generate_uuid()
+        self._db.update_user(user.id, session_id=session_id)
+        return session_id
+
+    def get_user_from_session_id(
+            self, session_id: Optional[str]) -> Optional[User]:
+        """
+        Récupère un utilisateur à partir de son session_id.
+
+        Args:
+            session_id (Optional[str]): ID de session de l'utilisateur
+
+        Returns:
+            Optional[User]: L'utilisateur correspondant ou None
+        """
+        if session_id is None:
+            return None
+
+        try:
+            return self._db.find_user_by(session_id=session_id)
+        except NoResultFound:
+            return None
+
+    def destroy_session(self, user_id: int) -> None:
+        """
+        Destroys the session for the given user ID by setting
+        their session_id to None.
+        Uses only public methods of self._db.
+
+        Args:
+            user_id (int): ID of the user whose session must be destroyed.
+
+        Returns:
+            None
+        """
+        if user_id is None:
+            return None
+
+        try:
+            # Récupérer l'utilisateur avec l'ID donné
+            user = self._db.find_user_by(id=user_id)
+        except NoResultFound:
+            return None
+
+        # Mettre à jour le champ session_id à None
+        self._db.update_user(user_id, session_id=None)
+
+        return None
+
+```
+
+13_main.py
+```python
+#!/usr/bin/env python3
+from auth import Auth
+from sqlalchemy.orm.exc import NoResultFound
+
+def safe_register(auth: Auth, email: str, password: str):
+    try:
+        auth.register_user(email, password)
+        print(f"[OK] Registered {email}")
+    except ValueError:
+        print(f"[i] {email} already registered")
+
+def main():
+    auth = Auth()
+
+    email = "bob@example.com"
+    password = "correcthorsebatterystaple"
+
+    # 1) Register (idempotent)
+    safe_register(auth, email, password)
+
+    # 2) Login -> create session
+    if not auth.valid_login(email, password):
+        print("[ERR] valid_login failed")
+        return
+
+    session_id = auth.create_session(email)
+    print(f"[OK] session created: {session_id!r}")
+
+    # 3) get_user_from_session_id works
+    user = auth.get_user_from_session_id(session_id)
+    if user is None:
+        print("[ERR] get_user_from_session_id returned None")
+        return
+    print(f"[OK] user fetched by session: id={user.id}, email={user.email}")
+
+    # 4) destroy_session(user.id)
+    auth.destroy_session(user.id)
+    print("[OK] destroy_session called")
+
+    # 5) old session should no longer resolve to a user
+    user_after = auth.get_user_from_session_id(session_id)
+    if user_after is None:
+        print("[OK] session invalidated ✅")
+    else:
+        print("[ERR] session still valid after destroy_session ❌")
+
+    # 6) calling with None should be a no-op (and not crash)
+    auth.destroy_session(None)
+    print("[OK] destroy_session(None) did not crash")
+
+if __name__ == "__main__":
+    main()
+
+```
+Enregistre ceci dans test_auth_destroy_session.py et lance python -m unittest -v
+```python
+import unittest
+from auth import Auth
+
+class TestDestroySession(unittest.TestCase):
+    def setUp(self):
+        self.auth = Auth()
+        self.email = "alice@example.com"
+        self.password = "s3cret"
+        try:
+            self.auth.register_user(self.email, self.password)
+        except ValueError:
+            pass
+
+    def test_destroy_session(self):
+        # login & create session
+        self.assertTrue(self.auth.valid_login(self.email, self.password))
+        sid = self.auth.create_session(self.email)
+        self.assertIsNotNone(sid)
+        # resolves to a user
+        user = self.auth.get_user_from_session_id(sid)
+        self.assertIsNotNone(user)
+        # destroy by user.id
+        self.auth.destroy_session(user.id)
+        # old session no longer valid
+        self.assertIsNone(self.auth.get_user_from_session_id(sid))
+
+    def test_destroy_session_none(self):
+        # should be no-op and not raise
+        self.assertIsNone(self.auth.destroy_session(None))
+
+if __name__ == "__main__":
+    unittest.main()
 
 ```
 
 ```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# python3 13_main.py
+[OK] Registered bob@example.com
+[OK] session created: 'a9d14e22-b7e0-48c7-a4eb-f7ecc072c4c3'
+[OK] user fetched by session: id=1, email=bob@example.com
+[OK] destroy_session called
+[OK] session invalidated ✅
+[OK] destroy_session(None) did not crash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# python -m unittest -v
+test_destroy_session (test_auth_destroy_session.TestDestroySession) ... ok
+test_destroy_session_none (test_auth_destroy_session.TestDestroySession) ... ok
 
+----------------------------------------------------------------------
+Ran 2 tests in 1.083s
+
+OK
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service#
 ```
 
 Task14
