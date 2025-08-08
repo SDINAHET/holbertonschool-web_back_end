@@ -3521,12 +3521,324 @@ _back_end/user_authentication_service#
 Task18
 auth.py
 ```python
+#!/usr/bin/env python3
+"""Auth module: enregistrement et gestion des utilisateurs."""
+from typing import Optional
+import bcrypt
+from sqlalchemy.orm.exc import NoResultFound
+from uuid import uuid4  # ✅ Ajout de l'import pour Task 16
+from sqlalchemy.orm.exc import NoResultFound  # ✅ Ajout de l'import task18
+
+import uuid  # ✅ Ajout de l'import pour Task 9
+
+from db import DB
+from user import User
+
+
+def _hash_password(password: str) -> bytes:
+    """Retourne un hash bcrypt (bytes) du mot de passe fourni."""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+
+def _generate_uuid() -> str:
+    """Génère et retourne un UUID4 en chaîne de caractères."""
+    return str(uuid.uuid4())
+
+
+class Auth:
+    """Auth class to interact with the authentication database."""
+
+    def __init__(self) -> None:
+        self._db = DB()
+
+    def register_user(self, email: str, password: str) -> User:
+        """Crée un nouvel utilisateur si l'email n'existe pas.
+
+        - Si l'utilisateur existe déjà: lève ValueError("User <email> already
+        exists")
+        - Sinon: hash le mot de passe, crée l'utilisateur et le retourne.
+        """
+        try:
+            # S'il existe déjà, find_user_by ne lèvera pas d'exception
+            self._db.find_user_by(email=email)
+        except NoResultFound:
+            hashed = _hash_password(password)
+            # On enregistre en base sous forme de str (bcrypt renvoie des bytes
+            return self._db.add_user(email, hashed.decode("utf-8"))
+
+        # Si on arrive ici, un user existe déjà
+        raise ValueError(f"User {email} already exists")
+
+    def valid_login(self, email: str, password: str) -> bool:
+        """Valide les identifiants d'un utilisateur."""
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            return False
+
+        if user.hashed_password is None:
+            return False
+
+        # bcrypt.checkpw attend les deux valeurs en bytes
+        return bcrypt.checkpw(
+            password.encode('utf-8'),
+            user.hashed_password.encode('utf-8')
+        )
+
+    def create_session(self, email: str) -> Optional[str]:
+        """Create a session for the user and return the session_id.
+        Returns None if the email is unknown.
+        """
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            return None
+
+        session_id = _generate_uuid()
+        self._db.update_user(user.id, session_id=session_id)
+        return session_id
+
+    def get_user_from_session_id(
+            self, session_id: Optional[str]) -> Optional[User]:
+        """
+        Récupère un utilisateur à partir de son session_id.
+
+        Args:
+            session_id (Optional[str]): ID de session de l'utilisateur
+
+        Returns:
+            Optional[User]: L'utilisateur correspondant ou None
+        """
+        if session_id is None:
+            return None
+
+        try:
+            return self._db.find_user_by(session_id=session_id)
+        except NoResultFound:
+            return None
+
+    def destroy_session(self, user_id: int) -> None:
+        """
+        Destroys the session for the given user ID by setting
+        their session_id to None.
+        Uses only public methods of self._db.
+
+        Args:
+            user_id (int): ID of the user whose session must be destroyed.
+
+        Returns:
+            None
+        """
+        if user_id is None:
+            return None
+
+        try:
+            # Récupérer l'utilisateur avec l'ID donné
+            user = self._db.find_user_by(id=user_id)
+        except NoResultFound:
+            return None
+
+        # Mettre à jour le champ session_id à None
+        self._db.update_user(user_id, session_id=None)
+
+        return None
+
+    def get_reset_password_token(self, email: str) -> str:
+        """
+        Generate a password reset token for the user identified by email.
+
+        - If user doesn't exist -> raise ValueError
+        - Otherwise: generate UUID, store it in reset_token, and return it
+        """
+        if email is None:
+            raise ValueError("email is required")
+
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            raise ValueError("user not found")
+
+        token = str(uuid4())
+        self._db.update_user(user.id, reset_token=token)
+        return token
+
+    def update_password(self, reset_token: str, password: str) -> None:
+        """
+        Update user's password using a valid reset token.
+
+        - If reset_token is unknown -> raise ValueError
+        - Else: hash new password, save it, and clear reset_token
+        """
+        if reset_token is None or password is None:
+            raise ValueError("reset_token and password are required")
+
+        try:
+            user = self._db.find_user_by(reset_token=reset_token)
+        except NoResultFound:
+            raise ValueError("invalid reset token")
+
+        new_hashed = _hash_password(password).decode("utf-8")
+        self._db.update_user(user.id, hashed_password=new_hashed, reset_token=None)
+        return None
+
+```
+
+18_main.py
+```python
+#!/usr/bin/env python3
+from auth import Auth
+
+def main():
+    auth = Auth()
+    email = "update18@example.com"
+    old_pwd = "oldpass"
+    new_pwd = "newpass"
+
+    try:
+        auth.register_user(email, old_pwd)
+        print("[OK] Registered")
+    except ValueError:
+        print("[i] Already registered")
+
+    # Générer un token
+    token = auth.get_reset_password_token(email)
+    print(f"[OK] token: {token}")
+
+    # Mettre à jour le mot de passe
+    auth.update_password(token, new_pwd)
+    print("[OK] password updated")
+
+    # L'ancien mot de passe ne marche plus
+    assert not auth.valid_login(email, old_pwd)
+    # Le nouveau marche
+    assert auth.valid_login(email, new_pwd)
+    print("[OK] valid_login with new password")
+
+    # Le token doit être invalidé (réutilisation impossible)
+    try:
+        auth.update_password(token, "anotherpass")
+        print("[ERR] token should not be reusable")
+    except ValueError:
+        print("[OK] token cannot be reused")
+
+if __name__ == "__main__":
+    main()
+
+```
+
+test_auth_update_password_18.py
+```python
+import unittest
+from auth import Auth
+from sqlalchemy.orm.exc import NoResultFound
+
+class TestUpdatePassword(unittest.TestCase):
+    def setUp(self):
+        self.auth = Auth()
+        self.email = "unittest_update18@example.com"
+        self.old_pwd = "oldpwd"
+        self.new_pwd = "newpwd"
+        try:
+            self.auth.register_user(self.email, self.old_pwd)
+        except ValueError:
+            pass
+
+    def test_update_password_ok(self):
+        token = self.auth.get_reset_password_token(self.email)
+        self.auth.update_password(token, self.new_pwd)
+        self.assertTrue(self.auth.valid_login(self.email, self.new_pwd))
+        self.assertFalse(self.auth.valid_login(self.email, self.old_pwd))
+        # token cleared
+        with self.assertRaises(ValueError):
+            self.auth.update_password(token, "again")
+
+    def test_update_password_bad_token(self):
+        with self.assertRaises(ValueError):
+            self.auth.update_password("not-a-real-token", self.new_pwd)
+
+if __name__ == "__main__":
+    unittest.main()
 
 ```
 
 ```bash
-
+python3 18_main.py
+python3 -m unittest test_auth_update_password_18.py -v
+python3 -m unittest discover -v
 ```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# python3 18_main.py
+[OK] Registered
+[OK] token: 8bb1b73f-8238-41bc-a9d1-1168f20d6415
+[OK] password updated
+[OK] valid_login with new password
+[OK] token cannot be reused
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# python3 -m unittest test_auth_update_password_18.py -v
+test_update_password_bad_token (test_auth_update_password_18.TestUpdatePassword) ... ok
+test_update_password_ok (test_auth_update_password_18.TestUpdatePassword) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.604s
+
+OK
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
+```
+
+```bash
+python3 -m unittest discover -v
+```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# python3 -m unittest discover -v
+test_logout_with_cookie (test_app_logout_14.TestLogoutEndpoint) ... ok
+test_logout_without_cookie (test_app_logout_14.TestLogoutEndpoint) ... ok
+test_profile_with_cookie (test_app_profile_15.TestProfileEndpoint) ... ok
+test_profile_without_cookie (test_app_profile_15.TestProfileEndpoint) ... ok
+test_known_email_generates_token (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_missing_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_unknown_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_destroy_session (test_auth_destroy_session_13.TestDestroySession) ... ok
+test_destroy_session_none (test_auth_destroy_session_13.TestDestroySession) ...ook
+test_get_reset_password_token_ok (test_auth_reset_token_16.TestResetToken) ... ok
+test_get_reset_password_token_unknown_email (test_auth_reset_token_16.TestResetToken) ... ok
+test_update_password_bad_token (test_auth_update_password_18.TestUpdatePassword) ... ok
+test_update_password_ok (test_auth_update_password_18.TestUpdatePassword) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 4.931s
+
+OK
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
+```
+
+| N° | Fichier de test | Classe de test | Nom du test | Statut |
+|----|-----------------|---------------|-------------|--------|
+| 1  | `test_app_logout_14.py` | TestLogoutEndpoint | `test_logout_with_cookie` | ✅ OK |
+| 2  | `test_app_logout_14.py` | TestLogoutEndpoint | `test_logout_without_cookie` | ✅ OK |
+| 3  | `test_app_profile_15.py` | TestProfileEndpoint | `test_profile_with_cookie` | ✅ OK |
+| 4  | `test_app_profile_15.py` | TestProfileEndpoint | `test_profile_without_cookie` | ✅ OK |
+| 5  | `test_app_reset_password_token_17.py` | TestGetResetPasswordToken | `test_known_email_generates_token` | ✅ OK |
+| 6  | `test_app_reset_password_token_17.py` | TestGetResetPasswordToken | `test_missing_email` | ✅ OK |
+| 7  | `test_app_reset_password_token_17.py` | TestGetResetPasswordToken | `test_unknown_email` | ✅ OK |
+| 8  | `test_auth_destroy_session_13.py` | TestDestroySession | `test_destroy_session` | ✅ OK |
+| 9  | `test_auth_destroy_session_13.py` | TestDestroySession | `test_destroy_session_none` | ✅ OK |
+| 10 | `test_auth_reset_token_16.py` | TestResetToken | `test_get_reset_password_token_ok` | ✅ OK |
+| 11 | `test_auth_reset_token_16.py` | TestResetToken | `test_get_reset_password_token_unknown_email` | ✅ OK |
+| 12 | `test_auth_update_password_18.py` | TestUpdatePassword | `test_update_password_bad_token` | ✅ OK |
+| 13 | `test_auth_update_password_18.py` | TestUpdatePassword | `test_update_password_ok` | ✅ OK |
+
+**Résumé global :**
+- **Total des tests :** 13
+- **Réussis :** 13 ✅
+- **Échec :** 0 ❌
+- **Temps total :** 4,931 s
+- **Statut final :** **TOUS LES TESTS PASSENT** 🎯<3
 
 
 Task19

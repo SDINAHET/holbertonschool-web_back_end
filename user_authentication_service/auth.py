@@ -4,6 +4,7 @@ from typing import Optional
 import bcrypt
 from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4  # ✅ Ajout de l'import pour Task 16
+from sqlalchemy.orm.exc import NoResultFound  # ✅ Ajout de l'import task18
 
 import uuid  # ✅ Ajout de l'import pour Task 9
 
@@ -137,3 +138,22 @@ class Auth:
         token = str(uuid4())
         self._db.update_user(user.id, reset_token=token)
         return token
+
+    def update_password(self, reset_token: str, password: str) -> None:
+        """
+        Update user's password using a valid reset token.
+
+        - If reset_token is unknown -> raise ValueError
+        - Else: hash new password, save it, and clear reset_token
+        """
+        if reset_token is None or password is None:
+            raise ValueError("reset_token and password are required")
+
+        try:
+            user = self._db.find_user_by(reset_token=reset_token)
+        except NoResultFound:
+            raise ValueError("invalid reset token")
+
+        new_hashed = _hash_password(password).decode("utf-8")
+        self._db.update_user(user.id, hashed_password=new_hashed, reset_token=None)
+        return None
