@@ -1,31 +1,38 @@
 #!/usr/bin/env python3
-"""
-Test get_user_from_session_id
-"""
 from auth import Auth
 
-auth = Auth()
+def main():
+    auth = Auth()
+    email = "update18@example.com"
+    old_pwd = "oldpass"
+    new_pwd = "newpass"
 
-# Étape 1 : Créer un utilisateur
-email = "bob@bob.com"
-password = "MyPwdOfBob"
-try:
-    user = auth.register_user(email, password)
-except ValueError:
-    print("Utilisateur déjà créé")
+    try:
+        auth.register_user(email, old_pwd)
+        print("[OK] Registered")
+    except ValueError:
+        print("[i] Already registered")
 
-# Étape 2 : Créer une session pour l'utilisateur
-session_id = auth.create_session(email)
-print(f"Session ID créé : {session_id}")
+    # Générer un token
+    token = auth.get_reset_password_token(email)
+    print(f"[OK] token: {token}")
 
-# Étape 3 : Tester avec un session_id valide
-user_from_session = auth.get_user_from_session_id(session_id)
-print(f"Utilisateur trouvé : {user_from_session.email if user_from_session else None}")
+    # Mettre à jour le mot de passe
+    auth.update_password(token, new_pwd)
+    print("[OK] password updated")
 
-# Étape 4 : Tester avec un session_id inexistant
-invalid_session = auth.get_user_from_session_id("1234-uuid-invalide")
-print(f"Avec UUID invalide : {invalid_session}")
+    # L'ancien mot de passe ne marche plus
+    assert not auth.valid_login(email, old_pwd)
+    # Le nouveau marche
+    assert auth.valid_login(email, new_pwd)
+    print("[OK] valid_login with new password")
 
-# Étape 5 : Tester avec None
-none_session = auth.get_user_from_session_id(None)
-print(f"Avec None : {none_session}")
+    # Le token doit être invalidé (réutilisation impossible)
+    try:
+        auth.update_password(token, "anotherpass")
+        print("[ERR] token should not be reusable")
+    except ValueError:
+        print("[OK] token cannot be reused")
+
+if __name__ == "__main__":
+    main()
