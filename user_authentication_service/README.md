@@ -4542,9 +4542,223 @@ _back_end/user_authentication_service#
 Task20
 main.py
 ```python
+#!/usr/bin/env python3
+"""
+End-to-end integration test for the authentication service
+"""
+import requests
+
+BASE_URL = "http://localhost:5000"
+
+
+def register_user(email: str, password: str) -> None:
+    """Register a new user"""
+    resp = requests.post(f"{BASE_URL}/users", data={"email": email, "password": password})
+    assert resp.status_code == 200 or resp.status_code == 400
+    if resp.status_code == 200:
+        assert resp.json() == {"email": email, "message": "user created"}
+    else:  # 400 if already registered
+        assert resp.json() == {"message": "email already registered"}
+
+
+def log_in_wrong_password(email: str, password: str) -> None:
+    """Attempt login with wrong password"""
+    resp = requests.post(f"{BASE_URL}/sessions", data={"email": email, "password": password})
+    assert resp.status_code == 401
+
+
+def log_in(email: str, password: str) -> str:
+    """Log in with correct credentials, return session_id"""
+    resp = requests.post(f"{BASE_URL}/sessions", data={"email": email, "password": password})
+    assert resp.status_code == 200
+    assert resp.json().get("email") == email and resp.json().get("message") == "logged in"
+    return resp.cookies.get("session_id")
+
+
+def profile_unlogged() -> None:
+    """Profile access without login should be forbidden"""
+    resp = requests.get(f"{BASE_URL}/profile")
+    assert resp.status_code == 403
+
+
+def profile_logged(session_id: str) -> None:
+    """Profile access with valid session"""
+    resp = requests.get(f"{BASE_URL}/profile", cookies={"session_id": session_id})
+    assert resp.status_code == 200
+    assert "email" in resp.json()
+
+
+def log_out(session_id: str) -> None:
+    """Log out user by deleting the session"""
+    resp = requests.delete(f"{BASE_URL}/sessions", cookies={"session_id": session_id})
+    assert resp.status_code == 200
+    assert resp.json().get("message") == "Bienvenue"
+
+
+def reset_password_token(email: str) -> str:
+    """Request a password reset token"""
+    resp = requests.post(f"{BASE_URL}/reset_password", data={"email": email})
+    assert resp.status_code == 200
+    assert resp.json().get("email") == email
+    return resp.json().get("reset_token")
+
+
+def update_password(email: str, reset_token: str, new_password: str) -> None:
+    """Update password with the reset token"""
+    resp = requests.put(
+        f"{BASE_URL}/reset_password",
+        data={"email": email, "reset_token": reset_token, "new_password": new_password}
+    )
+    assert resp.status_code == 200
+    assert resp.json() == {"email": email, "message": "Password updated"}
+
+
+# Variables fournies
+EMAIL = "guillaume@holberton.io"
+PASSWD = "b4l0u"
+NEW_PASSWD = "t4rt1fl3tt3"
+
+if __name__ == "__main__":
+    register_user(EMAIL, PASSWD)
+    log_in_wrong_password(EMAIL, NEW_PASSWD)
+    profile_unlogged()
+    session_id = log_in(EMAIL, PASSWD)
+    profile_logged(session_id)
+    log_out(session_id)
+    reset_token = reset_password_token(EMAIL)
+    update_password(EMAIL, reset_token, NEW_PASSWD)
+    log_in(EMAIL, NEW_PASSWD)
 
 ```
 
 ```bash
+python3 app.py
+python3 main.py
+```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# python3 main.py
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
+```
+
+```bash
+python3 app.py
+python3 mainlog.py
+```
+
+mainlog.py
+```python
+import requests
+
+BASE_URL = "http://127.0.0.1:5000"
+
+def register_user(email: str, password: str) -> None:
+    print(f"[INFO] Registering user: {email}")
+    r = requests.post(f"{BASE_URL}/users", data={"email": email, "password": password})
+    assert r.status_code == 200
+    print("[OK] User registered successfully")
+
+def log_in_wrong_password(email: str, password: str) -> None:
+    print(f"[INFO] Trying to login with wrong password for: {email}")
+    r = requests.post(f"{BASE_URL}/sessions", data={"email": email, "password": password})
+    assert r.status_code == 401
+    print("[OK] Wrong password rejected")
+
+def log_in(email: str, password: str) -> str:
+    print(f"[INFO] Logging in as: {email}")
+    r = requests.post(f"{BASE_URL}/sessions", data={"email": email, "password": password})
+    assert r.status_code == 200
+    session_id = r.cookies.get("session_id")
+    assert session_id is not None
+    print(f"[OK] Logged in, session_id={session_id}")
+    return session_id
+
+def profile_unlogged() -> None:
+    print("[INFO] Checking profile without login")
+    r = requests.get(f"{BASE_URL}/profile")
+    assert r.status_code == 403
+    print("[OK] Profile access denied when not logged in")
+
+def profile_logged(session_id: str) -> None:
+    print("[INFO] Checking profile with login")
+    r = requests.get(f"{BASE_URL}/profile", cookies={"session_id": session_id})
+    assert r.status_code == 200
+    print("[OK] Profile retrieved successfully")
+
+def log_out(session_id: str) -> None:
+    print("[INFO] Logging out")
+    r = requests.delete(f"{BASE_URL}/sessions", cookies={"session_id": session_id})
+    assert r.status_code == 200
+    print("[OK] Logged out successfully")
+
+def reset_password_token(email: str) -> str:
+    print(f"[INFO] Requesting reset token for: {email}")
+    r = requests.post(f"{BASE_URL}/reset_password", data={"email": email})
+    assert r.status_code == 200
+    token = r.json().get("reset_token")
+    assert token is not None
+    print(f"[OK] Reset token received: {token}")
+    return token
+
+def update_password(email: str, reset_token: str, new_password: str) -> None:
+    print(f"[INFO] Updating password for: {email}")
+    r = requests.put(f"{BASE_URL}/reset_password",
+                     data={"email": email, "reset_token": reset_token, "new_password": new_password})
+    assert r.status_code == 200
+    print("[OK] Password updated successfully")
+
+
+EMAIL = "guillaume@holberton.io"
+PASSWD = "b4l0u"
+NEW_PASSWD = "t4rt1fl3tt3"
+
+if __name__ == "__main__":
+    register_user(EMAIL, PASSWD)
+    log_in_wrong_password(EMAIL, NEW_PASSWD)
+    profile_unlogged()
+    session_id = log_in(EMAIL, PASSWD)
+    profile_logged(session_id)
+    log_out(session_id)
+    reset_token = reset_password_token(EMAIL)
+    update_password(EMAIL, reset_token, NEW_PASSWD)
+    log_in(EMAIL, NEW_PASSWD)
 
 ```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/user_authentication_service# python3 mainlog.py
+[INFO] Registering user: guillaume@holberton.io
+[OK] User registered successfully
+[INFO] Trying to login with wrong password for: guillaume@holberton.io
+[OK] Wrong password rejected
+[INFO] Checking profile without login
+[OK] Profile access denied when not logged in
+[INFO] Logging in as: guillaume@holberton.io
+[OK] Logged in, session_id=5d0e61b9-347a-4b99-8e1e-d3c96fb9bb45
+[INFO] Checking profile with login
+[OK] Profile retrieved successfully
+[INFO] Logging out
+[OK] Logged out successfully
+[INFO] Requesting reset token for: guillaume@holberton.io
+[OK] Reset token received: 881e0984-c7cc-45d6-a135-87830c7f25af
+[INFO] Updating password for: guillaume@holberton.io
+[OK] Password updated successfully
+[INFO] Logging in as: guillaume@holberton.io
+[OK] Logged in, session_id=e90a1901-ee3e-4edc-8e5f-ae9cb671e2f1
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
+```
+
+| Étape | Action | Résultat |
+|-------|--------|----------|
+| 1 | Enregistrement utilisateur | ✅ OK ou déjà enregistré |
+| 2 | Connexion avec mauvais mot de passe | ✅ Refusé |
+| 3 | Accès profil sans connexion | ✅ Accès refusé |
+| 4 | Connexion avec bon mot de passe | ✅ Session créée |
+| 5 | Accès profil connecté | ✅ Accès réussi |
+| 6 | Déconnexion | ✅ OK |
+| 7 | Demande de token de réinitialisation | ✅ Token généré |
+| 8 | Mise à jour du mot de passe | ✅ OK |
+| 9 | Connexion avec nouveau mot de passe | ✅ OK |
