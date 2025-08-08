@@ -2846,11 +2846,236 @@ après security cookies en docstring
 Task16
 auth.py
 ```python
+#!/usr/bin/env python3
+"""Auth module: enregistrement et gestion des utilisateurs."""
+from typing import Optional
+import bcrypt
+from sqlalchemy.orm.exc import NoResultFound
+from uuid import uuid4 # ✅ Ajout de l'import pour Task 16
+
+import uuid  # ✅ Ajout de l'import pour Task 9
+
+from db import DB
+from user import User
+
+
+def _hash_password(password: str) -> bytes:
+    """Retourne un hash bcrypt (bytes) du mot de passe fourni."""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+
+def _generate_uuid() -> str:
+    """Génère et retourne un UUID4 en chaîne de caractères."""
+    return str(uuid.uuid4())
+
+
+class Auth:
+    """Auth class to interact with the authentication database."""
+
+    def __init__(self) -> None:
+        self._db = DB()
+
+    def register_user(self, email: str, password: str) -> User:
+        """Crée un nouvel utilisateur si l'email n'existe pas.
+
+        - Si l'utilisateur existe déjà: lève ValueError("User <email> already
+        exists")
+        - Sinon: hash le mot de passe, crée l'utilisateur et le retourne.
+        """
+        try:
+            # S'il existe déjà, find_user_by ne lèvera pas d'exception
+            self._db.find_user_by(email=email)
+        except NoResultFound:
+            hashed = _hash_password(password)
+            # On enregistre en base sous forme de str (bcrypt renvoie des bytes
+            return self._db.add_user(email, hashed.decode("utf-8"))
+
+        # Si on arrive ici, un user existe déjà
+        raise ValueError(f"User {email} already exists")
+
+    def valid_login(self, email: str, password: str) -> bool:
+        """Valide les identifiants d'un utilisateur."""
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            return False
+
+        if user.hashed_password is None:
+            return False
+
+        # bcrypt.checkpw attend les deux valeurs en bytes
+        return bcrypt.checkpw(
+            password.encode('utf-8'),
+            user.hashed_password.encode('utf-8')
+        )
+
+    def create_session(self, email: str) -> Optional[str]:
+        """Create a session for the user and return the session_id.
+        Returns None if the email is unknown.
+        """
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            return None
+
+        session_id = _generate_uuid()
+        self._db.update_user(user.id, session_id=session_id)
+        return session_id
+
+    def get_user_from_session_id(
+            self, session_id: Optional[str]) -> Optional[User]:
+        """
+        Récupère un utilisateur à partir de son session_id.
+
+        Args:
+            session_id (Optional[str]): ID de session de l'utilisateur
+
+        Returns:
+            Optional[User]: L'utilisateur correspondant ou None
+        """
+        if session_id is None:
+            return None
+
+        try:
+            return self._db.find_user_by(session_id=session_id)
+        except NoResultFound:
+            return None
+
+    def destroy_session(self, user_id: int) -> None:
+        """
+        Destroys the session for the given user ID by setting
+        their session_id to None.
+        Uses only public methods of self._db.
+
+        Args:
+            user_id (int): ID of the user whose session must be destroyed.
+
+        Returns:
+            None
+        """
+        if user_id is None:
+            return None
+
+        try:
+            # Récupérer l'utilisateur avec l'ID donné
+            user = self._db.find_user_by(id=user_id)
+        except NoResultFound:
+            return None
+
+        # Mettre à jour le champ session_id à None
+        self._db.update_user(user_id, session_id=None)
+
+        return None
+
+    def get_reset_password_token(self, email: str) -> str:
+        """
+        Generate a password reset token for the user identified by email.
+
+        - If user doesn't exist -> raise ValueError
+        - Otherwise: generate UUID, store it in reset_token, and return it
+        """
+        if email is None:
+            raise ValueError("email is required")
+
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            raise ValueError("user not found")
+
+        token = str(uuid4())
+        self._db.update_user(user.id, reset_token=token)
+        return token
+
+```
+
+16_main.py
+```python
+#!/usr/bin/env python3
+from auth import Auth
+from sqlalchemy.orm.exc import NoResultFound
+
+def main():
+    auth = Auth()
+    email = "bob@bob.com"
+    password = "MyPwdOfBob"
+
+    # register (idempotent)
+    try:
+        auth.register_user(email, password)
+        print("[OK] Registered user")
+    except ValueError:
+        print("[i] Already registered")
+
+    # generate token
+    token = auth.get_reset_password_token(email)
+    assert isinstance(token, str) and len(token) > 0
+    print(f"[OK] reset token: {token}")
+
+    # non-existing email -> ValueError
+    try:
+        auth.get_reset_password_token("nope@example.com")
+        print("[ERR] expected ValueError for unknown email")
+    except ValueError:
+        print("[OK] ValueError raised for unknown email")
+
+if __name__ == "__main__":
+    main()
+
+```
+
+test_auth_reset_token_16.py
+```python
+import unittest
+from auth import Auth
+
+class TestResetToken(unittest.TestCase):
+    def setUp(self):
+        self.auth = Auth()
+        self.email = "bob@bob.com"
+        self.password = "MyPwdOfBob"
+        try:
+            self.auth.register_user(self.email, self.password)
+        except ValueError:
+            pass
+
+    def test_get_reset_password_token_ok(self):
+        token = self.auth.get_reset_password_token(self.email)
+        self.assertIsInstance(token, str)
+        self.assertTrue(len(token) > 0)
+        # token should be persisted in DB
+        user = self.auth._db.find_user_by(email=self.email)  # or via your public getter if you have one
+        self.assertEqual(user.reset_token, token)
+
+    def test_get_reset_password_token_unknown_email(self):
+        with self.assertRaises(ValueError):
+            self.auth.get_reset_password_token("unknown@example.com")
+
+if __name__ == "__main__":
+    unittest.main()
 
 ```
 
 ```bash
+python3 16_main.py
+python3 -m unittest test_auth_reset_token_16.py -v
+```
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# python3 16_main.py
+[OK] Registered user
+[OK] reset token: edf97f3e-9d8a-4d91-92b9-2cb501571240
+[OK] ValueError raised for unknown email
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# python3 -m unittest test_auth_reset_token_16.py -v
+test_get_reset_password_token_ok (test_auth_reset_token_16.TestResetToken) ... ok
+test_get_reset_password_token_unknown_email (test_auth_reset_token_16.TestResetToken) ... ok
 
+----------------------------------------------------------------------
+Ran 2 tests in 0.762s
+
+OK
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service#
 ```
 
 

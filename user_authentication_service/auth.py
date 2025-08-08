@@ -3,6 +3,8 @@
 from typing import Optional
 import bcrypt
 from sqlalchemy.orm.exc import NoResultFound
+from uuid import uuid4 # ✅ Ajout de l'import pour Task 16
+
 import uuid  # ✅ Ajout de l'import pour Task 9
 
 from db import DB
@@ -116,3 +118,22 @@ class Auth:
         self._db.update_user(user_id, session_id=None)
 
         return None
+
+    def get_reset_password_token(self, email: str) -> str:
+        """
+        Generate a password reset token for the user identified by email.
+
+        - If user doesn't exist -> raise ValueError
+        - Otherwise: generate UUID, store it in reset_token, and return it
+        """
+        if email is None:
+            raise ValueError("email is required")
+
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            raise ValueError("user not found")
+
+        token = str(uuid4())
+        self._db.update_user(user.id, reset_token=token)
+        return token
