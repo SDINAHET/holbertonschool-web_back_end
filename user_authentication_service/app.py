@@ -273,5 +273,46 @@ def profile():
     return jsonify({"email": user.email}), 200
 
 
+@app.route("/reset_password", methods=["POST"])
+def get_reset_password_token():
+    """
+    Generate a reset password token
+    ---
+    tags: [Auth]
+    security: []  # Accessible sans être connecté
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+    responses:
+      200:
+        description: Token generated
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: bob@bob.com
+            reset_token:
+              type: string
+              example: 163fe508-19a2-48ed-a7c8-d9c6e56fabd1
+      403:
+        description: Email not found
+    """
+    email = request.form.get("email")
+    if not email:
+        abort(403)
+
+    try:
+        token = AUTH.get_reset_password_token(email)
+        return jsonify({"email": email, "reset_token": token}), 200
+    except ValueError:
+        abort(403)
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")

@@ -2851,7 +2851,7 @@ auth.py
 from typing import Optional
 import bcrypt
 from sqlalchemy.orm.exc import NoResultFound
-from uuid import uuid4 # ✅ Ajout de l'import pour Task 16
+from uuid import uuid4  # ✅ Ajout de l'import pour Task 16
 
 import uuid  # ✅ Ajout de l'import pour Task 9
 
@@ -3082,11 +3082,435 @@ bertonschool-web_back_end/user_authentication_service#
 Task17
 app.py
 ```python
+#!/usr/bin/env python3
+"""Basic Flask app"""
+from flask import Flask, jsonify, request, abort, redirect
+from flasgger import Swagger
+from auth import Auth
+
+app = Flask(__name__)
+AUTH = Auth()
+
+# (Optionnel) Métadonnées OpenAPI
+# swagger = Swagger(app, template={
+#     "swagger": "2.0",
+#     "info": {
+#         "title": "My Flask API",
+#         "description": "Simple API with Swagger UI (Flasgger)",
+#         "version": "1.0.0"
+#     },
+#     "basePath": "/",
+#     "schemes": ["http"]
+# })
+
+app.config["SWAGGER"] = {
+    "title": "My Flask API",
+    "uiversion": 3,
+}
+Swagger(app, template={
+    "swagger": "2.0",
+    "info": {"title": "My Flask API", "version": "1.0.0"},
+    "basePath": "/",
+    "schemes": ["http"],
+    "tags": [
+        {"name": "Root", "description": "General endpoints"},
+        {"name": "Auth", "description": "Authentication endpoints"},
+    ],
+    # 👉 clé pour afficher le bouton "Authorize"
+    "securityDefinitions": {
+        "CookieAuth": {
+            "type": "apiKey",
+            "name": "Cookie",   # on passera "session_id=<uuid>"
+            "in": "header"
+        }
+    },
+    # 👇 IMPORTANT: active un requirement de sécurité par défaut
+    "security": [
+        {"CookieAuth": []}
+    ]
+})
+
+
+@app.route("/", methods=["GET"])
+def index():
+    """
+    Index endpoint
+    ---
+    tags:
+      - Root
+    security: []          # 👈 pas d’auth requise sur cette route
+    summary: Welcome message
+    description: Returns a JSON message welcoming the user to the API.
+    produces:
+      - application/json
+    responses:
+      200:
+        description: A welcome message
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Bienvenue
+    """
+    # """GET / route - retourne un message JSON"""
+    return jsonify({"message": "Bienvenue"})
+
+
+@app.route("/users", methods=["POST"])
+def users():
+    """
+    Register a new user
+    ---
+    tags: [Auth]
+    security: []              # 👈 login est public
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+      - in: formData
+        name: password
+        type: string
+        required: true
+        description: User password
+    responses:
+      200:
+        description: User created
+        schema:
+          type: object
+          properties:
+            email: {type: string, example: bob@me.com}
+            message: {type: string, example: user created}
+      400:
+        description: Email already registered or missing fields
+        schema:
+          type: object
+          properties:
+            message: {type: string, example: email already registered}
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    try:
+        user = AUTH.register_user(email, password)
+        return jsonify({"email": email, "message": "user created"})
+    except ValueError:
+        return jsonify({"message": "email already registered"}), 400
+
+
+@app.route("/sessions", methods=["POST"])
+def login():
+    """
+    Log in user and create a session
+    ---
+    tags:
+      - Auth
+    security: []              # 👈 login est public
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+      - in: formData
+        name: password
+        type: string
+        required: true
+        description: User password
+    responses:
+      200:
+        description: Login successful, session created
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: bob@bob.com
+            message:
+              type: string
+              example: logged in
+        headers:
+          Set-Cookie:
+            description: Session cookie
+            type: string
+            example: session_id=163fe508-19a2-48ed-a7c8-d9c6e56fabd1; Path=/
+      401:
+        description: Unauthorized (invalid credentials)
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    if not email or not password or not AUTH.valid_login(email, password):
+        abort(401)
+
+    session_id = AUTH.create_session(email)
+    if session_id is None:
+        abort(401)
+
+    resp = jsonify({"email": email, "message": "logged in"})
+    resp.set_cookie("session_id", session_id, path="/")
+    return resp
+
+
+@app.route("/sessions", methods=["DELETE"])
+def logout():
+    """
+    Log out (destroy session)
+    ---
+    tags: [Auth]
+    security:
+      - CookieAuth: []
+    parameters:
+      - in: header
+        name: Cookie
+        type: string
+        required: true
+        description: "Session cookie: session_id=<uuid>"
+        default: "session_id=11111111-1111-1111-1111-111111111111"
+    responses:
+      302:
+        description: Redirects to /
+      403:
+        description: Forbidden (no valid session)
+    """
+    # """
+    # Log out (destroy session)
+    # ---
+    # tags: [Auth]
+    # summary: Logout user and destroy session
+    # responses:
+    #   302:
+    #     description: Redirects to /
+    #   403:
+    #     description: Forbidden (no valid session)
+    # """
+    session_id = request.cookies.get("session_id")
+    if not session_id:
+        abort(403)
+
+    user = AUTH.get_user_from_session_id(session_id)
+    if user is None:
+        abort(403)
+
+    AUTH.destroy_session(user.id)
+    # Redirection 302 par défaut vers la racine
+    return redirect("/")
+
+
+@app.route("/profile", methods=["GET"])
+def profile():
+    """
+    Get user profile by session cookie
+    ---
+    tags: [Auth]
+    security:
+      - CookieAuth: []
+    parameters:
+      - in: header
+        name: Cookie
+        type: string
+        required: true
+        description: "Session cookie: session_id=<uuid>"
+        default: "session_id=11111111-1111-1111-1111-111111111111"
+    responses:
+      200:
+        description: Profile found
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: bob@bob.com
+      403:
+        description: Forbidden (invalid or missing session)
+    """
+    # """
+    # Get user profile by session cookie
+    # ---
+    # tags: [Auth]
+    # responses:
+    #   200:
+    #     description: Profile found
+    #     schema:
+    #       type: object
+    #       properties:
+    #         email:
+    #           type: string
+    #           example: bob@bob.com
+    #   403:
+    #     description: Forbidden (invalid or missing session)
+    # """
+    session_id = request.cookies.get("session_id")
+    if not session_id:
+        abort(403)
+
+    user = AUTH.get_user_from_session_id(session_id)
+    if user is None:
+        abort(403)
+
+    return jsonify({"email": user.email}), 200
+
+
+@app.route("/reset_password", methods=["POST"])
+def get_reset_password_token():
+    """
+    Generate a reset password token
+    ---
+    tags: [Auth]
+    security: []  # Accessible sans être connecté
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+    responses:
+      200:
+        description: Token generated
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: bob@bob.com
+            reset_token:
+              type: string
+              example: 163fe508-19a2-48ed-a7c8-d9c6e56fabd1
+      403:
+        description: Email not found
+    """
+    email = request.form.get("email")
+    if not email:
+        abort(403)
+
+    try:
+        token = AUTH.get_reset_password_token(email)
+        return jsonify({"email": email, "reset_token": token}), 200
+    except ValueError:
+        abort(403)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port="5000")
+
+```
+
+17_main.py
+```python
+#!/usr/bin/env python3
+from app import app, AUTH
+
+def main():
+    # email = "reset17@example.com"
+    # password = "pwd12345"
+    email = "bob@bob.com"
+    password = "MyPwdOfBob"
+
+    # Register user (idempotent)
+    try:
+        AUTH.register_user(email, password)
+        print("[OK] Registered")
+    except ValueError:
+        print("[i] Already registered")
+
+    with app.test_client() as client:
+        # 1) Manque email -> 403
+        r = client.post("/reset_password", data={})
+        assert r.status_code == 403
+        print("[OK] POST /reset_password without email -> 403")
+
+        # 2) Email inconnu -> 403
+        r = client.post("/reset_password", data={"email": "unknown@example.com"})
+        assert r.status_code == 403
+        print("[OK] POST /reset_password unknown email -> 403")
+
+        # 3) Email existant -> 200 + reset_token
+        r = client.post("/reset_password", data={"email": email})
+        assert r.status_code == 200, r.data
+        j = r.get_json()
+        assert j["email"] == email and "reset_token" in j and j["reset_token"]
+        print(f"[OK] Token generated: {j['reset_token']}")
+
+if __name__ == "__main__":
+    main()
+
+```
+
+test_app_reset_password_token_17.py
+```python
+import unittest
+from app import app, AUTH
+
+class TestGetResetPasswordToken(unittest.TestCase):
+    def setUp(self):
+        self.client = app.test_client()
+        # self.email = "unittest_reset17@example.com"
+        # self.password = "pwd12345"
+        self.email = "bob@bob.com"
+        self.password = "MyPwdOfBob"
+        try:
+            AUTH.register_user(self.email, self.password)
+        except ValueError:
+            pass
+
+    def test_missing_email(self):
+        resp = self.client.post("/reset_password", data={})
+        self.assertEqual(resp.status_code, 403)
+
+    def test_unknown_email(self):
+        resp = self.client.post("/reset_password", data={"email": "nope@example.com"})
+        self.assertEqual(resp.status_code, 403)
+
+    def test_known_email_generates_token(self):
+        resp = self.client.post("/reset_password", data={"email": self.email})
+        self.assertEqual(resp.status_code, 200)
+        payload = resp.get_json()
+        self.assertEqual(payload["email"], self.email)
+        self.assertIn("reset_token", payload)
+        self.assertTrue(payload["reset_token"])
+
+        # (optionnel) vérifier la persistance du token
+        user = AUTH._db.find_user_by(email=self.email)
+        self.assertEqual(user.reset_token, payload["reset_token"])
+
+if __name__ == "__main__":
+    unittest.main()
 
 ```
 
 ```bash
+python3 17_main.py
+python3 -m unittest test_app_reset_password_token_17.py -v
+```
 
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/user_authentication(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# p                                                     p
+ython3 17_main.py
+[OK] Registered
+[OK] POST /reset_password without email -> 403
+[OK] POST /reset_password unknown email -> 403
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_tri44d
+mestre/holbertonschool-web_back_end/user_authentication
+_service# python3 -m unittest test_app_reset_password_token_17.py -v
+test_known_email_generates_token (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_missing_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_unknown_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.342s
+
+OK
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
 ```
 
 Task18
