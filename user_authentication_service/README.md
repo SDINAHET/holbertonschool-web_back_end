@@ -1880,6 +1880,7 @@ def login():
     resp.set_cookie("session_id", session_id, path="/")
     return resp
 
+
 @app.route("/sessions", methods=["DELETE"])
 def logout():
     """
