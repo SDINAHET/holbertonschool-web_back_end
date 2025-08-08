@@ -5012,3 +5012,154 @@ reset_token = reset_password_token(EMAIL); ok("Token reset généré")
 update_password(EMAIL, reset_token, NEW_PASSWD); ok("Mot de passe mis à jour")
 log_in(EMAIL, NEW_PASSWD); ok("Login avec nouveau mot de passe OK")
 ```
+
+
+
+test unitest task7 to 19
+all_test.py
+```python
+import unittest
+import importlib
+import sys
+
+# if __name__ == "__main__":
+#     loader = unittest.TestLoader()
+#     suite = unittest.TestSuite()
+
+    # Ajout des tests dans l'ordre souhaité
+    # for test_file in [
+    #     "test_app_logout_14",
+    #     "test_auth_destroy_session_13",
+    #     "test_app_profile_15",
+    #     "test_auth_reset_token_16",
+    #     "test_app_reset_password_token_17",
+    #     "test_auth_update_password_18",
+    #     "test_app_update_password_19",
+    # ]:
+    #     suite.addTests(loader.loadTestsFromName(test_file))
+
+    # runner = unittest.TextTestRunner(verbosity=2)
+    # runner.run(suite)
+
+ORDERED_TEST_MODULES = [
+    # 7 → 19, dans l’ordre
+    "test_users_7",
+    "test_valid_login_8",
+    "test_generate_uuid_9",
+    "test_auth_create_session_10",
+    "test_app_login_11",
+    "test_auth_get_user_from_session_id_12",
+    "test_auth_destroy_session_13",
+    "test_app_logout_14",
+    "test_app_profile_15",
+    "test_auth_reset_token_16",
+    "test_app_reset_password_token_17",
+    "test_auth_update_password_18",
+    "test_app_update_password_19",
+]
+
+def load_module_safely(name: str):
+    try:
+        return importlib.import_module(name)
+    except Exception as e:
+        print(f"[WARN] Impossible d'importer {name}: {e}")
+        return None
+
+def main():
+    loader = unittest.defaultTestLoader
+    suite = unittest.TestSuite()
+
+    for mod_name in ORDERED_TEST_MODULES:
+        mod = load_module_safely(mod_name)
+        if mod is None:
+            continue
+        suite.addTests(loader.loadTestsFromModule(mod))
+
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+    # Code de sortie non-zéro si échecs/erreurs
+    sys.exit(0 if result.wasSuccessful() else 1)
+
+if __name__ == "__main__":
+    main()
+```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# python3 all_tests.py
+test_register_user_already_registered (test_users_7.TestTask7RegisterUser) ... ok
+test_register_user_created (test_users_7.TestTask7RegisterUser) ... ok
+test_valid_login_correct_credentials (test_valid_login_8.TestValidLogin) ... ok
+test_valid_login_unknown_email (test_valid_login_8.TestValidLogin) ... ok
+test_valid_login_wrong_password (test_valid_login_8.TestValidLogin) ... ok
+test_returns_different_values_each_time (test_generate_uuid_9.TestGenerateUUID)
+Two calls should not return the same UUID ... ok
+test_returns_string_and_valid_uuid (test_generate_uuid_9.TestGenerateUUID)
+Should return a str that is a valid UUIDv4 ... ok
+test_uses_uuid4_under_the_hood (test_generate_uuid_9.TestGenerateUUID)
+Patch uuid.uuid4 to a fixed value and ensure it is returned as str ... ok
+test_create_session_success (test_auth_create_session_10.TestCreateSession) ... ok
+test_create_session_unknown_email (test_auth_create_session_10.TestCreateSession) ... ok
+test_login_failure_returns_401 (test_app_login_11.TestLoginEndpoint) ... ok
+test_login_success_sets_cookie_and_returns_json (test_app_login_11.TestLoginEndpoint) ... ok
+test_none_session_id_returns_none_and_skips_db (test_auth_get_user_from_session_id_12.TestGetUserFromSessionId) ... ok
+test_returns_user_when_session_exists (test_auth_get_user_from_session_id_12.TestGetUserFromSessionId) ... ok
+test_unknown_session_id_returns_none (test_auth_get_user_from_session_id_12.TestGetUserFromSessionId) ... ok
+test_destroy_session (test_auth_destroy_session_13.TestDestroySession) ... ok
+test_destroy_session_none (test_auth_destroy_session_13.TestDestroySession) ... ok
+test_logout_with_cookie (test_app_logout_14.TestLogoutEndpoint) ... ok
+test_logout_without_cookie (test_app_logout_14.TestLogoutEndpoint) ... ok
+test_profile_with_cookie (test_app_profile_15.TestProfileEndpoint) ... ok
+test_profile_without_cookie (test_app_profile_15.TestProfileEndpoint) ... ok
+test_get_reset_password_token_ok (test_auth_reset_token_16.TestResetToken) ... ok
+test_get_reset_password_token_unknown_email (test_auth_reset_token_16.TestResetToken) ... ok
+test_known_email_generates_token (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_missing_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_unknown_email (test_app_reset_password_token_17.TestGetResetPasswordToken) ... ok
+test_update_password_bad_token (test_auth_update_password_18.TestUpdatePassword) ... ok
+test_update_password_ok (test_auth_update_password_18.TestUpdatePassword) ... ok
+test_put_reset_password_invalid_token (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+test_put_reset_password_missing_fields (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+test_put_reset_password_success_and_invalidate_token (test_app_update_password_19.TestUpdatePasswordEndpoint) ... ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 7.415s
+
+OK
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
+```
+
+| #  | Test file/module                                        | Test case name                                                                                   | Statut |
+|----|--------------------------------------------------------|--------------------------------------------------------------------------------------------------|--------|
+| 7  | test_users_7                                            | test_register_user_already_registered                                                            | ✅ OK  |
+| 7  | test_users_7                                            | test_register_user_created                                                                       | ✅ OK  |
+| 8  | test_valid_login_8                                      | test_valid_login_correct_credentials                                                             | ✅ OK  |
+| 8  | test_valid_login_8                                      | test_valid_login_unknown_email                                                                   | ✅ OK  |
+| 8  | test_valid_login_8                                      | test_valid_login_wrong_password                                                                  | ✅ OK  |
+| 9  | test_generate_uuid_9                                    | test_returns_different_values_each_time                                                          | ✅ OK  |
+| 9  | test_generate_uuid_9                                    | test_returns_string_and_valid_uuid                                                               | ✅ OK  |
+| 9  | test_generate_uuid_9                                    | test_uses_uuid4_under_the_hood                                                                   | ✅ OK  |
+| 10 | test_auth_create_session_10                             | test_create_session_success                                                                      | ✅ OK  |
+| 10 | test_auth_create_session_10                             | test_create_session_unknown_email                                                                | ✅ OK  |
+| 11 | test_app_login_11                                       | test_login_failure_returns_401                                                                   | ✅ OK  |
+| 11 | test_app_login_11                                       | test_login_success_sets_cookie_and_returns_json                                                  | ✅ OK  |
+| 12 | test_auth_get_user_from_session_id_12                   | test_none_session_id_returns_none_and_skips_db                                                    | ✅ OK  |
+| 12 | test_auth_get_user_from_session_id_12                   | test_returns_user_when_session_exists                                                            | ✅ OK  |
+| 12 | test_auth_get_user_from_session_id_12                   | test_unknown_session_id_returns_none                                                             | ✅ OK  |
+| 13 | test_auth_destroy_session_13                            | test_destroy_session                                                                             | ✅ OK  |
+| 13 | test_auth_destroy_session_13                            | test_destroy_session_none                                                                        | ✅ OK  |
+| 14 | test_app_logout_14                                      | test_logout_with_cookie                                                                          | ✅ OK  |
+| 14 | test_app_logout_14                                      | test_logout_without_cookie                                                                       | ✅ OK  |
+| 15 | test_app_profile_15                                     | test_profile_with_cookie                                                                         | ✅ OK  |
+| 15 | test_app_profile_15                                     | test_profile_without_cookie                                                                      | ✅ OK  |
+| 16 | test_auth_reset_token_16                                | test_get_reset_password_token_ok                                                                 | ✅ OK  |
+| 16 | test_auth_reset_token_16                                | test_get_reset_password_token_unknown_email                                                      | ✅ OK  |
+| 17 | test_app_reset_password_token_17                        | test_known_email_generates_token                                                                 | ✅ OK  |
+| 17 | test_app_reset_password_token_17                        | test_missing_email                                                                               | ✅ OK  |
+| 17 | test_app_reset_password_token_17                        | test_unknown_email                                                                               | ✅ OK  |
+| 18 | test_auth_update_password_18                            | test_update_password_bad_token                                                                   | ✅ OK  |
+| 18 | test_auth_update_password_18                            | test_update_password_ok                                                                          | ✅ OK  |
+| 19 | test_app_update_password_19                             | test_put_reset_password_invalid_token                                                            | ✅ OK  |
+| 19 | test_app_update_password_19                             | test_put_reset_password_missing_fields                                                           | ✅ OK  |
+| 19 | test_app_update_password_19                             | test_put_reset_password_success_and_invalidate_token                                             | ✅ OK  |
