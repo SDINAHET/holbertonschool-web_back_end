@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Basic Flask app"""
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 from flasgger import Swagger
 from auth import Auth
 
@@ -88,6 +88,59 @@ def users():
     except ValueError:
         return jsonify({"message": "email already registered"}), 400
 
+@app.route("/sessions", methods=["POST"])
+def login():
+    """
+    Log in user and create a session
+    ---
+    tags:
+      - Auth
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+      - in: formData
+        name: password
+        type: string
+        required: true
+        description: User password
+    responses:
+      200:
+        description: Login successful, session created
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: bob@bob.com
+            message:
+              type: string
+              example: logged in
+        headers:
+          Set-Cookie:
+            description: Session cookie
+            type: string
+            example: session_id=163fe508-19a2-48ed-a7c8-d9c6e56fabd1; Path=/
+      401:
+        description: Unauthorized (invalid credentials)
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    if not email or not password or not AUTH.valid_login(email, password):
+        abort(401)
+
+    session_id = AUTH.create_session(email)
+    if session_id is None:
+        abort(401)
+
+    resp = jsonify({"email": email, "message": "logged in"})
+    resp.set_cookie("session_id", session_id, path="/")
+    return resp
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")

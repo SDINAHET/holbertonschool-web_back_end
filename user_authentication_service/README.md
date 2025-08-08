@@ -1141,12 +1141,215 @@ bertonschool-web_back_end/user_authentication_service#
 Task11
 app.py
 ```python
+#!/usr/bin/env python3
+"""Basic Flask app"""
+from flask import Flask, jsonify, request, abort
+from flasgger import Swagger
+from auth import Auth
 
+app = Flask(__name__)
+AUTH = Auth()
+
+# (Optionnel) Métadonnées OpenAPI
+swagger = Swagger(app, template={
+    "swagger": "2.0",
+    "info": {
+        "title": "My Flask API",
+        "description": "Simple API with Swagger UI (Flasgger)",
+        "version": "1.0.0"
+    },
+    "basePath": "/",
+    "schemes": ["http"]
+})
+
+
+@app.route("/", methods=["GET"])
+def index():
+    """
+    Index endpoint
+    ---
+    tags:
+      - Root
+    summary: Welcome message
+    description: Returns a JSON message welcoming the user to the API.
+    produces:
+      - application/json
+    responses:
+      200:
+        description: A welcome message
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Bienvenue
+    """
+    # """GET / route - retourne un message JSON"""
+    return jsonify({"message": "Bienvenue"})
+
+
+@app.route("/users", methods=["POST"])
+def users():
+    """
+    Register a new user
+    ---
+    tags: [Auth]
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+      - in: formData
+        name: password
+        type: string
+        required: true
+        description: User password
+    responses:
+      200:
+        description: User created
+        schema:
+          type: object
+          properties:
+            email: {type: string, example: bob@me.com}
+            message: {type: string, example: user created}
+      400:
+        description: Email already registered or missing fields
+        schema:
+          type: object
+          properties:
+            message: {type: string, example: email already registered}
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    try:
+        user = AUTH.register_user(email, password)
+        return jsonify({"email": email, "message": "user created"})
+    except ValueError:
+        return jsonify({"message": "email already registered"}), 400
+
+@app.route("/sessions", methods=["POST"])
+def login():
+    """
+    Log in user and create a session
+    ---
+    tags:
+      - Auth
+    consumes:
+      - application/x-www-form-urlencoded
+    parameters:
+      - in: formData
+        name: email
+        type: string
+        required: true
+        description: User email
+      - in: formData
+        name: password
+        type: string
+        required: true
+        description: User password
+    responses:
+      200:
+        description: Login successful, session created
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+              example: bob@bob.com
+            message:
+              type: string
+              example: logged in
+        headers:
+          Set-Cookie:
+            description: Session cookie
+            type: string
+            example: session_id=163fe508-19a2-48ed-a7c8-d9c6e56fabd1; Path=/
+      401:
+        description: Unauthorized (invalid credentials)
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    if not email or not password or not AUTH.valid_login(email, password):
+        abort(401)
+
+    session_id = AUTH.create_session(email)
+    if session_id is None:
+        abort(401)
+
+    resp = jsonify({"email": email, "message": "logged in"})
+    resp.set_cookie("session_id", session_id, path="/")
+    return resp
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port="5000")
 ```
+![alt text](image-2.png)
 
 ```bash
-
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# curl -XPOST localhost:5000/users -d 'email=bob@bob.com' -d 'password=mySuperPwd'
+{"email":"bob@bob.com","message":"user created"}
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# curl -XPOST localhost:5000/sessions -d 'email=bob@bob.com' -d 'password=mySuperPwd' -v
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 127.0.0.1:5000...
+* Connected to localhost (127.0.0.1) port 5000 (#0)
+> POST /sessions HTTP/1.1
+> Host: localhost:5000
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Content-Length: 37
+> Content-Type: application/x-www-form-urlencoded
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Server: Werkzeug/3.1.3 Python/3.10.12
+< Date: Fri, 08 Aug 2025 16:34:33 GMT
+< Content-Type: application/json
+< Content-Length: 46
+< Set-Cookie: session_id=86657708-ff82-4ca3-8343-479069bddbb6; Path=/
+< Connection: close
+<
+{"email":"bob@bob.com","message":"logged in"}
+* Closing connection 0
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service# curl -XPOST localhost:5000/sessions -d 'email=bob@bob.com' -d 'password=BlaBla' -v
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 127.0.0.1:5000...
+* Connected to localhost (127.0.0.1) port 5000 (#0)
+> POST /sessions HTTP/1.1
+> Host: localhost:5000
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Content-Length: 33
+> Content-Type: application/x-www-form-urlencoded
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 401 UNAUTHORIZED
+< Server: Werkzeug/3.1.3 Python/3.10.12
+< Date: Fri, 08 Aug 2025 16:35:13 GMT
+< Content-Type: text/html; charset=utf-8
+< Content-Length: 317
+< Connection: close
+<
+<!doctype html>
+<html lang=en>
+<title>401 Unauthorized</title>
+<h1>Unauthorized</h1>
+<p>The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn&#39;t understand how to supply the credentials required.</p>
+* Closing connection 0
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/hol
+bertonschool-web_back_end/user_authentication_service#
 ```
+
+???
+![alt text](image-3.png)
+
 
 Task12
 auth.py
