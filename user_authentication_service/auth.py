@@ -3,6 +3,7 @@
 from typing import Optional
 import bcrypt
 from sqlalchemy.orm.exc import NoResultFound
+import uuid  # ✅ Ajout de l'import pour Task 9
 
 from db import DB
 from user import User

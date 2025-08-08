@@ -965,6 +965,7 @@ auth.py
 """Auth module: enregistrement et gestion des utilisateurs."""
 from typing import Optional
 import bcrypt
+import uuid  # ✅ Ajout de l'import pour Task 9
 from sqlalchemy.orm.exc import NoResultFound
 
 from db import DB
