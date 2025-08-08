@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Basic Flask app"""
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, redirect
 from flasgger import Swagger
 from auth import Auth
 
@@ -142,6 +142,31 @@ def login():
     resp = jsonify({"email": email, "message": "logged in"})
     resp.set_cookie("session_id", session_id, path="/")
     return resp
+
+@app.route("/sessions", methods=["DELETE"])
+def logout():
+    """
+    Log out (destroy session)
+    ---
+    tags: [Auth]
+    summary: Logout user and destroy session
+    responses:
+      302:
+        description: Redirects to /
+      403:
+        description: Forbidden (no valid session)
+    """
+    session_id = request.cookies.get("session_id")
+    if not session_id:
+        abort(403)
+
+    user = AUTH.get_user_from_session_id(session_id)
+    if user is None:
+        abort(403)
+
+    AUTH.destroy_session(user.id)
+    # Redirection 302 par défaut vers la racine
+    return redirect("/")
 
 
 if __name__ == "__main__":
