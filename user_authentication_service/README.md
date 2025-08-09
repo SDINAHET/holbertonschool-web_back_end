@@ -6387,4 +6387,19 @@ if __name__ == "__main__":
 
 
 dashboard
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# python3 pytest_progress_sse.py
+ * Serving Flask app 'pytest_progress_sse'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5057
+ * Running on http://172.18.71.179:5057
+Press CTRL+C to quit
+127.0.0.1 - - [09/Aug/2025 02:12:09] "GET /events?suite=unittest HTTP/1.1" 200 -
+127.0.0.1 - - [09/Aug/2025 02:12:16] "POST /run?suite=unittest HTTP/1.1" 200 -
+127.0.0.1 - - [09/Aug/2025 02:12:16] "GET /events?suite=unittest HTTP/1.1" 200 -
+```
+
 ![alt text](image-8.png)
