@@ -87,6 +87,8 @@
   .panel{display:flex; flex-direction:column; min-height:320px}
   .panel h2{margin:0 0 10px 0; font-size:16px}
   .list{flex:1; overflow:auto; border:1px solid var(--border); border-radius:12px; background:#0c1427}
+  .list-details{display:none; border-top:1px dashed rgba(255,255,255,.06)}
+  .list-details.open{display:block}
   .row{display:grid; grid-template-columns: 1fr 90px 90px 70px; gap:10px; padding:10px 12px; border-bottom:1px dashed rgba(255,255,255,.06); align-items:center}
   .row.head{position:sticky; top:0; background:#101a34; border-bottom:1px solid var(--border); font-weight:700}
   .status{display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border-radius:999px; font-size:12px; border:1px solid var(--border)}
@@ -234,23 +236,31 @@
 
   function ensureGroup(key){
     if (groups.has(key)) return groups.get(key);
-    const row=document.createElement('div');
-    row.className='row';
-    row.innerHTML=`<div style="font-weight:600">${key}</div>
-                   <div class="muted" data-k="dur">—</div>
-                   <div><span class="status" data-k="st">—</span></div>
-                   <div class="muted" data-k="pct">0%</div>`;
-    row.addEventListener('click', ()=> row.nextSibling?.classList.toggle('open'));
-    const details=document.createElement('div');
-    details.className='list-details';
-    details.style.cssText='display:none; border-top:1px dashed rgba(255,255,255,.06)';
-    details.toggleAttribute = undefined;
-    details.classList.toggle = function(o){ this.style.display=this.style.display==='none'?'block':'none' };
-    list.appendChild(row); list.appendChild(details);
-    const g={row, details, items:[], dur:0, passed:0, failed:0, skipped:0, total:0};
-    groups.set(key,g);
+
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div style="font-weight:600">${key}</div>
+      <div class="muted" data-k="dur">—</div>
+      <div><span class="status" data-k="st">—</span></div>
+      <div class="muted" data-k="pct">0%</div>
+    `;
+
+    const details = document.createElement('div');
+    details.className = 'list-details';
+
+    row.addEventListener('click', () => {
+      details.classList.toggle('open');
+    });
+
+    list.appendChild(row);
+    list.appendChild(details);
+
+    const g = { row, details, items:[], dur:0, passed:0, failed:0, skipped:0, total:0 };
+    groups.set(key, g);
     return g;
   }
+
 
   function paintGroup(g){
     const pct = g.total ? (g.passed / g.total * 100) : 0;
@@ -314,11 +324,77 @@
     applyFilter();
   }
 
+  function parseParts(nodeid){
+  // pytest: "file::Class::test_name" (Class optionnelle)
+  const parts = nodeid.split('::');
+  const file = parts[0] || '';
+  const cls  = parts.length > 2 ? parts[1] : '';
+  const name = parts.slice(2).join('::') || '(module)';
+  return { file, cls, name };
+}
+
+
   function renderGrouped(){
     listTitle.textContent='Tests (groupés par fichier/classe)';
-    // rebuild from groups (already in DOM)
-    applyFilter();
+    list.innerHTML = '<div class="row head"><div>Nom</div><div>Durée</div><div>Statut</div><div>%</div></div>';
+
+    // Regrouper depuis flat[]
+    const map = new Map();
+    for (const { nodeid, duration_ms, outcome } of flat){
+      const { file, cls, name } = parseParts(nodeid);
+      const key = cls ? `${file}::${cls}` : file;
+      if (!map.has(key)){
+        map.set(key, { dur:0, passed:0, failed:0, skipped:0, total:0, items:[] });
+      }
+      const g = map.get(key);
+      g.total += 1;
+      g.dur += (duration_ms || 0);
+      if (outcome === 'passed') g.passed += 1;
+      else if (outcome === 'failed' || outcome === 'error') g.failed += 1;
+      else g.skipped += 1;
+      g.items.push({ name, duration_ms, outcome });
+    }
+
+  // Construire le DOM
+  for (const [key, g] of map.entries()){
+    const row = document.createElement('div');
+    row.className = 'row';
+    const pct = g.total ? (g.passed / g.total * 100) : 0;
+    const st  = g.failed ? 'err' : (g.skipped ? 'skip' : 'ok');
+    const stText = g.failed ? 'Fail' : (g.skipped ? 'Skip' : 'Pass');
+
+    row.innerHTML = `
+      <div style="font-weight:600">${key}</div>
+      <div class="muted">${fmt(g.dur)}</div>
+      <div><span class="status ${st}">${stText}</span></div>
+      <div class="muted">${pct.toFixed(0)}%</div>
+    `;
+
+    const details = document.createElement('div');
+    details.className = 'list-details';
+
+    row.addEventListener('click', () => details.classList.toggle('open'));
+
+    for (const it of g.items){
+      const r = document.createElement('div');
+      r.className = 'row';
+      r.dataset.outcome = it.outcome;
+      r.innerHTML = `
+        <div>${it.name}</div>
+        <div class="muted">${fmt(it.duration_ms)}</div>
+        <div><span class="status ${it.outcome==='passed'?'ok': it.outcome==='failed'?'err':'skip'}">${it.outcome.replace('_',' ')}</span></div>
+        <div class="muted"></div>
+      `;
+      details.appendChild(r);
+    }
+
+    list.appendChild(row);
+    list.appendChild(details);
   }
+
+  applyFilter();
+}
+
 
   function connectSSE(){
     if (es) es.close();
@@ -408,8 +484,11 @@
   tGrouped.addEventListener('click', ()=> setGrouped(true));
   tFlat.addEventListener('click', ()=> setGrouped(false));
   tAutoScroll.addEventListener('click', ()=>{
-    autoScroll=!autoScroll; tAutoScroll.classList.toggle('active', autoScroll);
+    autoScroll=!autoScroll;
+    tAutoScroll.classList.toggle('active', autoScroll);
+    if (autoScroll) logs.scrollTop = logs.scrollHeight;
   });
+
 
   // Suite tabs
   $$('.tab', suiteTabs).forEach(t=>{

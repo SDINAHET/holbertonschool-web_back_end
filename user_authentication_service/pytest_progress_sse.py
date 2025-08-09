@@ -55,27 +55,37 @@ def run_pytest():
     )
 
     done = passed = failed = skipped = 0
+
+    # pour extraire nodeid + résultat dans la même ligne
+    result_re = re.compile(r"^(?P<nodeid>.+?::[^\s]+)\s+(?P<res>PASSED|FAILED|ERROR|SKIPPED|XFAILED|XPASSED)\b")
+
     for raw in proc.stdout:
         line = raw.rstrip("\n")
-        # stream every line immediately
-        q.put(("log", line))
+        q.put(("log", line))  # stream la ligne brute au client
 
-        # naive live progress parsing (good enough for a bar)
-        if "::" in line:  # pytest prints nodeid lines with -vv
-            q.put(("case", {"nodeid": line.strip()}))
+        # si on a un nodeid affiché (avec -vv), on loggue le 'case'
+        if "::" in line:
+            # on enlève un éventuel statut en fin de ligne pour garder un nodeid propre
+            clean_nodeid = re.sub(r"\s+(PASSED|FAILED|ERROR|SKIPPED|XFAILED|XPASSED)\b.*", "", line).strip()
+            q.put(("case", {"nodeid": clean_nodeid}))
 
-        # update counts heuristically
-        if re.search(r"\bPASSED\b", line):
-            passed += 1; done += 1
-        elif re.search(r"\b(FAILED|ERROR)\b", line):
-            failed += 1; done += 1
-        elif re.search(r"\b(SKIPPED|XFAILED|XPASSED)\b", line):
-            skipped += 1; done += 1
+        # essaie d'attraper "nodeid + statut" sur la même ligne
+        m = result_re.match(line)
+        if m:
+            nodeid = m.group("nodeid")
+            res = m.group("res")
+            if res == "PASSED" or res == "XPASSED":
+                outcome = "passed"; passed += 1; done += 1
+            elif res in ("FAILED", "ERROR"):
+                outcome = "failed"; failed += 1; done += 1
+            else:
+                outcome = "skipped"; skipped += 1; done += 1
 
+            # 🔹 ICI on envoie l'événement attendu par le front
+            q.put(("result", {"nodeid": nodeid, "outcome": outcome, "duration_ms": 0}))
+
+        # mise à jour de la barre de progression
         q.put(("update", {"done": done, "passed": passed, "failed": failed, "skipped": skipped}))
-
-    proc.wait()
-    q.put(("end", {"passed": passed, "failed": failed, "skipped": skipped, "total": total}))
 
 @app.route("/run", methods=["POST"])
 def run():
