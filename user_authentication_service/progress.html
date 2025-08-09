@@ -200,6 +200,7 @@
   let es=null, filter='all', suite='pytest', grouped=true, autoScroll=false;
   let totals={total:0, passed:0, failed:0, skipped:0, done:0};
   let startedAt=null;
+  let plannedTotal = 0;
   // storage for nodes
   const groups=new Map(); // key=file_or_class -> {node, items:[]}
   const flat=[];
@@ -226,6 +227,7 @@
 
   function resetUI(){
     totals={total:0, passed:0, failed:0, skipped:0, done:0};
+    plannedTotal = 0;
     groups.clear(); flat.length=0;
     list.innerHTML = '<div class="row head"><div>Nom</div><div>Durée</div><div>Statut</div><div>%</div></div>';
     logs.innerHTML='';
@@ -403,12 +405,15 @@
     log(`✅ Connexion SSE: ${url}`, true);
 
     es.addEventListener('open', ()=> log('Flux SSE démarré', true));
+
     es.addEventListener('init', e=>{
       const d = JSON.parse(e.data);
-      totals.total = d.total || 0;
-      kTotal.textContent = totals.total;
-      statusLine.textContent = 'Collecte…';
-      startedAt = Date.now();
+      log(`[INIT] total=${d.total}`, true);
+    plannedTotal = d.total || 0;
+    totals.total = plannedTotal;
+    kTotal.textContent = plannedTotal || '—';
+    statusLine.textContent = 'Collecte…';
+    startedAt = Date.now();
     });
 
     es.addEventListener('case', e=>{
@@ -420,28 +425,63 @@
     es.addEventListener('result', e=>{
       const d = JSON.parse(e.data); // {nodeid, outcome, duration_ms}
       addCase(d.nodeid, d.outcome, d.duration_ms||0);
+      statusLine.textContent = `${d.nodeid} — ${d.outcome.toUpperCase()}`;
     });
 
     es.addEventListener('update', e=>{
       const d = JSON.parse(e.data);
+      log(`[UPDATE] ${e.data}`, true);
       Object.assign(totals, d);
+
+      // ✅ N'utiliser que 'init' (totals.total) ou 'd.total' s'il est fourni.
+      const knownTotal = (totals.total && totals.total > 0)
+        ? totals.total
+        : (d.total && d.total > 0 ? d.total : 0);
+
+      const safeDone = (typeof totals.done === 'number')
+        ? totals.done
+        : ((totals.passed||0) + (totals.failed||0) + (totals.skipped||0));
+
+      if (knownTotal > 0) {
+        kTotal.textContent = knownTotal;
+        const pct = (safeDone / knownTotal) * 100;
+        setProgress(pct);
+      } else {
+        // Total inconnu (init pas encore reçu) → rester à 0%
+        kTotal.textContent = '—';
+        setProgress(0);
+      }
+
       kPass.textContent = totals.passed||0;
       kFail.textContent = totals.failed||0;
       kSkip.textContent = totals.skipped||0;
-      const pct = totals.total ? (totals.done / totals.total * 100) : 0;
-      setProgress(pct);
+
       if (grouped) renderGrouped(); else renderFlat();
     });
 
-    es.addEventListener('log', e=> log(e.data));
+
     es.addEventListener('end', e=>{
       const d = JSON.parse(e.data);
-      kPass.textContent = d.passed; kFail.textContent = d.failed; kSkip.textContent = d.skipped;
+      log(`[END] ${e.data}`, true);
+
+      totals.total   = d.total || totals.total || flat.length || 0;
+      totals.passed  = d.passed;
+      totals.failed  = d.failed;
+      totals.skipped = d.skipped;
+
+      kTotal.textContent = totals.total;
+      kPass.textContent  = totals.passed;
+      kFail.textContent  = totals.failed;
+      kSkip.textContent  = totals.skipped;
+
       setProgress(100);
       statusLine.textContent = `Terminé: ${d.passed} pass, ${d.failed} fail/err, ${d.skipped} skip/x.`;
+
       const ms = Date.now() - (startedAt || Date.now());
       runtime.textContent = `Durée totale: ${fmt(ms)}`;
       runBtn.disabled = false;
+
+      if (grouped) renderGrouped(); else renderFlat();
     });
 
     es.addEventListener('error', ()=>{
@@ -449,6 +489,7 @@
       runBtn.disabled = false;
     });
   }
+
 
   // Actions
   runBtn.addEventListener('click', async ()=>{

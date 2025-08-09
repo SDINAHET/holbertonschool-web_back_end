@@ -37,11 +37,9 @@ def collect_total():
     return sum(1 for line in p.stdout.splitlines() if "::" in line)
 
 def run_pytest():
-    # tell the client how many we plan to run
     total = collect_total()
     q.put(("init", {"total": total}))
 
-    # IMPORTANT: -s disables capture, -vv prints test nodeids live
     cmd = ["pytest", "-vv", "-s", "--color=no"] + ORDER
     env = dict(os.environ, PYTHONUNBUFFERED="1")
 
@@ -50,32 +48,71 @@ def run_pytest():
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
-        bufsize=1,                 # line-buffered
+        bufsize=1,
         env=env
     )
 
     done = passed = failed = skipped = 0
+    last_nodeid = None
+    start_time = None
+
     for raw in proc.stdout:
         line = raw.rstrip("\n")
-        # stream every line immediately
         q.put(("log", line))
 
-        # naive live progress parsing (good enough for a bar)
-        if "::" in line:  # pytest prints nodeid lines with -vv
-            q.put(("case", {"nodeid": line.strip()}))
+        # Nouveau test détecté
+        if "::" in line and not re.search(r"\b(PASSED|FAILED|ERROR|SKIPPED|XFAILED|XPASSED)\b", line):
+            last_nodeid = line.strip()
+            start_time = time.time()
+            q.put(("case", {"nodeid": last_nodeid}))
 
-        # update counts heuristically
-        if re.search(r"\bPASSED\b", line):
-            passed += 1; done += 1
-        elif re.search(r"\b(FAILED|ERROR)\b", line):
-            failed += 1; done += 1
-        elif re.search(r"\b(SKIPPED|XFAILED|XPASSED)\b", line):
-            skipped += 1; done += 1
+        # Test terminé
+        match = re.search(r"\b(PASSED|FAILED|ERROR|SKIPPED|XFAILED|XPASSED)\b", line)
+        if match and last_nodeid:
+            outcome = match.group(1).lower()
+            duration_ms = int((time.time() - start_time) * 1000)
 
-        q.put(("update", {"done": done, "passed": passed, "failed": failed, "skipped": skipped}))
+            # Normalisation des statuts
+            if outcome in ["xfailed", "xpassed"]:
+                outcome = "skipped"
+            elif outcome == "error":
+                outcome = "failed"
+
+            # Mise à jour des compteurs
+            if outcome == "passed":
+                passed += 1
+            elif outcome == "failed":
+                failed += 1
+            elif outcome == "skipped":
+                skipped += 1
+            done += 1
+
+            # Événement individuel
+            q.put(("result", {
+                "nodeid": last_nodeid,
+                "outcome": outcome,
+                "duration_ms": duration_ms
+            }))
+
+            # Événement global
+            q.put(("update", {
+                "done": done,
+                "passed": passed,
+                "failed": failed,
+                "skipped": skipped
+            }))
+
+            last_nodeid = None
 
     proc.wait()
-    q.put(("end", {"passed": passed, "failed": failed, "skipped": skipped, "total": total}))
+    q.put(("end", {
+        "passed": passed,
+        "failed": failed,
+        "skipped": skipped,
+        "total": total
+    }))
+
+
 
 @app.route("/run", methods=["POST"])
 def run():
