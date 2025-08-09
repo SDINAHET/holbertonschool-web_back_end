@@ -7943,3 +7943,39 @@ Durée: 3.57s
 (venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
 _back_end/user_authentication_service#
 ```
+
+# Résumé des tests E2E - `user_authentication_service`
+
+| Nom du test | Ce qu'il vérifie | Résultat attendu |
+|-------------|------------------|------------------|
+| **test_register_user_created** | Inscription d’un nouvel utilisateur avec un email inédit. | **200** – JSON : `{"email": "...", "message": "user created"}` |
+| **test_register_user_already_registered** | Empêche l’inscription avec un email déjà existant. | **400** – JSON : `{"message": "email already registered"}` |
+| **test_valid_login_correct_credentials** | Connexion avec identifiants corrects. | **200** – JSON : `{"email": "...", "message": "logged in"}` |
+| **test_valid_login_unknown_email** | Refus connexion avec email inconnu. | **401** – HTML erreur "Unauthorized" |
+| **test_valid_login_wrong_password** | Refus connexion avec mauvais mot de passe. | **401** – HTML erreur "Unauthorized" |
+| **test_returns_string_and_valid_uuid** | Génération d’un identifiant unique valide. | Chaîne UUID conforme |
+| **test_returns_different_values_each_time** | Chaque génération produit un ID unique. | UUID différents à chaque appel |
+| **test_uses_uuid4_under_the_hood** | Vérifie l’utilisation de `uuid4()` pour générer l’ID. | UUID v4 |
+| **test_create_session_success** | Création de session avec identifiants valides. | **200** – JSON : `{"email": "...", "message": "logged in"}` |
+| **test_create_session_unknown_email** | Refus création session avec email inconnu. | **401** – HTML erreur "Unauthorized" |
+| **test_login_failure_returns_401** | Échec de connexion renvoie bien 401. | **401** – HTML erreur "Unauthorized" |
+| **test_login_success_sets_cookie_and_returns_json** | Connexion réussie met un cookie et retourne JSON. | **200** – JSON + cookie `session_id` |
+| **test_none_session_id_returns_none_and_skips_db** | Session ID `None` → aucun accès base de données. | Retourne `None` |
+| **test_returns_user_when_session_exists** | Lecture utilisateur depuis un `session_id` valide. | **200** – JSON : `{"email": "..."}` |
+| **test_unknown_session_id_returns_none** | Session ID invalide → aucun utilisateur trouvé. | Retourne `None` |
+| **test_destroy_session_invalidate** | Supprimer une session active et bloquer l’accès. | **403** – HTML erreur "Forbidden" |
+| **test_destroy_session_idempotent** | Supprimer deux fois la même session → même réponse. | **403** – HTML erreur "Forbidden" |
+| **test_logout_with_cookie** | Déconnexion avec cookie valide → redirection accueil. | **302** – Redirect `/` |
+| **test_logout_without_cookie** | Déconnexion sans cookie → pas d’action. | Aucun effet |
+| **test_profile_with_cookie** | Accès au profil avec cookie valide. | **200** – JSON : `{"email": "..."}` |
+| **test_profile_without_cookie** | Accès profil sans cookie → pas de données. | Aucun retour JSON |
+| **test_get_reset_password_token_ok** | Génération token reset avec email valide. | **200** – JSON avec `reset_token` |
+| **test_get_reset_password_token_unknown_email** | Email inconnu → refus. | **403** – HTML erreur "Forbidden" |
+| **test_known_email_generates_token** | Vérifie qu’un email connu produit un token. | **200** – JSON avec `reset_token` |
+| **test_missing_email** | Requête sans email pour reset password. | **403** – HTML erreur "Forbidden" |
+| **test_unknown_email** | Email inconnu pour reset password. | **403** – HTML erreur "Forbidden" |
+| **test_update_password_bad_token** | Token invalide pour reset password. | **403** – HTML erreur "Forbidden" |
+| **test_update_password_ok** | Reset password avec token valide. | **200** – JSON : `{"email": "...", "message": "Password updated"}` |
+| **test_put_reset_password_invalid_token** | PUT reset password avec mauvais token. | **403** – HTML erreur "Forbidden" |
+| **test_put_reset_password_missing_fields** | PUT reset password avec champs manquants. | **403** – HTML erreur "Forbidden" |
+| **test_put_reset_password_success_and_invalidate_token** | PUT reset password valide puis invalide le token. | **403** – HTML erreur "Forbidden" après invalidation |
