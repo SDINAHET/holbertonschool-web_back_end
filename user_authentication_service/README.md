@@ -6402,4 +6402,5 @@ Press CTRL+C to quit
 127.0.0.1 - - [09/Aug/2025 02:12:16] "GET /events?suite=unittest HTTP/1.1" 200 -
 ```
 
+[http://127.0.0.1:5057](http://127.0.0.1:5057)
 ![alt text](image-8.png)
