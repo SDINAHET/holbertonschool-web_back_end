@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pytest – Progress</title>
+<style>
+  :root{
+    --bg:#0b1020; --card:#11172b; --muted:#7c8aa5; --text:#e6eaf2;
+    --pill:#1a2240; --ok:#10b981; --warn:#f59e0b; --err:#ef4444;
+    --grad:linear-gradient(90deg,#6366f1,#22d3ee);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; background:radial-gradient(1200px 600px at 20% -10%, #141b31 0%, transparent 60%) , var(--bg);
+    color:var(--text); font:14px/1.4 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    display:grid; place-items:center; padding:24px;
+  }
+  .wrap{width:min(960px,94vw)}
+  .header{
+    display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px;
+  }
+  .title{display:flex; align-items:center; gap:12px}
+  .title h1{margin:0; font-size:20px; font-weight:700; letter-spacing:.2px}
+  .chip{padding:6px 10px; border-radius:999px; background:var(--pill); color:var(--muted); font-weight:600}
+  .btn{
+    appearance:none; border:0; background:var(--grad); color:#0b1020; font-weight:700;
+    padding:10px 14px; border-radius:12px; cursor:pointer; box-shadow:0 10px 22px rgba(34,211,238,.15);
+    transition:transform .12s ease, box-shadow .2s ease, opacity .2s ease;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn[disabled]{opacity:.55; cursor:not-allowed}
+
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.04), transparent 30%) , var(--card);
+    border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:18px;
+    box-shadow:0 10px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+
+  .stats{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px}
+  .stat{display:flex; align-items:center; gap:8px; background:var(--pill); padding:8px 12px; border-radius:12px; color:var(--muted)}
+  .dot{width:8px; height:8px; border-radius:999px}
+  .dot.ok{background:var(--ok)}
+  .dot.warn{background:var(--warn)}
+  .dot.err{background:var(--err)}
+
+  .progress{
+    position:relative; height:14px; width:100%; border-radius:999px; overflow:hidden;
+    background:#0c1630; box-shadow:inset 0 1px 0 rgba(255,255,255,.04), inset 0 0 0 1px rgba(255,255,255,.05);
+    margin:12px 0 8px;
+  }
+  .bar{
+    height:100%; width:0%; border-radius:inherit; background:var(--grad); transition:width .4s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 10px 24px rgba(99,102,241,.18);
+  }
+  .meta{display:flex; justify-content:space-between; color:var(--muted); font-size:12px}
+  .logs{
+    margin-top:16px; height:280px; overflow:auto; background:#0c1427; border:1px solid rgba(255,255,255,.06);
+    border-radius:12px; padding:12px; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,"Roboto Mono",Consolas,"Liberation Mono","Courier New",monospace;
+    color:#c9d3e7;
+  }
+  .log-line{white-space:pre-wrap; margin:0 0 6px}
+  .log-line.dim{opacity:.7}
+  .footer{
+    display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:12px; color:var(--muted); font-size:12px;
+  }
+  .link{color:#a0c9ff; text-decoration:none}
+  .link:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="title">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M7 3h10a2 2 0 0 1 2 2v9.5a2 2 0 0 1-.67 1.49l-5 4.5a2 2 0 0 1-2.66 0l-5-4.5A2 2 0 0 1 5 14.5V5a2 2 0 0 1 2-2Z" stroke="#7aa2ff" stroke-width="1.2"/></svg>
+        <h1>Pytest – Progress</h1>
+        <span class="chip" id="suiteName">tasks 7 → 19</span>
+      </div>
+      <div>
+        <button class="btn" id="runBtn">Lancer les tests</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stats">
+        <div class="stat"><span class="dot ok"></span><span>Pass</span><strong id="pass">0</strong></div>
+        <div class="stat"><span class="dot warn"></span><span>Skip/X</span><strong id="skip">0</strong></div>
+        <div class="stat"><span class="dot err"></span><span>Fail/Err</span><strong id="fail">0</strong></div>
+        <div class="stat"><span>🧪 Total</span><strong id="total">0</strong></div>
+      </div>
+
+      <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="bar" id="bar"></div>
+      </div>
+      <div class="meta">
+        <div id="percent">0%</div>
+        <div id="current">En attente…</div>
+      </div>
+
+      <div class="logs" id="logs" aria-live="polite" aria-atomic="false"></div>
+
+      <div class="footer">
+        <div>Astuce : les logs s’affichent en direct (SSE)</div>
+        <div><a class="link" href="#" id="clear">Effacer les logs</a></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const bar = document.getElementById('bar');
+  const percent = document.getElementById('percent');
+  const current = document.getElementById('current');
+  const logs = document.getElementById('logs');
+  const btn = document.getElementById('runBtn');
+  const clear = document.getElementById('clear');
+  const elPass = document.getElementById('pass');
+  const elFail = document.getElementById('fail');
+  const elSkip = document.getElementById('skip');
+  const elTotal = document.getElementById('total');
+
+  let total = 0, done = 0, pass = 0, fail = 0, skip = 0;
+  let es;
+
+  function setProgress(val) {
+    const v = Math.max(0, Math.min(100, val));
+    bar.style.width = v + '%';
+    percent.textContent = v.toFixed(0) + '%';
+    document.querySelector('.progress').setAttribute('aria-valuenow', v.toFixed(0));
+  }
+
+  function logLine(text, dim=false){
+    const p = document.createElement('div');
+    p.className = 'log-line' + (dim ? ' dim' : '');
+    p.textContent = text;
+    logs.appendChild(p);
+    logs.scrollTop = logs.scrollHeight;
+  }
+
+  function reset(){
+    total=done=pass=fail=skip=0;
+    elPass.textContent = pass;
+    elFail.textContent = fail;
+    elSkip.textContent = skip;
+    elTotal.textContent = total;
+    setProgress(0);
+    current.textContent = 'En attente…';
+    logs.innerHTML = '';
+  }
+
+  function connect(){
+    if (es) es.close();
+    es = new EventSource('/events');
+    logLine('⏳ Connexion au flux d’événements…', true);
+
+    es.addEventListener('open', () => logLine('✅ Connecté au flux SSE', true));
+
+    es.addEventListener('init', (e) => {
+      const data = JSON.parse(e.data);
+      total = data.total ?? 0;
+      elTotal.textContent = total;
+      logLine(`📦 Collecte: ${total} tests détectés`);
+      setProgress(0);
+    });
+
+    es.addEventListener('case', (e) => {
+      const data = JSON.parse(e.data);
+      current.textContent = data.nodeid || '';
+      logLine(`🧪 ${data.nodeid}`, true);
+    });
+
+    es.addEventListener('update', (e) => {
+      const data = JSON.parse(e.data);
+      done = data.done ?? done;
+      pass = data.passed ?? pass;
+      fail = data.failed ?? fail;
+      skip = data.skipped ?? skip;
+
+      elPass.textContent = pass;
+      elFail.textContent = fail;
+      elSkip.textContent = skip;
+
+      const pct = total ? (done / total) * 100 : 0;
+      setProgress(pct);
+    });
+
+    es.addEventListener('log', (e) => {
+      logLine(e.data);
+    });
+
+    es.addEventListener('end', (e) => {
+      const data = JSON.parse(e.data);
+      setProgress(100);
+      current.textContent = `Terminé: ${data.passed} pass, ${data.failed} fail/err, ${data.skipped} skip/x.`;
+      logLine('🏁 Tests terminés.');
+      btn.disabled = false;
+    });
+
+    es.addEventListener('error', () => {
+      logLine('❌ Flux coupé.', true);
+      btn.disabled = false;
+    });
+  }
+
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    reset();
+    connect();
+    logLine('▶️ Lancement de pytest…');
+    await fetch('/run', {method:'POST'}).catch(() => {
+      logLine('❌ Impossible d’appeler /run (backend non disponible).');
+      btn.disabled = false;
+    });
+  });
+
+  clear.addEventListener('click', (e) => { e.preventDefault(); logs.innerHTML=''; });
+
+  // Option: auto-connect sans lancer
+  connect();
+})();
+</script>
+</body>
+</html>

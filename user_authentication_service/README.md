@@ -5247,3 +5247,1144 @@ résumé des tests
 | 18       | test_auth_update_password_18                 | ✅ Passed |               |
 | 19       | test_app_update_password_19                  | ✅ Passed |               |
 | **Total**| **31 tests**                                 | ✅ 100%   | **~9.32 s**   |
+
+pytest.ini
+```bash
+[pytest]
+log_cli = true
+log_cli_level = INFO
+python_files = test_*.py
+addopts = -q
+testpaths = .
+filterwarnings =
+    ignore:The ``declarative_base\(\)`` function is now available as sqlalchemy\.orm\.declarative_base\(\)\.:sqlalchemy.exc.MovedIn20Warning
+```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# pytest
+
+test_app_login_11.py::TestLoginEndpoint::test_login_failure_returns_401 PASSED [  3%]
+test_app_login_11.py::TestLoginEndpoint::test_login_success_sets_cookie_and_returns_json PASSED [  6%]
+test_app_logout_14.py::TestLogoutEndpoint::test_logout_with_cookie PASSED [  9%]
+test_app_logout_14.py::TestLogoutEndpoint::test_logout_without_cookie PASSED [ 12%]
+test_app_profile_15.py::TestProfileEndpoint::test_profile_with_cookie PASSED [ 16%]
+test_app_profile_15.py::TestProfileEndpoint::test_profile_without_cookie PASSED [ 19%]
+test_app_reset_password_token_17.py::TestGetResetPasswordToken::test_known_email_generates_token PASSED [ 22%]
+test_app_reset_password_token_17.py::TestGetResetPasswordToken::test_missing_email PASSED [ 25%]
+test_app_reset_password_token_17.py::TestGetResetPasswordToken::test_unknown_email PASSED [ 29%]
+test_app_update_password_19.py::TestUpdatePasswordEndpoint::test_put_reset_password_invalid_token PASSED [ 32%]
+test_app_update_password_19.py::TestUpdatePasswordEndpoint::test_put_reset_password_missing_fields PASSED [ 35%]
+test_app_update_password_19.py::TestUpdatePasswordEndpoint::test_put_reset_password_success_and_invalidate_token PASSED [ 38%]
+test_auth_create_session_10.py::TestCreateSession::test_create_session_success PASSED [ 41%]
+test_auth_create_session_10.py::TestCreateSession::test_create_session_unknown_email PASSED [ 45%]
+test_auth_destroy_session_13.py::TestDestroySession::test_destroy_session PASSED [ 48%]
+test_auth_destroy_session_13.py::TestDestroySession::test_destroy_session_none PASSED [ 51%]
+test_auth_get_user_from_session_id_12.py::TestGetUserFromSessionId::test_none_session_id_returns_none_and_skips_db PASSED [ 54%]
+test_auth_get_user_from_session_id_12.py::TestGetUserFromSessionId::test_returns_user_when_session_exists PASSED [ 58%]
+test_auth_get_user_from_session_id_12.py::TestGetUserFromSessionId::test_unknown_session_id_returns_none PASSED [ 61%]
+test_auth_reset_token_16.py::TestResetToken::test_get_reset_password_token_ok PASSED [ 64%]
+test_auth_reset_token_16.py::TestResetToken::test_get_reset_password_token_unknown_email PASSED [ 67%]
+test_auth_update_password_18.py::TestUpdatePassword::test_update_password_bad_token PASSED [ 70%]
+test_auth_update_password_18.py::TestUpdatePassword::test_update_password_ok PASSED [ 74%]
+test_generate_uuid_9.py::TestGenerateUUID::test_returns_different_values_each_time PASSED [ 77%]
+test_generate_uuid_9.py::TestGenerateUUID::test_returns_string_and_valid_uuid PASSED [ 80%]
+test_generate_uuid_9.py::TestGenerateUUID::test_uses_uuid4_under_the_hood PASSED [ 83%]
+test_users_7.py::TestTask7RegisterUser::test_register_user_already_registered PASSED [ 87%]
+test_users_7.py::TestTask7RegisterUser::test_register_user_created PASSED [ 90%]
+test_valid_login_8.py::TestValidLogin::test_valid_login_correct_credentials PASSED [ 93%]
+test_valid_login_8.py::TestValidLogin::test_valid_login_unknown_email PASSED [ 96%]
+test_valid_login_8.py::TestValidLogin::test_valid_login_wrong_password PASSED [100%]
+
+============================== 31 passed in 10.41s ==============================
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
+```
+
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# pytest -q \
+  test_users_7.py \
+  test_valid_login_8.py \
+  test_generate_uuid_9.py \
+  test_auth_create_session_10.py \
+  test_app_login_11.py \
+  test_auth_get_user_from_session_id_12.py \
+  test_auth_destroy_session_13.py \
+  test_app_logout_14.py \
+  test_app_profile_15.py \
+  test_auth_reset_token_16.py \
+  test_app_reset_password_token_17.py \
+  test_auth_update_password_18.py \
+  test_app_update_password_19.py
+
+test_users_7.py::TestTask7RegisterUser::test_register_user_already_registered PASSED [  3%]
+test_users_7.py::TestTask7RegisterUser::test_register_user_created PASSED [  6%]
+test_valid_login_8.py::TestValidLogin::test_valid_login_correct_credentials PASSED [  9%]
+test_valid_login_8.py::TestValidLogin::test_valid_login_unknown_email PASSED [ 12%]
+test_valid_login_8.py::TestValidLogin::test_valid_login_wrong_password PASSED [ 16%]
+test_generate_uuid_9.py::TestGenerateUUID::test_returns_different_values_each_time PASSED [ 19%]
+test_generate_uuid_9.py::TestGenerateUUID::test_returns_string_and_valid_uuid PASSED [ 22%]
+test_generate_uuid_9.py::TestGenerateUUID::test_uses_uuid4_under_the_hood PASSED [ 25%]
+test_auth_create_session_10.py::TestCreateSession::test_create_session_success PASSED [ 29%]
+test_auth_create_session_10.py::TestCreateSession::test_create_session_unknown_email PASSED [ 32%]
+test_app_login_11.py::TestLoginEndpoint::test_login_failure_returns_401 PASSED [ 35%]
+test_app_login_11.py::TestLoginEndpoint::test_login_success_sets_cookie_and_returns_json PASSED [ 38%]
+test_auth_get_user_from_session_id_12.py::TestGetUserFromSessionId::test_none_session_id_returns_none_and_skips_db PASSED [ 41%]
+test_auth_get_user_from_session_id_12.py::TestGetUserFromSessionId::test_returns_user_when_session_exists PASSED [ 45%]
+test_auth_get_user_from_session_id_12.py::TestGetUserFromSessionId::test_unknown_session_id_returns_none PASSED [ 48%]
+test_auth_destroy_session_13.py::TestDestroySession::test_destroy_session PASSED [ 51%]
+test_auth_destroy_session_13.py::TestDestroySession::test_destroy_session_none PASSED [ 54%]
+test_app_logout_14.py::TestLogoutEndpoint::test_logout_with_cookie PASSED [ 58%]
+test_app_logout_14.py::TestLogoutEndpoint::test_logout_without_cookie PASSED [ 61%]
+test_app_profile_15.py::TestProfileEndpoint::test_profile_with_cookie PASSED [ 64%]
+test_app_profile_15.py::TestProfileEndpoint::test_profile_without_cookie PASSED [ 67%]
+test_auth_reset_token_16.py::TestResetToken::test_get_reset_password_token_ok PASSED [ 70%]
+test_auth_reset_token_16.py::TestResetToken::test_get_reset_password_token_unknown_email PASSED [ 74%]
+test_app_reset_password_token_17.py::TestGetResetPasswordToken::test_known_email_generates_token PASSED [ 77%]
+test_app_reset_password_token_17.py::TestGetResetPasswordToken::test_missing_email PASSED [ 80%]
+test_app_reset_password_token_17.py::TestGetResetPasswordToken::test_unknown_email PASSED [ 83%]
+test_auth_update_password_18.py::TestUpdatePassword::test_update_password_bad_token PASSED [ 87%]
+test_auth_update_password_18.py::TestUpdatePassword::test_update_password_ok PASSED [ 90%]
+test_app_update_password_19.py::TestUpdatePasswordEndpoint::test_put_reset_password_invalid_token PASSED [ 93%]
+test_app_update_password_19.py::TestUpdatePasswordEndpoint::test_put_reset_password_missing_fields PASSED [ 96%]
+test_app_update_password_19.py::TestUpdatePasswordEndpoint::test_put_reset_password_success_and_invalidate_token PASSED [100%]
+
+============================== 31 passed in 11.32s ==============================
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
+```
+
+Makefile
+```bash
+pytest_7_19:
+	pytest -q \
+		test_users_7.py \
+		test_valid_login_8.py \
+		test_generate_uuid_9.py \
+		test_auth_create_session_10.py \
+		test_app_login_11.py \
+		test_auth_get_user_from_session_id_12.py \
+		test_auth_destroy_session_13.py \
+		test_app_logout_14.py \
+		test_app_profile_15.py \
+		test_auth_reset_token_16.py \
+		test_app_reset_password_token_17.py \
+		test_auth_update_password_18.py \
+		test_app_update_password_19.py
+```
+
+```bash
+make pytest_7_19
+```
+
+```bash
+============================== 31 passed in 11.32s ==============================
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# make pytest_7_19
+pytest -q \
+        test_users_7.py \
+        test_valid_login_8.py \
+        test_generate_uuid_9.py \
+        test_auth_create_session_10.py \
+        test_app_login_11.py \
+        test_auth_get_user_from_session_id_12.py \
+        test_auth_destroy_session_13.py \
+        test_app_logout_14.py \
+        test_app_profile_15.py \
+        test_auth_reset_token_16.py \
+        test_app_reset_password_token_17.py \
+        test_auth_update_password_18.py \
+        test_app_update_password_19.py
+
+test_users_7.py::TestTask7RegisterUser::test_register_user_already_registered PASSED [  3%]
+test_users_7.py::TestTask7RegisterUser::test_register_user_created PASSED [  6%]
+test_valid_login_8.py::TestValidLogin::test_valid_login_correct_credentials PASSED [  9%]
+test_valid_login_8.py::TestValidLogin::test_valid_login_unknown_email PASSED [ 12%]
+test_valid_login_8.py::TestValidLogin::test_valid_login_wrong_password PASSED [ 16%]
+test_generate_uuid_9.py::TestGenerateUUID::test_returns_different_values_each_time PASSED [ 19%]
+test_generate_uuid_9.py::TestGenerateUUID::test_returns_string_and_valid_uuid PASSED [ 22%]
+test_generate_uuid_9.py::TestGenerateUUID::test_uses_uuid4_under_the_hood PASSED [ 25%]
+test_auth_create_session_10.py::TestCreateSession::test_create_session_success PASSED [ 29%]
+test_auth_create_session_10.py::TestCreateSession::test_create_session_unknown_email PASSED [ 32%]
+test_app_login_11.py::TestLoginEndpoint::test_login_failure_returns_401 PASSED [ 35%]
+test_app_login_11.py::TestLoginEndpoint::test_login_success_sets_cookie_and_returns_json PASSED [ 38%]
+test_auth_get_user_from_session_id_12.py::TestGetUserFromSessionId::test_none_session_id_returns_none_and_skips_db PASSED [ 41%]
+test_auth_get_user_from_session_id_12.py::TestGetUserFromSessionId::test_returns_user_when_session_exists PASSED [ 45%]
+test_auth_get_user_from_session_id_12.py::TestGetUserFromSessionId::test_unknown_session_id_returns_none PASSED [ 48%]
+test_auth_destroy_session_13.py::TestDestroySession::test_destroy_session PASSED [ 51%]
+test_auth_destroy_session_13.py::TestDestroySession::test_destroy_session_none PASSED [ 54%]
+test_app_logout_14.py::TestLogoutEndpoint::test_logout_with_cookie PASSED [ 58%]
+test_app_logout_14.py::TestLogoutEndpoint::test_logout_without_cookie PASSED [ 61%]
+test_app_profile_15.py::TestProfileEndpoint::test_profile_with_cookie PASSED [ 64%]
+test_app_profile_15.py::TestProfileEndpoint::test_profile_without_cookie PASSED [ 67%]
+test_auth_reset_token_16.py::TestResetToken::test_get_reset_password_token_ok PASSED [ 70%]
+test_auth_reset_token_16.py::TestResetToken::test_get_reset_password_token_unknown_email PASSED [ 74%]
+test_app_reset_password_token_17.py::TestGetResetPasswordToken::test_known_email_generates_token PASSED [ 77%]
+test_app_reset_password_token_17.py::TestGetResetPasswordToken::test_missing_email PASSED [ 80%]
+test_app_reset_password_token_17.py::TestGetResetPasswordToken::test_unknown_email PASSED [ 83%]
+test_auth_update_password_18.py::TestUpdatePassword::test_update_password_bad_token PASSED [ 87%]
+test_auth_update_password_18.py::TestUpdatePassword::test_update_password_ok PASSED [ 90%]
+test_app_update_password_19.py::TestUpdatePasswordEndpoint::test_put_reset_password_invalid_token PASSED [ 93%]
+test_app_update_password_19.py::TestUpdatePasswordEndpoint::test_put_reset_password_missing_fields PASSED [ 96%]
+test_app_update_password_19.py::TestUpdatePasswordEndpoint::test_put_reset_password_success_and_invalidate_token PASSED [100%]
+
+============================== 31 passed in 10.80s ==============================
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
+```
+
+pytest avec barre de progression
+progress.html
+```
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pytest – Progress</title>
+<style>
+  :root{
+    --bg:#0b1020; --card:#11172b; --muted:#7c8aa5; --text:#e6eaf2;
+    --pill:#1a2240; --ok:#10b981; --warn:#f59e0b; --err:#ef4444;
+    --grad:linear-gradient(90deg,#6366f1,#22d3ee);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; background:radial-gradient(1200px 600px at 20% -10%, #141b31 0%, transparent 60%) , var(--bg);
+    color:var(--text); font:14px/1.4 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    display:grid; place-items:center; padding:24px;
+  }
+  .wrap{width:min(960px,94vw)}
+  .header{
+    display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px;
+  }
+  .title{display:flex; align-items:center; gap:12px}
+  .title h1{margin:0; font-size:20px; font-weight:700; letter-spacing:.2px}
+  .chip{padding:6px 10px; border-radius:999px; background:var(--pill); color:var(--muted); font-weight:600}
+  .btn{
+    appearance:none; border:0; background:var(--grad); color:#0b1020; font-weight:700;
+    padding:10px 14px; border-radius:12px; cursor:pointer; box-shadow:0 10px 22px rgba(34,211,238,.15);
+    transition:transform .12s ease, box-shadow .2s ease, opacity .2s ease;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn[disabled]{opacity:.55; cursor:not-allowed}
+
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.04), transparent 30%) , var(--card);
+    border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:18px;
+    box-shadow:0 10px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+
+  .stats{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px}
+  .stat{display:flex; align-items:center; gap:8px; background:var(--pill); padding:8px 12px; border-radius:12px; color:var(--muted)}
+  .dot{width:8px; height:8px; border-radius:999px}
+  .dot.ok{background:var(--ok)}
+  .dot.warn{background:var(--warn)}
+  .dot.err{background:var(--err)}
+
+  .progress{
+    position:relative; height:14px; width:100%; border-radius:999px; overflow:hidden;
+    background:#0c1630; box-shadow:inset 0 1px 0 rgba(255,255,255,.04), inset 0 0 0 1px rgba(255,255,255,.05);
+    margin:12px 0 8px;
+  }
+  .bar{
+    height:100%; width:0%; border-radius:inherit; background:var(--grad); transition:width .4s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 10px 24px rgba(99,102,241,.18);
+  }
+  .meta{display:flex; justify-content:space-between; color:var(--muted); font-size:12px}
+  .logs{
+    margin-top:16px; height:280px; overflow:auto; background:#0c1427; border:1px solid rgba(255,255,255,.06);
+    border-radius:12px; padding:12px; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,"Roboto Mono",Consolas,"Liberation Mono","Courier New",monospace;
+    color:#c9d3e7;
+  }
+  .log-line{white-space:pre-wrap; margin:0 0 6px}
+  .log-line.dim{opacity:.7}
+  .footer{
+    display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:12px; color:var(--muted); font-size:12px;
+  }
+  .link{color:#a0c9ff; text-decoration:none}
+  .link:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="title">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M7 3h10a2 2 0 0 1 2 2v9.5a2 2 0 0 1-.67 1.49l-5 4.5a2 2 0 0 1-2.66 0l-5-4.5A2 2 0 0 1 5 14.5V5a2 2 0 0 1 2-2Z" stroke="#7aa2ff" stroke-width="1.2"/></svg>
+        <h1>Pytest – Progress</h1>
+        <span class="chip" id="suiteName">tasks 7 → 19</span>
+      </div>
+      <div>
+        <button class="btn" id="runBtn">Lancer les tests</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stats">
+        <div class="stat"><span class="dot ok"></span><span>Pass</span><strong id="pass">0</strong></div>
+        <div class="stat"><span class="dot warn"></span><span>Skip/X</span><strong id="skip">0</strong></div>
+        <div class="stat"><span class="dot err"></span><span>Fail/Err</span><strong id="fail">0</strong></div>
+        <div class="stat"><span>🧪 Total</span><strong id="total">0</strong></div>
+      </div>
+
+      <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="bar" id="bar"></div>
+      </div>
+      <div class="meta">
+        <div id="percent">0%</div>
+        <div id="current">En attente…</div>
+      </div>
+
+      <div class="logs" id="logs" aria-live="polite" aria-atomic="false"></div>
+
+      <div class="footer">
+        <div>Astuce : les logs s’affichent en direct (SSE)</div>
+        <div><a class="link" href="#" id="clear">Effacer les logs</a></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const bar = document.getElementById('bar');
+  const percent = document.getElementById('percent');
+  const current = document.getElementById('current');
+  const logs = document.getElementById('logs');
+  const btn = document.getElementById('runBtn');
+  const clear = document.getElementById('clear');
+  const elPass = document.getElementById('pass');
+  const elFail = document.getElementById('fail');
+  const elSkip = document.getElementById('skip');
+  const elTotal = document.getElementById('total');
+
+  let total = 0, done = 0, pass = 0, fail = 0, skip = 0;
+  let es;
+
+  function setProgress(val) {
+    const v = Math.max(0, Math.min(100, val));
+    bar.style.width = v + '%';
+    percent.textContent = v.toFixed(0) + '%';
+    document.querySelector('.progress').setAttribute('aria-valuenow', v.toFixed(0));
+  }
+
+  function logLine(text, dim=false){
+    const p = document.createElement('div');
+    p.className = 'log-line' + (dim ? ' dim' : '');
+    p.textContent = text;
+    logs.appendChild(p);
+    logs.scrollTop = logs.scrollHeight;
+  }
+
+  function reset(){
+    total=done=pass=fail=skip=0;
+    elPass.textContent = pass;
+    elFail.textContent = fail;
+    elSkip.textContent = skip;
+    elTotal.textContent = total;
+    setProgress(0);
+    current.textContent = 'En attente…';
+    logs.innerHTML = '';
+  }
+
+  function connect(){
+    if (es) es.close();
+    es = new EventSource('/events');
+    logLine('⏳ Connexion au flux d’événements…', true);
+
+    es.addEventListener('open', () => logLine('✅ Connecté au flux SSE', true));
+
+    es.addEventListener('init', (e) => {
+      const data = JSON.parse(e.data);
+      total = data.total ?? 0;
+      elTotal.textContent = total;
+      logLine(`📦 Collecte: ${total} tests détectés`);
+      setProgress(0);
+    });
+
+    es.addEventListener('case', (e) => {
+      const data = JSON.parse(e.data);
+      current.textContent = data.nodeid || '';
+      logLine(`🧪 ${data.nodeid}`, true);
+    });
+
+    es.addEventListener('update', (e) => {
+      const data = JSON.parse(e.data);
+      done = data.done ?? done;
+      pass = data.passed ?? pass;
+      fail = data.failed ?? fail;
+      skip = data.skipped ?? skip;
+
+      elPass.textContent = pass;
+      elFail.textContent = fail;
+      elSkip.textContent = skip;
+
+      const pct = total ? (done / total) * 100 : 0;
+      setProgress(pct);
+    });
+
+    es.addEventListener('log', (e) => {
+      logLine(e.data);
+    });
+
+    es.addEventListener('end', (e) => {
+      const data = JSON.parse(e.data);
+      setProgress(100);
+      current.textContent = `Terminé: ${data.passed} pass, ${data.failed} fail/err, ${data.skipped} skip/x.`;
+      logLine('🏁 Tests terminés.');
+      btn.disabled = false;
+    });
+
+    es.addEventListener('error', () => {
+      logLine('❌ Flux coupé.', true);
+      btn.disabled = false;
+    });
+  }
+
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    reset();
+    connect();
+    logLine('▶️ Lancement de pytest…');
+    await fetch('/run', {method:'POST'}).catch(() => {
+      logLine('❌ Impossible d’appeler /run (backend non disponible).');
+      btn.disabled = false;
+    });
+  });
+
+  clear.addEventListener('click', (e) => { e.preventDefault(); logs.innerHTML=''; });
+
+  // Option: auto-connect sans lancer
+  connect();
+})();
+</script>
+</body>
+</html>
+```
+
+pytest_progress_sse.py
+```python
+#!/usr/bin/env python3
+import subprocess, threading, queue, time, re, json, os
+from flask import Flask, Response, request, send_from_directory
+
+app = Flask(__name__)
+q = queue.Queue()
+
+ORDER = [
+    "test_users_7.py",
+    "test_valid_login_8.py",
+    "test_generate_uuid_9.py",
+    "test_auth_create_session_10.py",
+    "test_app_login_11.py",
+    "test_auth_get_user_from_session_id_12.py",
+    "test_auth_destroy_session_13.py",
+    "test_app_logout_14.py",
+    "test_app_profile_15.py",
+    "test_auth_reset_token_16.py",
+    "test_app_reset_password_token_17.py",
+    "test_auth_update_password_18.py",
+    "test_app_update_password_19.py",
+]
+
+def sse(event, data):
+    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
+def collect_total():
+    try:
+        p = subprocess.run(
+            ["pytest", "--collect-only", "-q"] + ORDER,
+            capture_output=True, text=True, check=False
+        )
+        # Lines like: test_file::TestClass::test_name
+        total = sum(1 for line in p.stdout.splitlines() if "::" in line)
+        return total
+    except Exception:
+        return 0
+
+def run_pytest():
+    total = collect_total()
+    q.put(("init", {"total": total}))
+    cmd = ["pytest","-q"] + ORDER
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+
+    done = passed = failed = skipped = 0
+    node_pattern = re.compile(r"^(.*::.*?)(?:\s+)?$")
+    # outcome lines often: PASSED, FAILED, SKIPPED (in quiet it prints a dot pattern)
+    # We'll catch nodeid from verbose markers when present; otherwise, log lines as they come.
+
+    for line in proc.stdout:
+        line = line.rstrip("\n")
+        q.put(("log", line))
+
+        # Try detect a nodeid (best effort)
+        m = node_pattern.match(line)
+        if "::" in line and m:
+            q.put(("case", {"nodeid": m.group(1)}))
+
+        # Heuristic outcome counters
+        if re.search(r"\bPASSED\b", line, re.I) or line.strip().endswith("."):
+            passed += 1; done += 1
+            q.put(("update", {"done": done, "passed": passed, "failed": failed, "skipped": skipped}))
+        elif re.search(r"\bFAILED\b|\bERROR\b", line, re.I) or line.strip().endswith("F"):
+            failed += 1; done += 1
+            q.put(("update", {"done": done, "passed": passed, "failed": failed, "skipped": skipped}))
+        elif re.search(r"\bSKIPPED\b|\bXFAILED\b|\bXPASSED\b", line, re.I) or line.strip().endswith("s"):
+            skipped += 1; done += 1
+            q.put(("update", {"done": done, "passed": passed, "failed": failed, "skipped": skipped}))
+
+    proc.wait()
+    q.put(("end", {"passed": passed, "failed": failed, "skipped": skipped, "total": total}))
+
+@app.route("/run", methods=["POST"])
+def run():
+    threading.Thread(target=run_pytest, daemon=True).start()
+    return {"status":"started"}
+
+@app.route("/events")
+def events():
+    def gen():
+        # keepalive ping every 15s
+        last = time.time()
+        yield sse("log", "Flux SSE démarré")
+        while True:
+            try:
+                event, data = q.get(timeout=1)
+                yield sse(event, data)
+                last = time.time()
+            except queue.Empty:
+                if time.time() - last > 15:
+                    yield ":\n\n"  # comment ping
+                    last = time.time()
+    return Response(gen(), mimetype="text/event-stream")
+
+@app.route("/")
+def root():
+    # Serve the HTML if it's in the same dir
+    return send_from_directory(os.getcwd(), "progress.html")
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5057, debug=False)
+```
+
+```bash
+http://127.0.0.1:5057/
+```
+![alt text](image-7.png)
+
+progression en term de commande
+```bash
+pip install tqdm
+pip freeze > requirements2.txt
+```
+
+pytest_progress.py
+```python
+#!/usr/bin/env python3
+from tqdm import tqdm
+import subprocess, re
+
+ORDER = [
+    "test_users_7.py", "test_valid_login_8.py", "test_generate_uuid_9.py",
+    "test_auth_create_session_10.py", "test_app_login_11.py",
+    "test_auth_get_user_from_session_id_12.py", "test_auth_destroy_session_13.py",
+    "test_app_logout_14.py", "test_app_profile_15.py", "test_auth_reset_token_16.py",
+    "test_app_reset_password_token_17.py", "test_auth_update_password_18.py",
+    "test_app_update_password_19.py",
+]
+
+def count_total():
+    p = subprocess.run(["pytest","--collect-only","-q"]+ORDER, capture_output=True, text=True)
+    return sum(1 for l in p.stdout.splitlines() if "::" in l)
+
+def main():
+    total = count_total() or 31  # fallback
+    bar = tqdm(total=total, desc="Pytest", ncols=80)
+    proc = subprocess.Popen(["pytest","-q"]+ORDER, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    for line in proc.stdout:
+        line=line.rstrip("\n")
+        if re.search(r"\bPASSED\b|\bFAILED\b|\bERROR\b|\bSKIPPED\b|[.FEsx]$", line):
+            bar.update(1)
+    proc.wait()
+    bar.close()
+
+if __name__=="__main__":
+    main()
+```
+
+```bash
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service# python3 pytest_progress.py
+Pytest: 100%|███████████████████████████████████| 31/31 [00:13<00:00,  2.27it/s]
+(venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web
+_back_end/user_authentication_service#
+```
+
+
+```bash
+http://127.0.0.1:5057/
+```
+
+progress.html
+```html
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Test Dashboard — Pytest & Unittest</title>
+<style>
+  :root{
+    --bg:#070a14; --bg-2:#0b1226; --card:#0f1831; --card-2:#0c142a;
+    --muted:#8ca2c0; --text:#e9eef8; --pill:#0f2147; --pill-2:#122a57;
+    --ok:#10b981; --warn:#f59e0b; --err:#ef4444; --info:#22d3ee;
+    --grad:linear-gradient(90deg,#6366f1,#22d3ee);
+    --border:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:
+      radial-gradient(1200px 700px at 20% -10%, #141b31 0%, transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, #0d1c3a 0%, transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font:14px/1.45 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial;
+  }
+  .layout{
+    display:grid; grid-template-columns: 270px 1fr; gap:16px; padding:18px; min-height:100%;
+  }
+  /* Sidebar */
+  .side{
+    background:linear-gradient(180deg,rgba(255,255,255,.03),transparent 30%),var(--card);
+    border:1px solid var(--border); border-radius:14px; padding:16px; position:sticky; top:18px; height:max-content;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px; margin-bottom:18px;
+    font-weight:800; letter-spacing:.2px
+  }
+  .brand svg{filter:drop-shadow(0 6px 16px rgba(34,211,238,.25))}
+  .tabs{display:flex; flex-direction:column; gap:8px}
+  .tab{
+    padding:10px 12px; border-radius:10px; background:var(--pill);
+    border:1px solid var(--border); cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .tab.active{background:var(--pill-2); outline:1px solid rgba(99,102,241,.35)}
+  .tab small{color:var(--muted)}
+  .group{
+    margin-top:16px; padding-top:16px; border-top:1px dashed var(--border);
+  }
+  .group h4{margin:0 0 8px 0; font-size:12px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted)}
+  .chip{
+    display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:var(--pill); border:1px solid var(--border); color:var(--muted); margin-right:6px; margin-bottom:6px; cursor:pointer;
+  }
+  .chip.active{background:#102a4b; color:#bcd7ff; outline:1px solid rgba(160,200,255,.25)}
+  .run{
+    margin-top:14px; width:100%; padding:12px 14px; border-radius:12px; border:0; background:var(--grad); color:#041322; font-weight:800; cursor:pointer;
+    box-shadow:0 12px 30px rgba(34,211,238,.18); transition:transform .12s ease,opacity .2s ease;
+  }
+  .run:active{transform:translateY(1px)}
+  .run[disabled]{opacity:.6; cursor:not-allowed}
+
+  /* Main */
+  .main{
+    display:grid; grid-template-rows:auto auto 1fr; gap:14px;
+  }
+  .kpis{
+    display:grid; grid-template-columns: repeat(4, minmax(170px, 1fr)); gap:12px;
+  }
+  .card{
+    background:linear-gradient(180deg,rgba(255,255,255,.035),transparent 40%),var(--card-2);
+    border:1px solid var(--border); border-radius:14px; padding:14px;
+    box-shadow:0 14px 44px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.03);
+  }
+  .kpi{display:flex; align-items:center; justify-content:space-between}
+  .kpi h3{margin:0; font-size:12px; color:var(--muted); font-weight:700; letter-spacing:.08em; text-transform:uppercase}
+  .kpi strong{font-size:24px}
+  .kpi .ok{color:var(--ok)} .kpi .warn{color:var(--warn)} .kpi .err{color:var(--err)} .kpi .info{color:var(--info)}
+
+  .progress{height:16px; border-radius:999px; background:#0c1630; border:1px solid var(--border); overflow:hidden}
+  .bar{height:100%; width:0%; background:var(--grad); box-shadow:0 10px 24px rgba(99,102,241,.18); transition:width .35s cubic-bezier(.4,0,.2,1)}
+
+  .toolbar{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .toolbar .toggle{padding:8px 12px; border-radius:10px; background:var(--pill); border:1px solid var(--border); color:var(--muted); cursor:pointer}
+  .toggle.active{background:var(--pill-2); color:#cfe4ff}
+
+  .grid{
+    display:grid; grid-template-columns: 1.25fr .75fr; gap:12px; min-height:520px;
+  }
+  .panel{display:flex; flex-direction:column; min-height:320px}
+  .panel h2{margin:0 0 10px 0; font-size:16px}
+  .list{flex:1; overflow:auto; border:1px solid var(--border); border-radius:12px; background:#0c1427}
+  .row{display:grid; grid-template-columns: 1fr 90px 90px 70px; gap:10px; padding:10px 12px; border-bottom:1px dashed rgba(255,255,255,.06); align-items:center}
+  .row.head{position:sticky; top:0; background:#101a34; border-bottom:1px solid var(--border); font-weight:700}
+  .status{display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border-radius:999px; font-size:12px; border:1px solid var(--border)}
+  .status.ok{background:rgba(16,185,129,.08); color:#b6f3dc; border-color:rgba(16,185,129,.25)}
+  .status.err{background:rgba(239,68,68,.08); color:#ffd0d0; border-color:rgba(239,68,68,.25)}
+  .status.skip{background:rgba(245,158,11,.08); color:#ffe0b3; border-color:rgba(245,158,11,.25)}
+
+  .logs{height:100%; overflow:auto; padding:12px; border:1px solid var(--border); border-radius:12px; background:#0c1427; color:#c9d3e7; font-family:ui-monospace,Menlo,Consolas,monospace}
+  .log-line{white-space:pre-wrap; margin:0 0 6px}
+  .muted{color:var(--muted)}
+  .footer{margin-top:8px; display:flex; justify-content:space-between; font-size:12px; color:var(--muted)}
+  @media (max-width: 1080px){
+    .layout{grid-template-columns: 1fr}
+    .grid{grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="side">
+      <div class="brand">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h10a2 2 0 0 1 2 2v9.5a2 2 0 0 1-.67 1.49l-5 4.5a2 2 0 0 1-2.66 0l-5-4.5A2 2 0 0 1 5 14.5V5a2 2 0 0 1 2-2Z" stroke="#7aa2ff" stroke-width="1.2"/></svg>
+        <div>Test Dashboard</div>
+      </div>
+
+      <div class="tabs" id="suiteTabs">
+        <div class="tab active" data-suite="pytest"><span>Pytest</span><small id="badgePytest">—</small></div>
+        <div class="tab" data-suite="unittest"><span>Unittest</span><small id="badgeUnit">—</small></div>
+        <div class="tab" data-suite="all"><span>Tous (mix)</span><small id="badgeAll">—</small></div>
+      </div>
+
+      <div class="group">
+        <h4>Filtres rapides</h4>
+        <div id="chips">
+          <span class="chip active" data-filter="all">Tout</span>
+          <span class="chip" data-filter="passed">Pass</span>
+          <span class="chip" data-filter="failed">Fail/Err</span>
+          <span class="chip" data-filter="skipped">Skip/X</span>
+        </div>
+      </div>
+
+      <button class="run" id="runBtn">Lancer les tests</button>
+      <div class="footer"><span>Backend: <span class="muted">/run · /events (SSE)</span></span></div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <!-- KPIs -->
+      <section class="kpis">
+        <div class="card kpi"><h3>Total</h3><strong class="info" id="kTotal">0</strong></div>
+        <div class="card kpi"><h3>Pass</h3><strong class="ok" id="kPass">0</strong></div>
+        <div class="card kpi"><h3>Skip/X</h3><strong class="warn" id="kSkip">0</strong></div>
+        <div class="card kpi"><h3>Fail/Err</h3><strong class="err" id="kFail">0</strong></div>
+      </section>
+
+      <!-- Progress + view toggles -->
+      <section class="card">
+        <div class="toolbar" style="margin-bottom:10px;">
+          <div style="flex:1; color:var(--muted)">Progression globale</div>
+          <button class="toggle active" id="tGrouped">Groupé</button>
+          <button class="toggle" id="tFlat">Individuel</button>
+          <button class="toggle" id="tAutoScroll">Auto-scroll logs</button>
+        </div>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="bar" id="bar"></div>
+        </div>
+        <div class="footer">
+          <div id="percent">0%</div>
+          <div id="statusLine">Prêt</div>
+        </div>
+      </section>
+
+      <!-- Lists + Logs -->
+      <section class="grid">
+        <div class="panel card">
+          <h2 id="listTitle">Tests (groupés par fichier/classe)</h2>
+          <div class="list" id="list">
+            <div class="row head"><div>Nom</div><div>Durée</div><div>Statut</div><div>%</div></div>
+            <!-- rows injected -->
+          </div>
+          <div class="footer"><span id="hint">Astuce : clique une ligne pour dérouler les tests.</span><span class="muted" id="runtime">—</span></div>
+        </div>
+        <div class="panel card">
+          <h2>Logs en direct</h2>
+          <div class="logs" id="logs" aria-live="polite" aria-atomic="false"></div>
+          <div class="footer">
+            <span id="logHint">⏳ En attente…</span>
+            <a href="#" id="clearLogs" class="muted">Effacer</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+(() => {
+  // Elements
+  const $ = (s,p=document)=>p.querySelector(s);
+  const $$ = (s,p=document)=>Array.from(p.querySelectorAll(s));
+  const bar = $('#bar'), percent = $('#percent'), statusLine = $('#statusLine');
+  const kTotal=$('#kTotal'), kPass=$('#kPass'), kSkip=$('#kSkip'), kFail=$('#kFail');
+  const list = $('#list'), logs = $('#logs'), runtime = $('#runtime');
+  const tGrouped = $('#tGrouped'), tFlat = $('#tFlat'), tAutoScroll = $('#tAutoScroll');
+  const runBtn = $('#runBtn'), clearLogs = $('#clearLogs'), listTitle = $('#listTitle');
+  const suiteTabs = $('#suiteTabs');
+
+  // State
+  let es=null, filter='all', suite='pytest', grouped=true, autoScroll=false;
+  let totals={total:0, passed:0, failed:0, skipped:0, done:0};
+  let startedAt=null;
+  // storage for nodes
+  const groups=new Map(); // key=file_or_class -> {node, items:[]}
+  const flat=[];
+
+  function fmt(ms){
+    if (!ms) return '—';
+    const s=ms/1000; return s<1 ? `${ms|0}ms` : `${s.toFixed(2)}s`;
+  }
+
+  function setProgress(v){
+    v = Math.max(0, Math.min(100, v));
+    bar.style.width = v + '%';
+    bar.parentElement.setAttribute('aria-valuenow', String(v|0));
+    percent.textContent = v.toFixed(0) + '%';
+  }
+
+  function log(line, dim=false){
+    const div=document.createElement('div');
+    div.className='log-line'+(dim?' muted':'');
+    div.textContent=line;
+    logs.appendChild(div);
+    if (autoScroll) logs.scrollTop=logs.scrollHeight;
+  }
+
+  function resetUI(){
+    totals={total:0, passed:0, failed:0, skipped:0, done:0};
+    groups.clear(); flat.length=0;
+    list.innerHTML = '<div class="row head"><div>Nom</div><div>Durée</div><div>Statut</div><div>%</div></div>';
+    logs.innerHTML='';
+    setProgress(0);
+    kTotal.textContent=kPass.textContent=kSkip.textContent=kFail.textContent='0';
+    percent.textContent='0%'; statusLine.textContent='Prêt'; runtime.textContent='—';
+  }
+
+  function ensureGroup(key){
+    if (groups.has(key)) return groups.get(key);
+    const row=document.createElement('div');
+    row.className='row';
+    row.innerHTML=`<div style="font-weight:600">${key}</div>
+                   <div class="muted" data-k="dur">—</div>
+                   <div><span class="status" data-k="st">—</span></div>
+                   <div class="muted" data-k="pct">0%</div>`;
+    row.addEventListener('click', ()=> row.nextSibling?.classList.toggle('open'));
+    const details=document.createElement('div');
+    details.className='list-details';
+    details.style.cssText='display:none; border-top:1px dashed rgba(255,255,255,.06)';
+    details.toggleAttribute = undefined;
+    details.classList.toggle = function(o){ this.style.display=this.style.display==='none'?'block':'none' };
+    list.appendChild(row); list.appendChild(details);
+    const g={row, details, items:[], dur:0, passed:0, failed:0, skipped:0, total:0};
+    groups.set(key,g);
+    return g;
+  }
+
+  function paintGroup(g){
+    const pct = g.total ? (g.passed / g.total * 100) : 0;
+    g.row.querySelector('[data-k="pct"]').textContent = pct.toFixed(0)+'%';
+    g.row.querySelector('[data-k="dur"]').textContent = fmt(g.dur);
+    const st=g.row.querySelector('[data-k="st"]');
+    st.className='status '+(g.failed? 'err' : (g.skipped? 'skip' : 'ok'));
+    st.textContent = g.failed? 'Fail' : (g.skipped? 'Skip' : 'Pass');
+  }
+
+  function addCase(nodeid, outcome, duration_ms){
+    // nodeid format pytest: file::Class::test_name
+    const parts = nodeid.split('::');
+    const groupKey = grouped ? (parts[0] + (parts.length>2 ? '::'+parts[1] : '')) : '__flat__';
+    const g = ensureGroup(groupKey);
+
+    const item=document.createElement('div');
+    item.className='row';
+    item.dataset.outcome=outcome;
+    const name = grouped ? parts.slice(2).join('::') || '(module)' : nodeid;
+    item.innerHTML=`<div>${name}</div>
+                    <div class="muted">${fmt(duration_ms)}</div>
+                    <div><span class="status ${outcome==='passed'?'ok': outcome==='failed'?'err':'skip'}">${outcome.replace('_',' ')}</span></div>
+                    <div class="muted"></div>`;
+    g.details.appendChild(item);
+    g.items.push(item);
+    g.total++; g.dur += (duration_ms||0);
+    if (outcome==='passed') g.passed++; else if (outcome==='failed' || outcome==='error') g.failed++; else g.skipped++;
+    paintGroup(g);
+
+    // Flat view storage
+    flat.push({nodeid, duration_ms, outcome});
+  }
+
+  function applyFilter(){
+    const f=filter;
+    $$('.row', list).forEach(r=>{
+      if (r.classList.contains('head')) return;
+      if (!r.parentElement.classList.contains('list-details')) return; // only items
+      const oc = r.querySelector('.status')?.className || '';
+      const show = (f==='all') ||
+                   (f==='passed' && oc.includes('ok')) ||
+                   (f==='failed' && oc.includes('err')) ||
+                   (f==='skipped' && oc.includes('skip'));
+      r.style.display = show ? '' : 'none';
+    });
+  }
+
+  function renderFlat(){
+    listTitle.textContent='Tests (liste individuelle)';
+    list.innerHTML = '<div class="row head"><div>Test</div><div>Durée</div><div>Statut</div><div></div></div>';
+    flat.forEach(({nodeid, duration_ms, outcome})=>{
+      const r=document.createElement('div');
+      r.className='row';
+      r.innerHTML=`<div>${nodeid}</div>
+                   <div class="muted">${fmt(duration_ms)}</div>
+                   <div><span class="status ${outcome==='passed'?'ok': outcome==='failed'?'err':'skip'}">${outcome.replace('_',' ')}</span></div>
+                   <div></div>`;
+      list.appendChild(r);
+    });
+    applyFilter();
+  }
+
+  function renderGrouped(){
+    listTitle.textContent='Tests (groupés par fichier/classe)';
+    // rebuild from groups (already in DOM)
+    applyFilter();
+  }
+
+  function connectSSE(){
+    if (es) es.close();
+    const url = `/events?suite=${encodeURIComponent(suite)}`;
+    es = new EventSource(url);
+    log(`✅ Connexion SSE: ${url}`, true);
+
+    es.addEventListener('open', ()=> log('Flux SSE démarré', true));
+    es.addEventListener('init', e=>{
+      const d = JSON.parse(e.data);
+      totals.total = d.total || 0;
+      kTotal.textContent = totals.total;
+      statusLine.textContent = 'Collecte…';
+      startedAt = Date.now();
+    });
+
+    es.addEventListener('case', e=>{
+      const d = JSON.parse(e.data);
+      statusLine.textContent = d.nodeid || '';
+      log(`🧪 ${d.nodeid}`, true);
+    });
+
+    es.addEventListener('result', e=>{
+      const d = JSON.parse(e.data); // {nodeid, outcome, duration_ms}
+      addCase(d.nodeid, d.outcome, d.duration_ms||0);
+    });
+
+    es.addEventListener('update', e=>{
+      const d = JSON.parse(e.data);
+      Object.assign(totals, d);
+      kPass.textContent = totals.passed||0;
+      kFail.textContent = totals.failed||0;
+      kSkip.textContent = totals.skipped||0;
+      const pct = totals.total ? (totals.done / totals.total * 100) : 0;
+      setProgress(pct);
+      if (grouped) renderGrouped(); else renderFlat();
+    });
+
+    es.addEventListener('log', e=> log(e.data));
+    es.addEventListener('end', e=>{
+      const d = JSON.parse(e.data);
+      kPass.textContent = d.passed; kFail.textContent = d.failed; kSkip.textContent = d.skipped;
+      setProgress(100);
+      statusLine.textContent = `Terminé: ${d.passed} pass, ${d.failed} fail/err, ${d.skipped} skip/x.`;
+      const ms = Date.now() - (startedAt || Date.now());
+      runtime.textContent = `Durée totale: ${fmt(ms)}`;
+      runBtn.disabled = false;
+    });
+
+    es.addEventListener('error', ()=>{
+      log('❌ Flux SSE coupé.', true);
+      runBtn.disabled = false;
+    });
+  }
+
+  // Actions
+  runBtn.addEventListener('click', async ()=>{
+    runBtn.disabled = true;
+    resetUI();
+    connectSSE();
+    log(`▶️ Lancement de ${suite.toUpperCase()}…`);
+    try{
+      await fetch(`/run?suite=${encodeURIComponent(suite)}`, {method:'POST'});
+    }catch{
+      log('❌ Appel /run échoué (backend indisponible).');
+      runBtn.disabled=false;
+    }
+  });
+
+  clearLogs.addEventListener('click', e=>{e.preventDefault(); logs.innerHTML='';});
+
+  // Filters
+  $$('#chips .chip').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      $$('#chips .chip').forEach(x=>x.classList.remove('active'));
+      c.classList.add('active'); filter=c.dataset.filter; applyFilter();
+    });
+  });
+
+  // View toggles
+  function setGrouped(v){
+    grouped = v;
+    tGrouped.classList.toggle('active', grouped);
+    tFlat.classList.toggle('active', !grouped);
+    if (grouped) renderGrouped(); else renderFlat();
+  }
+  tGrouped.addEventListener('click', ()=> setGrouped(true));
+  tFlat.addEventListener('click', ()=> setGrouped(false));
+  tAutoScroll.addEventListener('click', ()=>{
+    autoScroll=!autoScroll; tAutoScroll.classList.toggle('active', autoScroll);
+  });
+
+  // Suite tabs
+  $$('.tab', suiteTabs).forEach(t=>{
+    t.addEventListener('click', ()=>{
+      $$('.tab', suiteTabs).forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      suite = t.dataset.suite;
+      log(`📦 Suite sélectionnée: ${suite}`);
+    });
+  });
+
+  // First load
+  resetUI();
+})();
+</script>
+</body>
+</html>
+```
+
+serveur port5057 Running on http://127.0.0.1:5057
+pytest_progress_sse.py
+```python
+#!/usr/bin/env python3
+import subprocess, threading, queue, time, re, json, os
+from flask import Flask, Response, request, send_from_directory
+
+app = Flask(__name__)
+q = queue.Queue()
+
+ORDER = [
+    "test_users_7.py",
+    "test_valid_login_8.py",
+    "test_generate_uuid_9.py",
+    "test_auth_create_session_10.py",
+    "test_app_login_11.py",
+    "test_auth_get_user_from_session_id_12.py",
+    "test_auth_destroy_session_13.py",
+    "test_app_logout_14.py",
+    "test_app_profile_15.py",
+    "test_auth_reset_token_16.py",
+    "test_app_reset_password_token_17.py",
+    "test_auth_update_password_18.py",
+    "test_app_update_password_19.py",
+]
+
+def sse(event, data):
+    # small helper to format SSE frames
+    if isinstance(data, str):
+        payload = data
+    else:
+        payload = json.dumps(data)
+    return f"event: {event}\ndata: {payload}\n\n"
+
+def collect_total():
+    # still fine to use --collect-only
+    p = subprocess.run(["pytest", "--collect-only", "-q"] + ORDER,
+                       capture_output=True, text=True, check=False,
+                       env=dict(os.environ, PYTHONUNBUFFERED="1"))
+    return sum(1 for line in p.stdout.splitlines() if "::" in line)
+
+def run_pytest():
+    # tell the client how many we plan to run
+    total = collect_total()
+    q.put(("init", {"total": total}))
+
+    # IMPORTANT: -s disables capture, -vv prints test nodeids live
+    cmd = ["pytest", "-vv", "-s", "--color=no"] + ORDER
+    env = dict(os.environ, PYTHONUNBUFFERED="1")
+
+    proc = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,                 # line-buffered
+        env=env
+    )
+
+    done = passed = failed = skipped = 0
+    for raw in proc.stdout:
+        line = raw.rstrip("\n")
+        # stream every line immediately
+        q.put(("log", line))
+
+        # naive live progress parsing (good enough for a bar)
+        if "::" in line:  # pytest prints nodeid lines with -vv
+            q.put(("case", {"nodeid": line.strip()}))
+
+        # update counts heuristically
+        if re.search(r"\bPASSED\b", line):
+            passed += 1; done += 1
+        elif re.search(r"\b(FAILED|ERROR)\b", line):
+            failed += 1; done += 1
+        elif re.search(r"\b(SKIPPED|XFAILED|XPASSED)\b", line):
+            skipped += 1; done += 1
+
+        q.put(("update", {"done": done, "passed": passed, "failed": failed, "skipped": skipped}))
+
+    proc.wait()
+    q.put(("end", {"passed": passed, "failed": failed, "skipped": skipped, "total": total}))
+
+@app.route("/run", methods=["POST"])
+def run():
+    # clear old queue so the next run starts clean
+    try:
+        while True: q.get_nowait()
+    except queue.Empty:
+        pass
+    threading.Thread(target=run_pytest, daemon=True).start()
+    return {"status": "started"}
+
+@app.route("/events")
+def events():
+    def gen():
+        last = time.time()
+        # kick a first message to “open” the pipe in some proxies
+        yield sse("log", "Flux SSE démarré")
+        while True:
+            try:
+                event, data = q.get(timeout=1)
+                yield sse(event, data)
+                last = time.time()
+            except queue.Empty:
+                # heartbeat every 10s to keep connection warm
+                if time.time() - last > 10:
+                    yield ":\n\n"
+                    last = time.time()
+    return Response(
+        gen(),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no"  # disable Nginx buffering if present
+        }
+    )
+
+@app.route("/")
+def root():
+    return send_from_directory(os.getcwd(), "progress.html")
+
+if __name__ == "__main__":
+    # threaded=True helps SSE & POST /run coexist
+    app.run(host="0.0.0.0", port=5057, debug=False, threaded=True)
+```
+
+
+dashboard
+![alt text](image-8.png)
