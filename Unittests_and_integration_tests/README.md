@@ -9,6 +9,8 @@ python3 -m unittest test_client.py
 python3 -m venv .venv
 source .venv/bin/activate
 pip install parameterized
+pip install requests
+pip freeze > requirements.txt
 
 ```
 
@@ -43,8 +45,18 @@ if __name__ == "__main__":
 ```
 
 ```bash
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/Unittests_and_integration_tests# python3 -m unittest test_utils.py
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
 
+OK
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/Unittests_and_integration_tests#
 ```
+
+
 # Task1
 
 test_utils.py
@@ -56,6 +68,7 @@ test_utils.py
 
 ```
 
+
 # Task2
 
 test_utils.py
@@ -66,6 +79,8 @@ test_utils.py
 ```bash
 
 ```
+
+
 # Task3
 
 test_utils.py
@@ -87,6 +102,8 @@ test_utils.py
 ```bash
 
 ```
+
+
 # Task4
 
 test_utils.py
@@ -108,6 +125,8 @@ test_utils.py
 ```bash
 
 ```
+
+
 # Task6
 
 test_utils.py
@@ -129,6 +148,8 @@ test_utils.py
 ```bash
 
 ```
+
+
 # Task8
 
 test_utils.py
