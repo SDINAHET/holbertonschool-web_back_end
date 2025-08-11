@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Unit tests for client.GithubOrgClient.org"""
+"""Unit tests for client.GithubOrgClient.
+
+This module contains unit tests that validate how GithubOrgClient fetches
+organization data and exposes public repositories via its helper methods.
+"""
 
 import unittest
 from parameterized import parameterized
@@ -29,10 +33,6 @@ class TestGithubOrgClient(unittest.TestCase):
         mock_get_json.assert_called_once_with(
             f"https://api.github.com/orgs/{org_name}"
         )
-
-
-class TestGithubOrgClient(unittest.TestCase):
-    # tes autres tests (test_org) ...
 
     def test_public_repos_url(self):
         """_public_repos_url doit renvoyer repos_url depuis org (mockée)"""

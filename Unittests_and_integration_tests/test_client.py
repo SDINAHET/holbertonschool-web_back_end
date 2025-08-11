@@ -34,7 +34,6 @@ class TestGithubOrgClient(unittest.TestCase):
             f"https://api.github.com/orgs/{org_name}"
         )
 
-
     def test_public_repos_url(self):
         """_public_repos_url doit renvoyer repos_url depuis org (mockée)"""
         payload = {"repos_url": "https://api.github.com/orgs/google/repos"}
