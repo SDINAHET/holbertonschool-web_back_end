@@ -18,3 +18,9 @@ app.py templates/index.html \
 translations/en/LC_MESSAGES/messages.po \
 translations/fr/LC_MESSAGES/messages.po
 ```
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+deactivate
+pip freeze > requirements.txt
+```
