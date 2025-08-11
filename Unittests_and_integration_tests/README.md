@@ -15,7 +15,7 @@ pip freeze > requirements.txt
 
 ```
 
-# Task0
+# Task0 test_utils.py
 
 test_utils.py
 ```python
@@ -58,7 +58,7 @@ _end/Unittests_and_integration_tests#
 ```
 
 
-# Task1
+# Task1 test_utils.py
 
 test_utils.py
 ```python
@@ -111,7 +111,7 @@ _end/Unittests_and_integration_tests#
 ```
 
 
-# Task2
+# Task2 test_utils.py
 
 test_utils.py
 ```python
@@ -213,7 +213,7 @@ _end/Unittests_and_integration_tests#
 ```
 
 
-# Task3
+# Task3 test_utils.py
 
 test_utils.py
 ```python
@@ -224,7 +224,6 @@ import unittest
 from parameterized import parameterized
 from utils import access_nested_map, get_json, memoize
 from unittest.mock import patch, Mock
-
 
 
 class TestAccessNestedMap(unittest.TestCase):
@@ -240,8 +239,8 @@ class TestAccessNestedMap(unittest.TestCase):
         self.assertEqual(access_nested_map(nested_map, path), expected)
 
     @parameterized.expand([
-    ({}, ("a",)),
-    ({"a": 1}, ("a", "b")),
+        ({}, ("a",)),
+        ({"a": 1}, ("a", "b")),
     ])
     def test_access_nested_map_exception(self, nested_map, path):
         """Test that KeyError is raised with correct message"""
@@ -282,7 +281,7 @@ class TestMemoize(unittest.TestCase):
                 return self.a_method()
 
         with patch.object(
-            TestClass, "a_method", return_value=42) as mock_method:
+                TestClass, "a_method", return_value=42) as mock_method:
             obj = TestClass()
             self.assertEqual(obj.a_property, 42)
             self.assertEqual(obj.a_property, 42)
@@ -291,6 +290,7 @@ class TestMemoize(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
 
 ```
 
@@ -339,7 +339,63 @@ _end/Unittests_and_integration_tests#
 💡 Idée : tester qu’une méthode décorée avec @memoize n’est calculée qu’une seule fois, même si on l’appelle plusieurs fois.
 
 
-# Task4
+
+
+
+# Task4 test_client.py
+python3 -m unittest test_client.py
+
+test_client.py
+```python
+#!/usr/bin/env python3
+"""Unit tests for client.GithubOrgClient.org"""
+
+import unittest
+from parameterized import parameterized
+from unittest.mock import patch, Mock
+from client import GithubOrgClient
+
+
+class TestGithubOrgClient(unittest.TestCase):
+    """Tests for GithubOrgClient.org"""
+
+    @parameterized.expand([
+        ("google",),
+        ("abc",),
+    ])
+    @patch("client.get_json")
+    def test_org(self, org_name, mock_get_json):
+        """org should return the JSON payload and call get_json once"""
+        expected = {"org": org_name, "repos_url": f"https://api.github.com/orgs/{org_name}/repos"}
+        mock_get_json.return_value = expected
+
+        client = GithubOrgClient(org_name)
+        self.assertEqual(client.org, expected)
+
+        mock_get_json.assert_called_once_with(
+            f"https://api.github.com/orgs/{org_name}"
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+```
+
+```bash
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/Unittests_and_integration_tests# python3 -m unittest test_client.py
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/Unittests_and_integration_tests#
+```
+
+
+# Task5 test_client.py
 
 test_client.py
 ```python
@@ -351,7 +407,7 @@ test_client.py
 ```
 
 
-# Task4
+# Task6 test_client.py
 
 test_client.py
 ```python
@@ -362,30 +418,7 @@ test_client.py
 
 ```
 
-# Task5
-
-test_client.py
-```python
-
-```
-
-```bash
-
-```
-
-
-# Task6
-
-test_client.py
-```python
-
-```
-
-```bash
-
-```
-
-# Task7
+# Task7 test_client.py
 
 test_client.py
 ```python
@@ -397,7 +430,7 @@ test_client.py
 ```
 
 
-# Task8
+# Task8 test_client.py
 
 test_client.py
 ```python
@@ -409,7 +442,7 @@ test_client.py
 ```
 
 
-# Task9
+# Task9 test_client.py
 
 test_client.py
 ```python
