@@ -975,16 +975,227 @@ Vous êtes connecté en tant que Spock.
 
 7-app.py
 ```python
+#!/usr/bin/env python3
+"""
+Flask app: locale + timezone selection with Flask-Babel.
+
+Priority rules:
+- Locale: URL (?locale) > user setting > Accept-Language > default
+- Timezone: URL (?timezone) > user setting > default ("UTC")
+"""
+from flask import Flask, render_template, request, g
+from flask_babel import Babel
+import pytz
+from pytz.exceptions import UnknownTimeZoneError
+
+
+class Config:
+    """
+    App config for Flask-Babel.
+
+    Attributes:
+        LANGUAGES (list[str]): Supported locales.
+        BABEL_DEFAULT_LOCALE (str): Fallback locale.
+        BABEL_DEFAULT_TIMEZONE (str): Default timezone ("UTC").
+    """
+    LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
+
+
+# Mock users database
+users = {
+    1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
+    2: {"name": "Beyonce", "locale": "en", "timezone": "US/Central"},
+    3: {"name": "Spock", "locale": "kg", "timezone": "Vulcan"},  # invalid/unsupported
+    4: {"name": "Teletubby", "locale": None, "timezone": "Europe/London"},
+}
+
+app = Flask(__name__)
+app.config.from_object(Config)
+
+babel = Babel()
+
+
+def get_user():
+    """
+    Return mocked user dict from ?login_as=<id>, else None.
+    """
+    uid = request.args.get("login_as", type=int)
+    return users.get(uid) if uid in users else None
+
+
+@app.before_request
+def before_request():
+    """
+    Attach current user to flask.g for this request.
+    """
+    g.user = get_user()
+
+
+def get_locale():
+    """
+    Locale selector with priority:
+    URL param -> user setting -> Accept-Language -> default.
+    """
+    # 1) URL param
+    forced = request.args.get("locale", type=str)
+    if forced in app.config["LANGUAGES"]:
+        return forced
+
+    # 2) User setting
+    user = getattr(g, "user", None)
+    if user:
+        uloc = user.get("locale")
+        if uloc in app.config["LANGUAGES"]:
+            return uloc
+
+    # 3) Accept-Language header
+    match = request.accept_languages.best_match(app.config["LANGUAGES"])
+    if match:
+        return match
+
+    # 4) Default
+    return app.config["BABEL_DEFAULT_LOCALE"]
+
+
+def get_timezone():
+    """
+    Timezone selector with priority:
+    URL param -> user setting -> default ("UTC").
+
+    Validates provided timezones using pytz.timezone.
+    """
+    # 1) URL param
+    tz = request.args.get("timezone", type=str)
+    if tz:
+        try:
+            pytz.timezone(tz)
+            return tz
+        except UnknownTimeZoneError:
+            pass  # ignore invalid URL-provided timezone
+
+    # 2) User setting
+    user = getattr(g, "user", None)
+    if user:
+        utz = user.get("timezone")
+        if utz:
+            try:
+                pytz.timezone(utz)
+                return utz
+            except UnknownTimeZoneError:
+                pass  # ignore invalid user timezone (e.g., "Vulcan")
+
+    # 3) Default
+    return app.config["BABEL_DEFAULT_TIMEZONE"]
+
+
+# Bind Babel with our selectors
+babel.init_app(app, locale_selector=get_locale, timezone_selector=get_timezone)
+
+
+@app.route("/")
+def index():
+    """
+    Render translated home page for step 7.
+    """
+    return render_template("7-index.html")
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
 
 ```
 
 templates/7-index.html
 ```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ _('home_title') }}</title>
+</head>
+<body>
+  <h1>{{ _('home_header') }}</h1>
+
+  {% if g.user %}
+    <p>{{ _('logged_in_as', username=g.user['name']) }}</p>
+  {% else %}
+    <p>{{ _('not_logged_in') }}</p>
+  {% endif %}
+</body>
+</html>
 
 ```
 
 ```bash
+python -m unittest -q
 
+```
+
+```bash
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-we
+b_back_end/i18n# python -m unittest -q
+----------------------------------------------------------------------
+Ran 5 tests in 0.039s
+
+OK
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-we
+b_back_end/i18n# python -m unittest -q
+[CLIENT] GET /?{'login_as': '2', 'locale': 'fr', 'timezone': 'Europe/Paris'} -> status=200, title='Bienvenue chez Holberton', h1='Bonjour monde!'
+[SELECTORS] query={'login_as': '2', 'locale': 'fr', 'timezone': 'Europe/Paris'} -> locale='fr', timezone='Europe/Paris'
+[ASSERT HTML] expected_h1='Bonjour monde!', got_h1='Bonjour monde!'
+[CLIENT] GET /?{'timezone': 'US/Central'} -> status=200, title='Welcome to Holberton', h1='Hello world!'
+[SELECTORS] query={'timezone': 'US/Central'} -> locale='en', timezone='US/Central'
+[ASSERT HTML] expected_h1='Hello world!', got_h1='Hello world!'
+[CLIENT] GET /?{'timezone': 'NotAZone'} -> status=200, title='Welcome to Holberton', h1='Hello world!'
+[SELECTORS] query={'timezone': 'NotAZone'} -> locale='en', timezone='UTC'
+[ASSERT HTML] expected_h1='Hello world!', got_h1='Hello world!'
+[CLIENT] GET /?{'login_as': '1'} -> status=200, title='Bienvenue chez Holberton', h1='Bonjour monde!'
+[SELECTORS] query={'login_as': '1'} -> locale='fr', timezone='Europe/Paris'
+[ASSERT HTML] expected_h1='Bonjour monde!', got_h1='Bonjour monde!'
+[CLIENT] GET /?{'login_as': '3'} -> status=200, title='Welcome to Holberton', h1='Hello world!'
+[SELECTORS] query={'login_as': '3'} -> locale='en', timezone='UTC'
+[ASSERT HTML] expected_h1='Hello world!', got_h1='Hello world!'
+----------------------------------------------------------------------
+Ran 5 tests in 0.137s
+
+OK
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-we
+b_back_end/i18n#
+
+```
+1-User ID 1 – Locale FR, timezone Europe/Paris
+http://127.0.0.1:5000/?login_as=1
+
+2-User ID 3 – Locale non supportée, timezone invalide → fallback EN + UTC
+http://127.0.0.1:5000/?login_as=3
+
+3-Timezone forcée US/Central (valide)
+http://127.0.0.1:5000/?timezone=US/Central
+
+4-Timezone forcée invalide → ignorée → fallback UTC
+http://127.0.0.1:5000/?timezone=NotAZone
+
+5-User ID 2 + forcage locale FR + forcage timezone Europe/Paris
+http://127.0.0.1:5000/?login_as=2&locale=fr&timezone=Europe/Paris
+
+```bash
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-we
+b_back_end/i18n# python3 7-app.py
+ * Serving Flask app '7-app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000
+Press CTRL+C to quit
+127.0.0.1 - - [11/Aug/2025 23:44:16] "GET /?login_as=3&locale=fr HTTP/1.1" 200 -
+127.0.0.1 - - [11/Aug/2025 23:54:27] "GET /?login_as=1 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Aug/2025 23:54:36] "GET /?login_as=3 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Aug/2025 23:54:44] "GET /?timezone=US/Central HTTP/1.1" 200 -
+127.0.0.1 - - [11/Aug/2025 23:54:54] "GET /?timezone=NotAZone HTTP/1.1" 200 -
+127.0.0.1 - - [11/Aug/2025 23:55:02] "GET /?login_as=2&locale=fr&timezone=Europe/Paris HTTP/1.1" 200 -
 ```
 
 # Task8
