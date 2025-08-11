@@ -281,7 +281,8 @@ class TestMemoize(unittest.TestCase):
             def a_property(self):
                 return self.a_method()
 
-        with patch.object(TestClass, "a_method", return_value=42) as mock_method:
+        with patch.object(
+            TestClass, "a_method", return_value=42) as mock_method:
             obj = TestClass()
             self.assertEqual(obj.a_property, 42)
             self.assertEqual(obj.a_property, 42)
@@ -322,6 +323,21 @@ OK
 (.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
 _end/Unittests_and_integration_tests#
 ```
+
+
+1. Paramétrisation des tests d’exception
+💡 Idée : au lieu d’écrire plusieurs tests séparés pour vérifier qu’une fonction lève bien une erreur, on écrit un seul test qui est exécuté avec plusieurs jeux de données.
+
+2. Mock des appels HTTP
+💡 Idée : remplacer un vrai appel à un serveur externe par un faux objet (Mock) qui retourne une réponse prédéfinie.
+Ça évite :
+- de dépendre d’Internet
+- d’appeler un vrai serveur pendant les tests
+- d’avoir des tests lents ou instables
+
+3. Test de la mémoïsation
+💡 Idée : tester qu’une méthode décorée avec @memoize n’est calculée qu’une seule fois, même si on l’appelle plusieurs fois.
+
 
 # Task4
 
