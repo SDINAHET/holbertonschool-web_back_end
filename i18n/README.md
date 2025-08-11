@@ -650,18 +650,175 @@ Press CTRL+C to quit
 
 5-app.py
 ```python
+#!/usr/bin/env python3
+"""
+Flask app: mock login + translated messages.
+
+- Mock users via ?login_as=<id>
+- Store current user in flask.g.user (or None)
+- Force locale via ?locale=fr|en, else use Accept-Language
+"""
+from flask import Flask, render_template, request, g
+from flask_babel import Babel
+
+
+class Config:
+    """
+    Application configuration for Flask-Babel.
+
+    Attributes:
+        LANGUAGES (list[str]): Supported locales.
+        BABEL_DEFAULT_LOCALE (str): Fallback locale.
+        BABEL_DEFAULT_TIMEZONE (str): Default timezone.
+    """
+    LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
+
+
+# Mock "database" of users
+users = {
+    1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
+    2: {"name": "Beyonce", "locale": "en", "timezone": "US/Central"},
+    3: {"name": "Spock", "locale": "kg", "timezone": "Vulcan"},
+    4: {"name": "Teletubby", "locale": None, "timezone": "Europe/London"},
+}
+
+app = Flask(__name__)
+app.config.from_object(Config)
+
+babel = Babel()
+
+
+def get_locale():
+    """
+    Locale selector: URL param takes precedence, else Accept-Language.
+    """
+    forced = request.args.get("locale", type=str)
+    if forced in app.config["LANGUAGES"]:
+        return forced
+    return request.accept_languages.best_match(app.config["LANGUAGES"])
+
+
+babel.init_app(app, locale_selector=get_locale)
+
+
+def get_user():
+    """
+    Return the mocked user dict from ?login_as=<id>, or None.
+    """
+    uid = request.args.get("login_as", type=int)
+    if uid and uid in users:
+        return users[uid]
+    return None
+
+
+@app.before_request
+def before_request():
+    """
+    Run before each request. Attach current user (if any) to flask.g.
+    """
+    g.user = get_user()
+
+
+@app.route("/")
+def index():
+    """
+    Render translated home page for step 5.
+    """
+    return render_template("5-index.html")
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
 
 ```
 
 templates/5-index.html
 ```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ _('home_title') }}</title>
+</head>
+<body>
+  <h1>{{ _('home_header') }}</h1>
+
+  {% if g.user %}
+    <p>{{ _('logged_in_as', username=g.user['name']) }}</p>
+  {% else %}
+    <p>{{ _('not_logged_in') }}</p>
+  {% endif %}
+</body>
+</html>
 
 ```
 
 ```bash
-
+pybabel extract -F babel.cfg -o messages.pot .
+pybabel update -i messages.pot -d translations
+pybabel compile -d translations
+python3 5-app.py
 ```
 
+```bash
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-we
+b_back_end/i18n# pybabel extract -F babel.cfg -o messages.pot .
+pybabel update -i messages.pot -d translations
+pybabel compile -d translations
+python3 5-app.py
+extracting messages from 0-app.py
+extracting messages from 1-app.py
+extracting messages from 2-app.py
+extracting messages from 3-app.py
+extracting messages from 4-app.py
+extracting messages from 5-app.py
+extracting messages from 6-app.py
+extracting messages from 7-app.py
+extracting messages from app.py
+extracting messages from templates/0-index.html
+extracting messages from templates/1-index.html
+extracting messages from templates/2-index.html
+extracting messages from templates/3-index.html
+extracting messages from templates/4-index.html
+extracting messages from templates/5-index.html
+extracting messages from templates/6-index.html
+extracting messages from templates/7-index.html
+extracting messages from templates/index.html
+writing PO template file to messages.pot
+updating catalog translations/en/LC_MESSAGES/messages.po based on messages.pot
+updating catalog translations/fr/LC_MESSAGES/messages.po based on messages.pot
+compiling catalog translations/en/LC_MESSAGES/messages.po to translations/en/LC_MESSAGES/messages.mo
+compiling catalog translations/fr/LC_MESSAGES/messages.po to translations/fr/LC_MESSAGES/messages.mo
+ * Serving Flask app '5-app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000
+Press CTRL+C to quit
+
+```
+http://127.0.0.1:5000/?locale=en
+Hello world!
+You are not logged in.
+
+http://127.0.0.1:5000/?locale=fr
+Bonjour monde!
+Vous n'êtes pas connecté.
+
+http://127.0.0.1:5000/?login_as=2
+Bonjour monde!
+Vous êtes connecté en tant que Beyonce.
+
+http://127.0.0.1:5000/?login_as=2&locale=en
+Hello world!
+You are logged in as Beyonce.
+
+http://127.0.0.1:5000/?login_as=2&locale=fr
+Bonjour monde!
+Vous êtes connecté en tant que Beyonce.
 
 # Task6
 ## 6. Use user locale
