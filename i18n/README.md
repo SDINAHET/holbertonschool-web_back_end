@@ -81,17 +81,71 @@ Press CTRL+C to quit
 # Task1
 ## 1. Basic Babel setup
 
+Install the Babel Flask extension:
+```bash
+$ pip3 install flask_babel
+```
+
 1-app.py
 ```python
+#!/usr/bin/env python3
+"""
+Basic Flask app with Babel setup
+"""
+from flask import Flask, render_template
+from flask_babel import Babel
+
+
+class Config:
+    """Configuration for Babel and available languages"""
+    LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
+
+
+app = Flask(__name__)
+app.config.from_object(Config)
+
+babel = Babel(app)
+
+
+@app.route('/')
+def index():
+    """Render the index page"""
+    return render_template('1-index.html')
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
 
 ```
 
 templates/1-index.html
 ```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Holberton</title>
+</head>
+<body>
+    <h1>Hello world</h1>
+</body>
+</html>
 
 ```
 
 ```bash
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-we
+b_back_end/i18n# python3 1-app.py
+ * Serving Flask app '1-app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000
+Press CTRL+C to quit
+127.0.0.1 - - [11/Aug/2025 22:22:40] "GET / HTTP/1.1" 200 -
 
 ```
 
