@@ -20,7 +20,8 @@ babel = Babel()  # create Babel instance without binding
 
 
 def get_locale():
-    """Select the best match between client's Accept-Language and supported LANGUAGES."""
+    """Select the best match between client's Accept-Language and supported
+    LANGUAGES."""
     return request.accept_languages.best_match(app.config["LANGUAGES"])
 
 
