@@ -1201,19 +1201,213 @@ Press CTRL+C to quit
 # Task8
 ## 8. Display the current time
 
-8-app.py
+app.py
 ```python
+#!/usr/bin/env python3
+"""
+Flask app (step 8): display current time with locale & timezone.
+"""
+from datetime import datetime
+from flask import Flask, render_template, request, g
+from flask_babel import Babel, format_datetime
+import pytz
+from pytz.exceptions import UnknownTimeZoneError
+
+
+class Config:
+    LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
+
+
+# Mock users
+users = {
+    1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
+    2: {"name": "Beyonce", "locale": "en", "timezone": "US/Central"},
+    3: {"name": "Spock", "locale": "kg", "timezone": "Vulcan"},
+    4: {"name": "Teletubby", "locale": None, "timezone": "Europe/London"},
+}
+
+app = Flask(__name__)
+app.config.from_object(Config)
+babel = Babel()
+
+
+def get_user():
+    uid = request.args.get("login_as", type=int)
+    return users.get(uid) if uid in users else None
+
+
+@app.before_request
+def before_request():
+    g.user = get_user()
+
+
+def get_locale():
+    # 1) URL
+    forced = request.args.get("locale", type=str)
+    if forced in app.config["LANGUAGES"]:
+        return forced
+    # 2) User
+    if g.get("user"):
+        uloc = g.user.get("locale")
+        if uloc in app.config["LANGUAGES"]:
+            return uloc
+    # 3) Header
+    match = request.accept_languages.best_match(app.config["LANGUAGES"])
+    if match:
+        return match
+    # 4) Default
+    return app.config["BABEL_DEFAULT_LOCALE"]
+
+
+def get_timezone():
+    # 1) URL
+    tz = request.args.get("timezone", type=str)
+    if tz:
+        try:
+            pytz.timezone(tz)
+            return tz
+        except UnknownTimeZoneError:
+            pass
+    # 2) User
+    if g.get("user"):
+        utz = g.user.get("timezone")
+        if utz:
+            try:
+                pytz.timezone(utz)
+                return utz
+            except UnknownTimeZoneError:
+                pass
+    # 3) Default
+    return app.config["BABEL_DEFAULT_TIMEZONE"]
+
+
+babel.init_app(app, locale_selector=get_locale, timezone_selector=get_timezone)
+
+
+@app.route("/")
+def index():
+    """
+    Render the home page with current localized time.
+    """
+    now_utc = datetime.utcnow()  # naive UTC datetime
+    # format_datetime utilisera locale + timezone sélectionnés par Babel
+    current_time = format_datetime(now_utc)
+    return render_template("index.html", current_time=current_time)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
 
 ```
 
-templates/8-index.html
+templates/index.html
 ```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ _('home_title') }}</title>
+</head>
+<body>
+  <h1>{{ _('home_header') }}</h1>
+
+  {% if g.user %}
+    <p>{{ _('logged_in_as', username=g.user['name']) }}</p>
+  {% else %}
+    <p>{{ _('not_logged_in') }}</p>
+  {% endif %}
+
+  <p>{{ _('current_time_is', current_time=current_time) }}</p>
+</body>
+</html>
 
 ```
 
 ```bash
+pybabel extract -F babel.cfg -o messages.pot .
+pybabel update -i messages.pot -d translations
+pybabel compile -d translations
+python3 app.py
+```
+
+```bash
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-we
+b_back_end/i18n# pybabel extract -F babel.cfg -o messages.pot .
+pybabel update -i messages.pot -d translations
+pybabel compile -d translations
+python3 app.py
+extracting messages from 0-app.py
+extracting messages from 1-app.py
+extracting messages from 2-app.py
+extracting messages from 3-app.py
+extracting messages from 4-app.py
+extracting messages from 5-app.py
+extracting messages from 6-app.py
+extracting messages from 7-app.py
+extracting messages from app.py
+extracting messages from test_7_app_unittest copy.py
+extracting messages from test_7_app_unittest.py
+extracting messages from templates/0-index.html
+extracting messages from templates/1-index.html
+extracting messages from templates/2-index.html
+extracting messages from templates/3-index.html
+extracting messages from templates/4-index.html
+extracting messages from templates/5-index.html
+extracting messages from templates/6-index.html
+extracting messages from templates/7-index.html
+extracting messages from templates/index.html
+writing PO template file to messages.pot
+updating catalog translations/en/LC_MESSAGES/messages.po based on messages.pot
+updating catalog translations/fr/LC_MESSAGES/messages.po based on messages.pot
+compiling catalog translations/en/LC_MESSAGES/messages.po to translations/en/LC_MESSAGES/messages.mo
+compiling catalog translations/fr/LC_MESSAGES/messages.po to translations/fr/LC_MESSAGES/messages.mo
+ * Serving Flask app 'app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000
+Press CTRL+C to quit
+127.0.0.1 - - [12/Aug/2025 00:06:58] "GET /?login_as=1 HTTP/1.1" 200 -
+127.0.0.1 - - [12/Aug/2025 00:07:18] "GET /?login_as=2 HTTP/1.1" 200 -
+127.0.0.1 - - [12/Aug/2025 00:07:36] "GET /?locale=fr&timezone=Europe/Paris HTTP/1.1" 200 -
+127.0.0.1 - - [12/Aug/2025 00:07:59] "GET /?timezone=NotAZone HTTP/1.1" 200 -
+
 
 ```
 
+http://127.0.0.1:5000/?login_as=1
+Bonjour monde!
+Vous êtes connecté en tant que Balou.
+
+Nous sommes le 12 août 2025, 00:06:58.
+
+http://127.0.0.1:5000/?login_as=2
+Hello world!
+You are logged in as Beyonce.
+
+The current time is Aug 11, 2025, 5:07:18 PM.
+
+http://127.0.0.1:5000/?locale=fr&timezone=Europe/Paris
+Bonjour monde!
+Vous n'êtes pas connecté.
+
+Nous sommes le 12 août 2025, 00:07:36.
+
+http://127.0.0.1:5000/?timezone=NotAZone
+Bonjour monde!
+Vous n'êtes pas connecté.
+
+Nous sommes le 11 août 2025, 22:07:59.
 
 
+
+http://127.0.0.1:5000/?login_as=1 → FR + Europe/Paris → “Nous sommes le …”
+
+http://127.0.0.1:5000/?login_as=2 → EN + US/Central → “The current time is …”
+
+http://127.0.0.1:5000/?locale=fr&timezone=Europe/Paris → FR + Paris.
+
+http://127.0.0.1:5000/?timezone=NotAZone → timezone ignorée → défaut UTC.
