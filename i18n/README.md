@@ -212,6 +212,17 @@ templates/2-index.html
 ```
 
 ```bash
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-we
+b_back_end/i18n# python3 2-app.py
+ * Serving Flask app '2-app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000
+Press CTRL+C to quit
+127.0.0.1 - - [11/Aug/2025 22:26:24] "GET / HTTP/1.1" 200 -
+
 
 ```
 
@@ -220,17 +231,200 @@ templates/2-index.html
 
 3-app.py
 ```python
+#!/usr/bin/env python3
+"""
+Flask app: parametrized templates with Flask-Babel
+"""
+from flask import Flask, render_template, request
+from flask_babel import Babel
+
+class Config:
+    LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
+
+app = Flask(__name__)
+app.config.from_object(Config)
+
+babel = Babel()
+
+def get_locale():
+    return request.accept_languages.best_match(app.config["LANGUAGES"])
+
+babel.init_app(app, locale_selector=get_locale)
+
+@app.route("/")
+def index():
+    return render_template("3-index.html")
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
 
 ```
 
 templates/3-index.html
 ```html
+<!DOCTYPE html>
+<html lang="{{ get_locale() or 'en' }}">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ _('home_title') }}</title>
+</head>
+<body>
+  <h1>{{ _('home_header') }}</h1>
+</body>
+</html>
+
+```
+
+générer avec
+```bash
+pybabel extract -F babel.cfg -o messages.pot .
+pybabel update -i messages.pot -d translations
+pybabel compile -d translations
+```
+
+translations/en/LC_MESSAGES/messages.po
+```bash
+
+```
+
+translations/fr/LC_MESSAGES/messages.po
+```bash
+
+```
+
+translations/en/LC_MESSAGES/messages.mo
+```bash
+
+```
+
+translations/fr/LC_MESSAGES/messages.mo
+```bash
+
+```
+
+Use the _ or gettext function to parametrize your templates. Use the message IDs home_title and home_header.
+
+Create a babel.cfg file containing
+```bash
+[python: **.py]
+[jinja2: **/templates/**.html]
+```
+Then initialize your translations with
+```bash
+$ pybabel extract -F babel.cfg -o messages.pot .
+```
+and your two dictionaries with
+```bash
+$ pybabel init -i messages.pot -d translations -l en
+$ pybabel init -i messages.pot -d translations -l fr
+```
+Then edit files translations/[en|fr]/LC_MESSAGES/messages.po to provide the correct value for each message ID for each language. Use the following translations:
+
+msgid	English	French
+home_title	"Welcome to Holberton"	"Bienvenue chez Holberton"
+home_header	"Hello world!"	"Bonjour monde!"
+Then compile your dictionaries with
+
+```bash
+$ pybabel compile -d translations
+```
+Reload the home page of your app and make sure that the correct messages show up.
+
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_e
+nd/i18n# pybabel extract -F babel.cfg -o messages.pot .
+extracting messages from 0-app.py
+extracting messages from 1-app.py
+extracting messages from 2-app.py
+extracting messages from 3-app.py
+extracting messages from 4-app.py
+extracting messages from 5-app.py
+extracting messages from 6-app.py
+extracting messages from 7-app.py
+extracting messages from app.py
+extracting messages from templates/0-index.html
+extracting messages from templates/1-index.html
+extracting messages from templates/2-index.html
+extracting messages from templates/3-index.html
+extracting messages from templates/4-index.html
+extracting messages from templates/5-index.html
+extracting messages from templates/6-index.html
+extracting messages from templates/7-index.html
+extracting messages from templates/index.html
+writing PO template file to messages.pot
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_e
+nd/i18n#
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_e
+nd/i18n# pybabel init -i messages.pot -d translations -l en
+creating catalog translations/en/LC_MESSAGES/messages.po based on messages.pot
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_e
+nd/i18n# pybabel init -i messages.pot -d translations -l fr
+creating catalog translations/fr/LC_MESSAGES/messages.po based on messages.pot
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_e
+nd/i18n#
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_e
+nd/i18n# pybabel compile -d translations
+compiling catalog translations/en/LC_MESSAGES/messages.po to translations/en/LC_MESSAGES/messages.mo
+compiling catalog translations/fr/LC_MESSAGES/messages.po to translations/fr/LC_MESSAGES/messages.mo
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_e
+nd/i18n#
+```
+
+
+```bash
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-we
+b_back_end/i18n# python3 3-app.py
+ * Serving Flask app '3-app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000
+Press CTRL+C to quit
+127.0.0.1 - - [11/Aug/2025 22:44:59] "GET / HTTP/1.1" 200 -
 
 ```
 
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_e
+nd/i18n# pybabel extract -F babel.cfg -o messages.pot .
+extracting messages from 0-app.py
+extracting messages from 1-app.py
+extracting messages from 2-app.py
+extracting messages from 3-app.py
+extracting messages from 4-app.py
+extracting messages from 5-app.py
+extracting messages from 6-app.py
+extracting messages from 7-app.py
+extracting messages from app.py
+extracting messages from templates/0-index.html
+extracting messages from templates/1-index.html
+extracting messages from templates/2-index.html
+extracting messages from templates/3-index.html
+extracting messages from templates/4-index.html
+extracting messages from templates/5-index.html
+extracting messages from templates/6-index.html
+extracting messages from templates/7-index.html
+extracting messages from templates/index.html
+writing PO template file to messages.pot
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_e
+nd/i18n# pybabel update -i messages.pot -d translations
+updating catalog translations/en/LC_MESSAGES/messages.po based on messages.pot
+updating catalog translations/fr/LC_MESSAGES/messages.po based on messages.pot
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_e
+nd/i18n# pybabel compile -d translations
+compiling catalog translations/en/LC_MESSAGES/messages.po to translations/en/LC_MESSAGES/messages.mo
+compiling catalog translations/fr/LC_MESSAGES/messages.po to translations/fr/LC_MESSAGES/messages.mo
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_e
+nd/i18n#
 
 ```
+
 
 # Task4
 ## 4. Force locale with URL parameter
