@@ -238,24 +238,50 @@ Flask app: parametrized templates with Flask-Babel
 from flask import Flask, render_template, request
 from flask_babel import Babel
 
+
 class Config:
+    """
+    Application configuration for Flask-Babel.
+
+    Attributes:
+        LANGUAGES (list[str]): List of supported locales (e.g., ["en", "fr"]).
+        BABEL_DEFAULT_LOCALE (str): Fallback locale when no match is found.
+        BABEL_DEFAULT_TIMEZONE (str): Default timezone used by Babel.
+    """
     LANGUAGES = ["en", "fr"]
     BABEL_DEFAULT_LOCALE = "en"
     BABEL_DEFAULT_TIMEZONE = "UTC"
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 babel = Babel()
 
+
 def get_locale():
+    """
+    Select the best-matching locale from the client's Accept-Language header.
+
+    Returns:
+        str | None: The best match among supported languages, or None.
+    """
     return request.accept_languages.best_match(app.config["LANGUAGES"])
+
 
 babel.init_app(app, locale_selector=get_locale)
 
+
 @app.route("/")
 def index():
+    """
+    Render the translated home page.
+
+    Returns:
+        str: Rendered HTML of templates/3-index.html.
+    """
     return render_template("3-index.html")
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
@@ -521,16 +547,101 @@ Press CTRL+C to quit
 
 4-app.py
 ```python
+#!/usr/bin/env python3
+"""
+Flask app: force locale via URL parameter with Flask-Babel.
+
+- Supports locales: en, fr
+- If a request has ?locale=fr|en, use it; otherwise use Accept-Language.
+"""
+from flask import Flask, render_template, request
+from flask_babel import Babel
+
+
+class Config:
+    """
+    Application configuration for Flask-Babel.
+
+    Attributes:
+        LANGUAGES (list[str]): Supported locales.
+        BABEL_DEFAULT_LOCALE (str): Fallback locale when no match is found.
+        BABEL_DEFAULT_TIMEZONE (str): Default timezone for Babel.
+    """
+    LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
+
+
+app = Flask(__name__)
+app.config.from_object(Config)
+
+babel = Babel()
+
+
+def get_locale():
+    """
+    Locale selector: URL param takes precedence, else Accept-Language.
+
+    Returns:
+        str | None: Selected locale among supported languages.
+    """
+    # 1) Force from URL ?locale=...
+    forced = request.args.get("locale", type=str)
+    if forced and forced in app.config["LANGUAGES"]:
+        return forced
+    # 2) Fallback to best match from headers
+    return request.accept_languages.best_match(app.config["LANGUAGES"])
+
+
+# Bind Babel with our selector
+babel.init_app(app, locale_selector=get_locale)
+
+
+@app.route("/")
+def index():
+    """Render translated home page for step 4."""
+    return render_template("4-index.html")
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
 
 ```
 
 templates/4-index.html
 ```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ _('home_title') }}</title>
+</head>
+<body>
+  <h1>{{ _('home_header') }}</h1>
+</body>
+</html>
 
 ```
+Test in your browser:
+
+http://127.0.0.1:5000/?locale=en → <h1>Hello world!</h1>
+
+http://127.0.0.1:5000/?locale=fr → <h1>Bonjour monde!</h1>
 
 ```bash
-
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-we
+b_back_end/i18n# python3 4-app.py
+ * Serving Flask app '4-app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.71.179:5000
+Press CTRL+C to quit
+127.0.0.1 - - [11/Aug/2025 23:10:35] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Aug/2025 23:10:37] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Aug/2025 23:10:55] "GET /?locale=en HTTP/1.1" 200 -
+127.0.0.1 - - [11/Aug/2025 23:11:05] "GET /?locale=fr HTTP/1.1" 200 -
 ```
 
 
