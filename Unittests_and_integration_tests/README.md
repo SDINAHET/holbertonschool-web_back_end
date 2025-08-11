@@ -174,6 +174,35 @@ if __name__ == "__main__":
 ```bash
 (.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
 _end/Unittests_and_integration_tests# python3 -m unittest test_utils.py
+.....EE
+======================================================================
+ERROR: test_get_json_0_http_example_com (test_utils.TestGetJson)
+Test get_json returns payload from mocked requests.get [with test_url='http://example.com', test_payload={'payload': True}]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/Unittests_and_integration_tests/.venv/lib/python3.10/site-packages/parameterized/parameterized.py", line 620, in standalone_func
+    return func(*(a + p.args), **p.kwargs, **kw)
+  File "/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/Unittests_and_integration_tests/test_utils.py", line 48, in test_get_json
+    self.assertEqual(get_json(test_url), test_payload)
+NameError: name 'get_json' is not defined
+
+======================================================================
+ERROR: test_get_json_1_http_holberton_io (test_utils.TestGetJson)
+Test get_json returns payload from mocked requests.get [with test_url='http://holberton.io', test_payload={'payload': False}]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/Unittests_and_integration_tests/.venv/lib/python3.10/site-packages/parameterized/parameterized.py", line 620, in standalone_func
+    return func(*(a + p.args), **p.kwargs, **kw)
+  File "/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/Unittests_and_integration_tests/test_utils.py", line 48, in test_get_json
+    self.assertEqual(get_json(test_url), test_payload)
+NameError: name 'get_json' is not defined
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.013s
+
+FAILED (errors=2)
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/Unittests_and_integration_tests# python3 -m unittest test_utils.py
 .......
 ----------------------------------------------------------------------
 Ran 7 tests in 0.002s
@@ -188,16 +217,115 @@ _end/Unittests_and_integration_tests#
 
 test_utils.py
 ```python
+#!/usr/bin/env python3
+"""Unit tests for utils.access_nested_map"""
+
+import unittest
+from parameterized import parameterized
+from utils import access_nested_map, get_json, memoize
+from unittest.mock import patch, Mock
+
+
+
+class TestAccessNestedMap(unittest.TestCase):
+    """TestCase for the access_nested_map function"""
+
+    @parameterized.expand([
+        ({"a": 1}, ("a",), 1),
+        ({"a": {"b": 2}}, ("a",), {"b": 2}),
+        ({"a": {"b": 2}}, ("a", "b"), 2),
+    ])
+    def test_access_nested_map(self, nested_map, path, expected):
+        """Test access_nested_map returns expected result"""
+        self.assertEqual(access_nested_map(nested_map, path), expected)
+
+    @parameterized.expand([
+    ({}, ("a",)),
+    ({"a": 1}, ("a", "b")),
+    ])
+    def test_access_nested_map_exception(self, nested_map, path):
+        """Test that KeyError is raised with correct message"""
+        with self.assertRaises(KeyError) as cm:
+            access_nested_map(nested_map, path)
+        self.assertEqual(str(cm.exception), repr(cm.exception.args[0]))
+
+
+class TestGetJson(unittest.TestCase):
+    """TestCase for the get_json function"""
+
+    @parameterized.expand([
+        ("http://example.com", {"payload": True}),
+        ("http://holberton.io", {"payload": False}),
+    ])
+    def test_get_json(self, test_url, test_payload):
+        """Test get_json returns payload from mocked requests.get"""
+        with patch("utils.requests.get") as mock_get:
+            mock_resp = Mock()
+            mock_resp.json.return_value = test_payload
+            mock_get.return_value = mock_resp
+
+            self.assertEqual(get_json(test_url), test_payload)
+            mock_get.assert_called_once_with(test_url)
+
+
+class TestMemoize(unittest.TestCase):
+    """Tests for the memoize decorator"""
+
+    def test_memoize(self):
+        """a_method is called once even if a_property is accessed twice"""
+        class TestClass:
+            def a_method(self):
+                return 42
+
+            @memoize
+            def a_property(self):
+                return self.a_method()
+
+        with patch.object(TestClass, "a_method", return_value=42) as mock_method:
+            obj = TestClass()
+            self.assertEqual(obj.a_property, 42)
+            self.assertEqual(obj.a_property, 42)
+            mock_method.assert_called_once()
+
+
+if __name__ == "__main__":
+    unittest.main()
 
 ```
 
 ```bash
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/Unittests_and_integration_tests# python3 -m unittest test_utils.py
+.......E
+======================================================================
+ERROR: test_memoize (test_utils.TestMemoize)
+a_method is called once even if a_property is accessed twice
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/Unittests_and_integration_tests/test_utils.py", line 57, in test_memoize
+    class TestClass:
+  File "/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/Unittests_and_integration_tests/test_utils.py", line 61, in TestClass
+    @memoize
+NameError: name 'memoize' is not defined
 
+----------------------------------------------------------------------
+Ran 8 tests in 0.012s
+
+FAILED (errors=1)
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/Unittests_and_integration_tests# python3 -m unittest test_utils.py
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.003s
+
+OK
+(.venv) root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/Unittests_and_integration_tests#
 ```
 
 # Task4
 
-test_utils.py
+test_client.py
 ```python
 
 ```
@@ -209,7 +337,7 @@ test_utils.py
 
 # Task4
 
-test_utils.py
+test_client.py
 ```python
 
 ```
@@ -220,7 +348,7 @@ test_utils.py
 
 # Task5
 
-test_utils.py
+test_client.py
 ```python
 
 ```
@@ -232,7 +360,7 @@ test_utils.py
 
 # Task6
 
-test_utils.py
+test_client.py
 ```python
 
 ```
@@ -243,7 +371,7 @@ test_utils.py
 
 # Task7
 
-test_utils.py
+test_client.py
 ```python
 
 ```
@@ -255,7 +383,7 @@ test_utils.py
 
 # Task8
 
-test_utils.py
+test_client.py
 ```python
 
 ```
@@ -267,7 +395,7 @@ test_utils.py
 
 # Task9
 
-test_utils.py
+test_client.py
 ```python
 
 ```
