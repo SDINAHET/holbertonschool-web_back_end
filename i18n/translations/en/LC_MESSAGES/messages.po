@@ -20,9 +20,9 @@ msgstr ""
 
 #: templates/3-index.html:5
 msgid "home_title"
-msgstr ""
+msgstr "Welcome to Holberton"
 
 #: templates/3-index.html:8
 msgid "home_header"
-msgstr ""
+msgstr "Hello world!"
 
