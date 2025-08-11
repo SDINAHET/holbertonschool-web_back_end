@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Unit tests for client.GithubOrgClient.org"""
+"""Unit tests for client.GithubOrgClient.
+
+This module contains unit tests that validate how GithubOrgClient fetches
+organization data and exposes public repositories via its helper methods.
+"""
 
 import unittest
 from parameterized import parameterized
