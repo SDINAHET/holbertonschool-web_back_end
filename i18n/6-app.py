@@ -27,7 +27,7 @@ class Config:
 users = {
     1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
     2: {"name": "Beyonce", "locale": "en", "timezone": "US/Central"},
-    3: {"name": "Spock", "locale": "kg", "timezone": "Vulcan"},  # invalid/unsupported
+    3: {"name": "Spock", "locale": "kg", "timezone": "Vulcan"},  # invalid/unsu
     4: {"name": "Teletubby", "locale": None, "timezone": "Europe/London"},
 }
 
