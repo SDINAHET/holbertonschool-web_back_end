@@ -111,7 +111,8 @@ def replay(method: Callable) -> None:
         <qualname> was called N times:
         <qualname>(*<args>) -> <return>
 
-    Uses the keys populated by `call_history` and the counter from `count_calls`.
+    Uses the keys populated by `call_history` and the counter from
+    `count_calls`.
     """
     # Méthode liée => accès au Redis de l'instance
     r = method.__self__._redis
