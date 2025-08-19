@@ -103,3 +103,31 @@ class Cache:
         """Retrieve a value converted to int (or None if missing)."""
         data = self.get(key, fn=int)
         return data  # type: ignore[return-value]
+
+def replay(method: Callable) -> None:
+    """Print the call history of a bound method (inputs and outputs).
+
+    Format:
+        <qualname> was called N times:
+        <qualname>(*<args>) -> <return>
+
+    Uses the keys populated by `call_history` and the counter from `count_calls`.
+    """
+    # Méthode liée => accès au Redis de l'instance
+    r = method.__self__._redis
+    qual = method.__qualname__
+    in_key = f"{qual}:inputs"
+    out_key = f"{qual}:outputs"
+
+    # Nombre d'appels (clé du compteur = qualname)
+    n_calls = int(r.get(qual) or 0)
+    print(f"{qual} was called {n_calls} times:")
+
+    # Récupère les listes d’entrées/sorties et les affiche appariées
+    inputs = r.lrange(in_key, 0, -1)
+    outputs = r.lrange(out_key, 0, -1)
+
+    for raw_in, raw_out in zip(inputs, outputs):
+        in_txt = raw_in.decode("utf-8")
+        out_txt = raw_out.decode("utf-8")
+        print(f"{qual}(*{in_txt}) -> {out_txt}")
