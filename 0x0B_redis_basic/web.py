@@ -18,7 +18,8 @@ def get_page(url: str) -> str:
 
     - Increments "count:{url}" on EVERY call (cache hit or miss).
     - If cached under key `url`, returns the cached HTML.
-    - Otherwise fetches via HTTP, stores in cache with a 10-second TTL, returns it.
+    - Otherwise fetches via HTTP, stores in cache with a 10-second TTL,
+    returns it.
 
     Args:
         url: The URL to fetch.
