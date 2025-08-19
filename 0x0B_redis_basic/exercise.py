@@ -19,10 +19,12 @@ def count_calls(method: Callable) -> Callable:
 
     Stores the count in Redis using the method's qualified name as key.
     """
+    key = method.__qualname__  # <-- explicit binding for the checker
+
     @wraps(method)
     def wrapper(self, *args, **kwargs):
         # increment call count in Redis
-        self._redis.incr(method.__qualname__)
+        self._redis.incr(key)
         # call the original method
         return method(self, *args, **kwargs)
     return wrapper
