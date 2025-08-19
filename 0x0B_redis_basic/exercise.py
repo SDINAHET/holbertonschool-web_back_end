@@ -1,21 +1,33 @@
 #!/usr/bin/env python3
 """Basic Redis cache module.
 
-Task0
-Provides a `Cache` class that wraps a Redis client and exposes a `store`
-method to persist primitive values (str, bytes, int, float) under a
-randomly generated UUID key.
-
-Task1
-Defines a Cache class to store values in Redis with random UUID keys and
-retrieve them with optional conversion back to the original type.
+Task 0: store values under random UUID keys.
+Task 1: retrieve values with optional conversion back to original types.
+Task 2: count how many times Cache.store is called.
 """
 
 from typing import Union, Optional, Callable, TypeVar
+from functools import wraps
 import uuid
 import redis
 
 T = TypeVar("T")
+
+
+
+
+def count_calls(method: Callable) -> Callable:
+    """Decorator to count how many times a method is called.
+
+    Stores the count in Redis using the method's qualified name as key.
+    """
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        # increment call count in Redis
+        self._redis.incr(method.__qualname__)
+        # call the original method
+        return method(self, *args, **kwargs)
+    return wrapper
 
 
 class Cache:
@@ -26,6 +38,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls  # add task 2
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """Store a value in Redis under a random UUID key.
 
