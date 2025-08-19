@@ -626,7 +626,11 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Optional[Callable[[bytes], T]] = None) -> Optional[Union[bytes, T]]:
+    def get(
+            self,
+            key: str,
+            fn: Optional[Callable[[bytes], T]] = None
+            ) -> Optional[Union[bytes, T]]:
         """Retrieve a value from Redis and optionally convert it.
 
         Args:
@@ -654,6 +658,7 @@ class Cache:
         data = self.get(key, fn=int)
         return data  # type: ignore[return-value]
 
+
 def replay(method: Callable) -> None:
     """Print the call history of a bound method (inputs and outputs).
 
@@ -661,7 +666,8 @@ def replay(method: Callable) -> None:
         <qualname> was called N times:
         <qualname>(*<args>) -> <return>
 
-    Uses the keys populated by `call_history` and the counter from `count_calls`.
+    Uses the keys populated by `call_history` and the counter from
+    `count_calls`.
     """
     # Méthode liée => accès au Redis de l'instance
     r = method.__self__._redis
@@ -713,24 +719,84 @@ root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
 d/0x0B_redis_basic#
 ```
 
+
 ## Task5
-
-exercise.py
-```python
-
-```
-
-```bash
-
-```
-
-## Task6
 
 web.py
 ```python
+#!/usr/bin/env python3
+"""Expiring web cache and access counter using Redis (Task 5).
+
+- get_page(url): fetches HTML via requests, caches it 10s in Redis,
+  and increments a per-URL access counter at key "count:{url}".
+"""
+
+from typing import Optional
+import redis
+import requests
+
+# Module-level Redis client (default: localhost:6379, db 0)
+_redis = redis.Redis()
+
+
+def get_page(url: str) -> str:
+    """Return the HTML content for `url`, with Redis caching and counting.
+
+    - Increments "count:{url}" on EVERY call (cache hit or miss).
+    - If cached under key `url`, returns the cached HTML.
+    - Otherwise fetches via HTTP, stores in cache with a 10-second TTL, returns it.
+
+    Args:
+        url: The URL to fetch.
+
+    Returns:
+        The page HTML content as a UTF-8 string.
+
+    Raises:
+        requests.HTTPError: If the HTTP response is not successful.
+        requests.RequestException: For network-related errors.
+    """
+    # Track access count
+    _redis.incr(f"count:{url}")
+
+    # Try cache
+    cached = _redis.get(url)
+    if cached is not None:
+        # Redis returns bytes -> decode to str (UTF-8)
+        return cached.decode("utf-8")
+
+    # Miss: fetch and cache
+    resp = requests.get(url, timeout=10)
+    resp.raise_for_status()
+    html: str = resp.text  # already str (decoded by requests)
+
+    # Cache with 10s expiration
+    _redis.setex(url, 10, html)
+    return html
 
 ```
 
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/0x0B_redis_basic# python3 5_main.py
+First call (should fetch)...
+len(html1): 1262
+count: b'1'
+Second call (should come from cache)...
+len(html2): 1262
+count: b'2'
+ttl now: 10
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/0x0B_redis_basic#
 
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/0x0B_redis_basic# python3 -m unittest -v test5_web.py
+test_cache_and_counter (test5_web.TestWebCache) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 11.524s
+
+OK
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/0x0B_redis_basic#
 ```

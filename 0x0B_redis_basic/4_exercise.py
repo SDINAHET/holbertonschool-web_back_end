@@ -76,7 +76,11 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Optional[Callable[[bytes], T]] = None) -> Optional[Union[bytes, T]]:
+    def get(
+            self,
+            key: str,
+            fn: Optional[Callable[[bytes], T]] = None
+            ) -> Optional[Union[bytes, T]]:
         """Retrieve a value from Redis and optionally convert it.
 
         Args:
@@ -104,6 +108,7 @@ class Cache:
         data = self.get(key, fn=int)
         return data  # type: ignore[return-value]
 
+
 def replay(method: Callable) -> None:
     """Print the call history of a bound method (inputs and outputs).
 
@@ -111,7 +116,8 @@ def replay(method: Callable) -> None:
         <qualname> was called N times:
         <qualname>(*<args>) -> <return>
 
-    Uses the keys populated by `call_history` and the counter from `count_calls`.
+    Uses the keys populated by `call_history` and the counter from
+    `count_calls`.
     """
     # Méthode liée => accès au Redis de l'instance
     r = method.__self__._redis
