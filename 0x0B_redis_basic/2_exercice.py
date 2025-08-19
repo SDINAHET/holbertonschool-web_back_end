@@ -14,8 +14,6 @@ import redis
 T = TypeVar("T")
 
 
-
-
 def count_calls(method: Callable) -> Callable:
     """Decorator to count how many times a method is called.
 
