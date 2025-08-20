@@ -480,3 +480,146 @@ make clean
 ```
 
 > Place `docker-compose.yml`, `Makefile`, `.env` (optionnel), `tests/test_task0.sh`, `tests/test0_users_table.py` à la **racine du dossier MySQL\_Advanced** avec `0-uniq_users.sql`.
+
+
+
+
+
+
+
+
+
+
+
+Tu as juste besoin de créer la base (et la table si nécessaire) sur ton MySQL Docker.
+
+Créer la base holberton (via TCP sur 127.0.0.1:3307)
+# 1) Créer la base
+mysql -h127.0.0.1 -P3307 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS holberton;"
+
+# 2) (Optionnel) Créer la table users si elle n'existe pas
+echo "CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  name  VARCHAR(255) NOT NULL
+);" | mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+
+Rejouer exactement ton scénario
+# Vérifier (au début, table vide → peut renvoyer vide)
+echo "SELECT * FROM users;" | mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+
+# Exécuter ton script
+cat 0-uniq_users.sql | mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+
+# Inserts
+echo 'INSERT INTO users (email, name) VALUES ("bob@dylan.com", "Bob");' \
+| mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+
+echo 'INSERT INTO users (email, name) VALUES ("sylvie@dylan.com", "Sylvie");' \
+| mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+
+# Doit échouer (UNIQUE sur email)
+echo 'INSERT INTO users (email, name) VALUES ("bob@dylan.com", "Jean");' \
+| mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+
+# Vérifier le contenu
+echo "SELECT * FROM users;" | mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+
+Variante en exécutant dans le conteneur (docker exec)
+# Base + table
+docker exec -i mysql8 mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS holberton;"
+echo "CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  name  VARCHAR(255) NOT NULL
+);" | docker exec -i mysql8 mysql -uroot -proot holberton
+
+# Script + requêtes
+cat 0-uniq_users.sql | docker exec -i mysql8 mysql -uroot -proot holberton
+echo "SELECT * FROM users;" | docker exec -i mysql8 mysql -uroot -proot holberton
+
+
+Après ça, tes commandes fonctionneront sans l’erreur Unknown database 'holberton'.
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d# cd MySQL_Advanced/
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced# echo "SELECT * FROM users;" | mysql -uroot -p holberton
+Enter password:
+ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (2)
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced# echo "SELECT * FROM users;" | mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+mysql: [Warning] Using a password on the command line interface can be insecure.
+ERROR 1049 (42000): Unknown database 'holberton'
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced# mysql -h127.0.0.1 -P3307 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS holberton;"
+mysql: [Warning] Using a password on the command line interface can be insecure.
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced# echo "CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  name  VARCHAR(255) NOT NULL
+);" | mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+mysql: [Warning] Using a password on the command line interface can be insecure.
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced# echo "SELECT * FROM users;" | mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+mysql: [Warning] Using a password on the command line interface can be insecure.
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced# cat 0-uniq_users.sql | mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+mysql: [Warning] Using a password on the command line interface can be insecure.
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced# echo 'INSERT INTO users (email, name) VALUES ("bob@dylan.com", "Bob");' \
+| mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+mysql: [Warning] Using a password on the command line interface can be insecure.
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced# echo 'INSERT INTO users (email, name) VALUES ("sylvie@dylan.com", "Sylvie");' \
+| mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+mysql: [Warning] Using a password on the command line interface can be insecure.
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced# echo 'INSERT INTO users (email, name) VALUES ("bob@dylan.com", "Jean");' \
+| mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+mysql: [Warning] Using a password on the command line interface can be insecure.
+ERROR 1062 (23000) at line 1: Duplicate entry 'bob@dylan.com' for key 'users.email'
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced# echo "SELECT * FROM users;" | mysql -h127.0.0.1 -P3307 -uroot -proot holberton
+mysql: [Warning] Using a password on the command line interface can be insecure.
+id      email   name
+1       bob@dylan.com   Bob
+2       sylvie@dylan.com        Sylvie
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced#
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced# echo "SELECT * FROM users;" | mysql -h127.0.0.1 -P3307 -uroot -p holberton
+Enter password:
+ERROR 1045 (28000): Access denied for user 'root'@'172.17.0.1' (using password: YES)
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced# echo "SELECT * FROM users;" | mysql -h127.0.0.1 -P3307 -uroot -p holberton
+Enter password:  ici root
+id      email   name
+1       bob@dylan.com   Bob
+2       sylvie@dylan.com        Sylvie
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_en
+d/MySQL_Advanced#
+```
+
+Ou fichier d’options ~/.my.cnf :
+```ini
+[client]
+host=127.0.0.1
+port=3307
+user=root
+password=root
+```
+
+Persistance (pour ne rien perdre si tu recrées le conteneur)
+docker rm -f mysql8
+docker run --name mysql8 \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -e MYSQL_DATABASE=holberton \
+  -v mysql8_data:/var/lib/mysql \
+  -p 3307:3306 -d mysql:8
+
+(Option) Réinitialiser rapidement
+mysql -h127.0.0.1 -P3307 -uroot -proot -e "DROP DATABASE IF EXISTS h
