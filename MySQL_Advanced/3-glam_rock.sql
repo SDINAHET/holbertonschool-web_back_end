@@ -5,6 +5,6 @@ SELECT
   band_name,
   (COALESCE(`split`, YEAR(CURDATE())) - `formed`) AS lifespan
 FROM metal_bands
-WHERE SUBSTRING_INDEX(`style`, ',', 1) = 'Glam rock'
+WHERE `style` LIKE '%Glam rock%'
   AND `formed` IS NOT NULL
 ORDER BY lifespan DESC, band_name ASC;
