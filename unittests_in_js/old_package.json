@@ -1,14 +1,15 @@
 {
-  "name": "task_0",
+  "name": "unittests_in_js",
   "version": "1.0.0",
   "description": "",
   "main": "0-calcul.js",
   "scripts": {
-    "test": "mocha"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "mocha": "^11.0.1"
+    "mocha": "^11.7.1"
   }
 }
