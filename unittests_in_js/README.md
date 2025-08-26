@@ -325,7 +325,23 @@ package json
 # Task4
 
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js# npm test -- ./4-payment.test.js
 
+> task_3@1.0.0 test
+> mocha ./4-payment.test.js
+
+
+
+  sendPaymentRequestToApi (with stub)
+The total is: 10
+    ✔ should stub Utils.calculateNumber to return 10 and log the correct total
+
+
+  1 passing (14ms)
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js#
 ```
 
 package json
