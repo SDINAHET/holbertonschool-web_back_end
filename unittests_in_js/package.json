@@ -1,15 +1,15 @@
 {
-  "name": "task_2",
+  "name": "task_3",
   "version": "1.0.0",
   "description": "",
-  "main": "2-calcul_chai.js",
+  "main": "3-payment.js",
   "scripts": {
     "test": "mocha"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "chai": "^6.0.1",
-    "mocha": "^11.0.1"
+    "mocha": "^11.0.1",
+    "sinon": "^21.0.0"
   }
 }

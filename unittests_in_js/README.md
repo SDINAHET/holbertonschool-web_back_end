@@ -272,7 +272,36 @@ package json
 # Task3
 
 ```bash
+npm i -D sinon
+```
 
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js# npm i -D sinon
+
+added 7 packages, removed 1 package, and audited 99 packages in 7s
+
+30 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js# npm test -- ./3-payment.test.js
+
+> task_3@1.0.0 test
+> mocha ./3-payment.test.js
+
+
+
+  sendPaymentRequestToApi
+The total is: 120
+    ✔ should use Utils.calculateNumber("SUM", 100, 20) and log the total
+
+
+  1 passing (7ms)
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js#
 ```
 
 package json
