@@ -481,7 +481,39 @@ package json
 # Task7
 
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js# npm i -D chai
 
+added 6 packages, and audited 105 packages in 5s
+
+30 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js#
+
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js# npm test -- ./7-skip.test.js
+
+> task_7@1.0.0 test
+> mocha ./7-skip.test.js
+
+
+
+  Testing numbers
+    ✔ 1 is equal to 1
+    ✔ 2 is equal to 2
+    - 1 is equal to 3
+    ✔ 3 is equal to 3
+    ✔ 4 is equal to 4
+    ✔ 5 is equal to 5
+    ✔ 6 is equal to 6
+    ✔ 7 is equal to 7
+
+
+  7 passing (5ms)
+  1 pending
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js# 
 ```
 
 package json
@@ -497,6 +529,7 @@ package json
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "chai": "^5.3.3",
     "mocha": "^11.0.1",
     "sinon": "^21.0.0"
   }

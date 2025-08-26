@@ -1,14 +1,15 @@
 {
-  "name": "task_6",
+  "name": "task_7",
   "version": "1.0.0",
   "description": "",
-  "main": "6-payment_token.js",
+  "main": "7-skip.test.js",
   "scripts": {
     "test": "mocha"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "chai": "^5.3.3",
     "mocha": "^11.0.1",
     "sinon": "^21.0.0"
   }
