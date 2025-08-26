@@ -1,8 +1,8 @@
 {
-  "name": "task_3",
+  "name": "task_5",
   "version": "1.0.0",
   "description": "",
-  "main": "3-payment.js",
+  "main": "5-payment.js",
   "scripts": {
     "test": "mocha"
   },

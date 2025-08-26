@@ -320,6 +320,22 @@ package json
     "mocha": "^11.0.1"
   }
 }
+
+{
+  "name": "task_3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "3-payment.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^11.0.1",
+    "sinon": "^21.0.0"
+  }
+}
 ```
 
 # Task4
@@ -342,6 +358,24 @@ The total is: 10
 
 root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
 _end/unittests_in_js#
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js# npm test -- ./4-payment.test.js
+
+> task_4@1.0.0 test
+> mocha ./4-payment.test.js
+
+
+
+  sendPaymentRequestToApi (with stub)
+The total is: 10
+    ✔ should stub Utils.calculateNumber to return 10 and log the correct total
+
+
+  1 passing (7ms)
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js#
 ```
 
 package json
@@ -357,7 +391,8 @@ package json
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "mocha": "^11.0.1"
+    "mocha": "^11.0.1",
+    "sinon": "^21.0.0"
   }
 }
 ```
@@ -365,7 +400,25 @@ package json
 # Task5
 
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js# npm test -- ./5-payment.test.js
 
+> task_5@1.0.0 test
+> mocha ./5-payment.test.js
+
+
+
+  sendPaymentRequestToApi (hooks + single spy)
+The total is: 120
+    ✔ logs "The total is: 120" and is called once for (100, 20)
+The total is: 20
+    ✔ logs "The total is: 20" and is called once for (10, 10)
+
+
+  2 passing (7ms)
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js#
 ```
 
 package json
@@ -381,7 +434,8 @@ package json
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "mocha": "^11.0.1"
+    "mocha": "^11.0.1",
+    "sinon": "^21.0.0"
   }
 }
 ```
@@ -405,7 +459,8 @@ package json
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "mocha": "^11.0.1"
+    "mocha": "^11.0.1",
+    "sinon": "^21.0.0"
   }
 }
 ```
@@ -429,7 +484,8 @@ package json
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "mocha": "^11.0.1"
+    "mocha": "^11.0.1",
+    "sinon": "^21.0.0"
   }
 }
 ```
@@ -453,7 +509,8 @@ package json
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "mocha": "^11.0.1"
+    "mocha": "^11.0.1",
+    "sinon": "^21.0.0"
   }
 }
 ```
@@ -477,7 +534,8 @@ package json
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "mocha": "^11.0.1"
+    "mocha": "^11.0.1",
+    "sinon": "^21.0.0"
   }
 }
 ```
@@ -501,7 +559,8 @@ package json
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "mocha": "^11.0.1"
+    "mocha": "^11.0.1",
+    "sinon": "^21.0.0"
   }
 }
 ```
