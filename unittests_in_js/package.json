@@ -1,8 +1,8 @@
 {
-  "name": "task_5",
+  "name": "task_6",
   "version": "1.0.0",
   "description": "",
-  "main": "5-payment.js",
+  "main": "6-payment_token.js",
   "scripts": {
     "test": "mocha"
   },

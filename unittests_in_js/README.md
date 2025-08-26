@@ -443,7 +443,20 @@ package json
 # Task6
 
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js# npm test -- ./6-payment_token.test.js
 
+> task_6@1.0.0 test
+> mocha ./6-payment_token.test.js
+
+
+
+  getPaymentTokenFromAPI
+    ✔ resolves with the expected object when success=true
+
+
+  1 passing (5ms)
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js#
 ```
 
 package json
