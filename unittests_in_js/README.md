@@ -142,10 +142,113 @@ package json
 }
 ```
 
+calculateNumber('SUM', 1.4, 4.5)
+calculateNumber('SUBTRACT', 1.4, 4.5)
+calculateNumber('DIVIDE', 1.4, 4.5)
+calculateNumber('DIVIDE', 1.4, 0)
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js# node
+Welcome to Node.js v20.19.0.
+Type ".help" for more information.
+> calculateNumber('SUM', 1.4, 4.5)
+, 4.5)
+calculateNumber('DIVIDE', 1.4, 0)Uncaught ReferenceError: calculateNumber is not defined
+> calculateNumber('SUBTRACT', 1.4, 4.5)
+Uncaught ReferenceError: calculateNumber is not defined
+> calculateNumber('DIVIDE', 1.4, 4.5)
+Uncaught ReferenceError: calculateNumber is not defined
+> calculateNumber('DIVIDE', 1.4, 0)
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js# node
+Welcome to Node.js v20.19.0.
+Type ".help" for more information.
+> const calculateNumber = require('./1-calcul.js')
+undefined
+> const calculateNumber = require('./1-calcul.js');
+Uncaught SyntaxError: Identifier 'calculateNumber' has already been declared
+> calculateNumber('SUM', 1.4, 4.5)
+6
+> calculateNumber('SUBTRACT', 1.4, 4.5)
+-4
+> calculateNumber('DIVIDE', 1.4, 4.5)
+0.2
+> calculateNumber('DIVIDE', 1.4, 0)
+'Error'
+>
+```
+
 # Task2
 
 ```bash
+npm i -D chai
+```
 
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js# npm i -D chai
+
+added 1 package, and audited 93 packages in 1s
+
+29 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js# npm test -- ./2-calcul_chai.test.js
+
+> task_2@1.0.0 test
+> mocha ./2-calcul_chai.test.js
+
+
+
+  calculateNumber(type, a, b)
+    SUM
+      ✔ should sum rounded numbers
+    SUBTRACT
+      ✔ should subtract rounded numbers
+    DIVIDE
+      ✔ should divide rounded numbers
+      ✔ should return "Error" when rounded divisor is 0
+    Invalid type (optional)
+      ✔ should throw on invalid type
+
+
+  5 passing (7ms)
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js#
+
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js# npm test 2-calcul_chai.test.js
+
+> task_2@1.0.0 test
+> mocha 2-calcul_chai.test.js
+
+/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/node_modules/mocha/lib/cli/options.js:138
+    throw createUnsupportedError(
+    ^
+
+Error: Option 2-calcul_chai.test.js is unsupported by the mocha cli
+    at createUnsupportedError (/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/node_modules/mocha/lib/errors.js:238:13)
+    at createErrorForNumericPositionalArg (/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/node_modules/mocha/lib/cli/options.js:138:11)
+    at parse (/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/node_modules/mocha/lib/cli/options.js:189:5)
+    at loadOptions (/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/node_modules/mocha/lib/cli/options.js:291:14)
+    at Object.<anonymous> (/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/node_modules/mocha/bin/mocha.js:29:14)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12) {
+  code: 'ERR_MOCHA_UNSUPPORTED'
+}
+
+Node.js v20.19.0
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js#
 ```
 
 package json

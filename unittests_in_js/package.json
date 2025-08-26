@@ -1,14 +1,15 @@
 {
-  "name": "task_1",
+  "name": "task_2",
   "version": "1.0.0",
   "description": "",
-  "main": "1-calcul.js",
+  "main": "2-calcul_chai.js",
   "scripts": {
     "test": "mocha"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "chai": "^6.0.1",
     "mocha": "^11.0.1"
   }
 }
