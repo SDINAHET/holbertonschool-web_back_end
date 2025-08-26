@@ -52,3 +52,308 @@ _end/unittests_in_js# npm test -- ./0-calcul.test.js
   7 passing (4ms)
 ```
 
+explication erreur mocha:
+Parce que Mocha refuse les arguments positionnels “numériques”.
+
+Dans npm test 0-calcul.test.js, Mocha reçoit l’argument 0-calcul.test.js qui commence par un chiffre. Depuis les versions récentes, Mocha l’interprète comme un numeric positional arg et lève ERR_MOCHA_UNSUPPORTED (cf. createErrorForNumericPositionalArg). D’où l’erreur.
+
+Dans npm test -- ./0-calcul.test.js, deux choses changent :
+
+-- garantit que l’argument est bien transmis au script (bonne pratique avec npm).
+
+Le préfixe ./ fait que l’argument ne commence plus par un chiffre : Mocha le traite alors comme un chemin de fichier valide et tout passe.
+
+Solutions rapides
+
+Utiliser un préfixe chemin :
+npm test -- ./0-calcul.test.js
+
+Renommer le fichier pour ne pas commencer par un chiffre (ex. test-0-calcul.test.js).
+
+Configurer le script pour viser un motif/glob :
+"test": "mocha './**/*.test.js'"
+(les quotes et/ou ./ évitent le cas « numérique en tête »).
+
+En bref : c’est le nom qui commence par “0” qui déclenche l’erreur de Mocha ; le ./ contourne, ou renomme le fichier.
+
+
+package json
+```json
+{
+  "name": "task_0",
+  "version": "1.0.0",
+  "description": "",
+  "main": "0-calcul.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^11.0.1"
+  }
+}
+```
+
+# Task1
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js# npm test -- ./1-calcul.test.js
+
+> task_1@1.0.0 test
+> mocha ./1-calcul.test.js
+
+
+
+  calculateNumber(type, a, b)
+    SUM
+      ✔ should sum rounded numbers
+    SUBTRACT
+      ✔ should subtract rounded numbers
+    DIVIDE
+      ✔ should divide rounded numbers
+      ✔ should return "Error" when rounded divisor is 0
+    Invalid type (optional)
+      ✔ should throw on invalid type
+
+
+  5 passing (7ms)
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
+_end/unittests_in_js#
+```
+
+package json
+```json
+{
+  "name": "task_1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "1-calcul.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^11.0.1"
+  }
+}
+```
+
+# Task2
+
+```bash
+
+```
+
+package json
+```json
+{
+  "name": "task_2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "2-calcul_chai.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^11.0.1"
+  }
+}
+```
+
+# Task3
+
+```bash
+
+```
+
+package json
+```json
+{
+  "name": "task_3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "3-payment.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^11.0.1"
+  }
+}
+```
+
+# Task4
+
+```bash
+
+```
+
+package json
+```json
+{
+  "name": "task_4",
+  "version": "1.0.0",
+  "description": "",
+  "main": "4-payment.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^11.0.1"
+  }
+}
+```
+
+# Task5
+
+```bash
+
+```
+
+package json
+```json
+{
+  "name": "task_5",
+  "version": "1.0.0",
+  "description": "",
+  "main": "5-payment.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^11.0.1"
+  }
+}
+```
+
+# Task6
+
+```bash
+
+```
+
+package json
+```json
+{
+  "name": "task_6",
+  "version": "1.0.0",
+  "description": "",
+  "main": "6-payment_token.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^11.0.1"
+  }
+}
+```
+
+# Task7
+
+```bash
+
+```
+
+package json
+```json
+{
+  "name": "task_7",
+  "version": "1.0.0",
+  "description": "",
+  "main": "7-skip.test.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^11.0.1"
+  }
+}
+```
+
+# Task8
+
+```bash
+
+```
+
+package json
+```json
+{
+  "name": "task_8",
+  "version": "1.0.0",
+  "description": "",
+  "main": "0-calcul.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^11.0.1"
+  }
+}
+```
+
+# Task9
+
+```bash
+
+```
+
+package json
+```json
+{
+  "name": "task_9",
+  "version": "1.0.0",
+  "description": "",
+  "main": "0-calcul.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^11.0.1"
+  }
+}
+```
+
+# Task10
+
+```bash
+
+```
+
+package json
+```json
+{
+  "name": "task_10",
+  "version": "1.0.0",
+  "description": "",
+  "main": "0-calcul.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^11.0.1"
+  }
+}
+```

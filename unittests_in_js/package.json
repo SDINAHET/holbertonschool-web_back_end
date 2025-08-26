@@ -1,8 +1,8 @@
 {
-  "name": "task_0",
+  "name": "task_1",
   "version": "1.0.0",
   "description": "",
-  "main": "0-calcul.js",
+  "main": "1-calcul.js",
   "scripts": {
     "test": "mocha"
   },
