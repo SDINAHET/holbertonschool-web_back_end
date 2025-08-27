@@ -864,12 +864,79 @@ package json
 
 Terminal 1
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/9-api# node api.js
+API available on localhost port 7865
+^C
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/9-api# cd ..
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js# cd 10-api/
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/10-api# ls
+api.js  api.test.js  package.json
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/10-api# npm i
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated har-validator@5.1.5: this library is no longer supported
+npm warn deprecated mkdirp@0.5.4: Legacy versions of mkdirp are no longer supported. Please update to mkdirp 1.x. (Note that the API surface has changed to use Promises in 1.x.)
+npm warn deprecated glob@7.1.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated debug@3.2.6: Debug versions >=3.2.0 <3.2.7 || >=4 <4.3.1 have a low-severity ReDos regression when used in a Node.js environment. It is recommended you upgrade to 3.2.7 or 4.3.1. (https://github.com/visionmedia/debug/issues/797)
+npm warn deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+npm warn deprecated request@2.88.2: request has been deprecated, see https://github.com/request/request/issues/3142
+npm warn deprecated sinon@7.5.0: 16.1.1
 
+added 283 packages, and audited 284 packages in 22s
+
+80 packages are looking for funding
+  run `npm fund` for details
+
+8 vulnerabilities (1 low, 1 moderate, 1 high, 5 critical)
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/10-api# node api.js
+API available on localhost port 7865
 ```
 
 Terminal 2
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/10-api#  curl http://localhost:7865/available_payments ; echo ""
+{"payment_methods":{"credit_cards":true,"paypal":false}}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/10-api# curl -XPOST http://localhost:7865/login -d '{ "userName": "Betty" }' -H 'Content-Type: application/json' ; echo ""
+Welcome Betty
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/10-api#
 
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/10-api# npm test api.test.js
+
+> 10-api@1.0.0 test
+> ./node_modules/mocha/bin/mocha api.test.js
+
+
+
+  Index page
+    ✓ Correct status code?
+    ✓ Correct result?
+    ✓ Content-Type header looks right?
+
+  Cart page
+    ✓ Correct status code when :id is a number
+    ✓ Correct result when :id is a number
+    ✓ 404 when :id is NOT a number
+    ✓ Works with other numeric ids
+
+  GET /available_payments
+    ✓ returns correct status and JSON body
+    ✓ Content-Type is application/json
+
+  POST /login
+    ✓ returns "Welcome Betty" for userName=Betty
+    ✓ returns "Welcome " when userName is missing
+
+
+  11 passing (68ms)
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/unittests_in_js/10-api#
 ```
 
 package json
