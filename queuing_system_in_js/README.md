@@ -802,6 +802,8 @@ Reply: OK
 
 ```
 
+![alt text](image-1.png)
+
 # Task 3
 
 
@@ -822,6 +824,7 @@ School
 100
 
 ```
+![alt text](image-2.png)
 
 # Task 4
 
@@ -855,12 +858,46 @@ Reply: 1
 
 ```
 
+
 # Task 5
 
-
+Terminal 1
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm run dev 5-subscriber.js
 
+> queuing_system_in_js@1.0.0 dev
+> nodemon --exec babel-node --presets @babel/preset-env 5-subscriber.js
+
+[nodemon] 2.0.22
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `babel-node --presets @babel/preset-env 5-subscriber.js`
+Redis client connected to the server
 ```
+
+
+
+Terminal 2
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm run dev 5-publisher.js
+
+> queuing_system_in_js@1.0.0 dev
+> nodemon --exec babel-node --presets @babel/preset-env 5-publisher.js
+
+[nodemon] 2.0.22
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `babel-node --presets @babel/preset-env 5-publisher.js`
+Redis client connected to the server
+About to send Holberton Student #1 starts course
+About to send Holberton Student #2 starts course
+About to send KILL_SERVER
+About to send Holberton Student #3 starts course
+```
+
+![alt text](image-3.png)
 
 # Task 6
 
