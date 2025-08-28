@@ -940,10 +940,58 @@ Notification job created: 1
 
 # Task 7
 
-
+Terminal 1
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm run dev 6-job_creator.js
 
+> queuing_system_in_js@1.0.0 dev
+> nodemon --exec babel-node --presets @babel/preset-env 6-job_creator.js
+
+[nodemon] 2.0.22
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `babel-node --presets @babel/preset-env 6-job_creator.js`
+Notification job created: 2
+^C
 ```
+![alt text](image-6.png)
+
+Terminal 2
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm run dev 6-job_processor.js
+
+> queuing_system_in_js@1.0.0 dev
+> nodemon --exec babel-node --presets @babel/preset-env 6-job_processor.js
+
+[nodemon] 2.0.22
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `babel-node --presets @babel/preset-env 6-job_processor.js`
+Sending notification to 4153518780, with message: This is the code to verify your account
+Sending notification to 4153518780, with message: This is the code to verify your account
+Sending notification to 4153518780, with message: This is the code to verify your account
+```
+![alt text](image-7.png)
+
+as the same in term1
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm run dev 6-job_creator.js
+
+> queuing_system_in_js@1.0.0 dev
+> nodemon --exec babel-node --presets @babel/preset-env 6-job_creator.js
+
+[nodemon] 2.0.22
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `babel-node --presets @babel/preset-env 6-job_creator.js`
+Notification job created: 3
+Notification job completed
+^C
+```
+![alt text](image-8.png)
 
 # Task 8
 
