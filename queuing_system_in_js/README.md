@@ -763,6 +763,111 @@ root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
 Redis client connected to the server
 ```
 
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# ps ax | grep redis-server
+    324 ?        Ssl    0:00 /usr/bin/redis-server 127.0.0.1:6379
+   1154 pts/0    S+     0:00 grep --color=auto redis-server
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm run dev 0-redis_client.js
+
+> queuing_system_in_js@1.0.0 dev
+> nodemon --exec babel-node --presets @babel/preset-env 0-redis_client.js
+
+[nodemon] 2.0.22
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `babel-node --presets @babel/preset-env 0-redis_client.js`
+Redis client connected to the server
+```
+
+![alt text](image.png)
+
+# Task 2:
+
+```bash
+
+```
+
+# Task 3
 
 
+```bash
 
+```
+
+# Task 4
+
+
+```bash
+
+```
+
+# Task 5
+
+
+```bash
+
+```
+
+# Task 6
+
+
+```bash
+
+```
+
+# Task 7
+
+
+```bash
+
+```
+
+# Task 8
+
+
+```bash
+
+```
+
+# Task 9
+
+
+```bash
+
+```
+
+# Task 10
+
+
+```bash
+
+```
+
+# Task 11
+
+
+```bash
+
+```
+
+# Task 12
+
+
+```bash
+
+```
+
+# Task
+
+
+```bash
+
+```
+
+# Task
+
+
+```bash
+
+```
