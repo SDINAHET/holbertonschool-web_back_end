@@ -1164,11 +1164,224 @@ Notification job created: 15
 
 # Task 11
 
-
+8jobtest.js
 ```bash
+// 8-job.test.js
+import { expect } from 'chai';
+import kue from 'kue';
+import createPushNotificationsJobs from './8-job.js';
 
+const queue = kue.createQueue();
+
+describe('createPushNotificationsJobs', () => {
+  before(() => {
+    // Enter Kue test mode (no processing)
+    queue.testMode.enter();
+  });
+
+  afterEach(() => {
+    // Clear jobs between tests
+    queue.testMode.clear();
+  });
+
+  after(() => {
+    // Exit test mode
+    queue.testMode.exit();
+  });
+
+  it('display a error message if jobs is not an array', () => {
+    expect(() => createPushNotificationsJobs({}, queue)).to.throw('Jobs is not an array');
+    expect(() => createPushNotificationsJobs('not an array', queue)).to.throw('Jobs is not an array');
+    expect(() => createPushNotificationsJobs(42, queue)).to.throw('Jobs is not an array');
+    expect(() => createPushNotificationsJobs(null, queue)).to.throw('Jobs is not an array');
+  });
+
+  it('create two new jobs to the queue', () => {
+    const list = [
+      { phoneNumber: '4153518780', message: 'This is the code 1234 to verify your account' },
+      { phoneNumber: '4153518781', message: 'This is the code 4562 to verify your account' },
+    ];
+
+    createPushNotificationsJobs(list, queue);
+
+    // Validate jobs created in test mode
+    const jobs = queue.testMode.jobs;
+    expect(jobs.length).to.equal(2);
+
+    expect(jobs[0].type).to.equal('push_notification_code_3');
+    expect(jobs[0].data).to.deep.equal(list[0]);
+
+    expect(jobs[1].type).to.equal('push_notification_code_3');
+    expect(jobs[1].data).to.deep.equal(list[1]);
+  });
+});
 ```
 
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm test 8-job.test.js
+
+> queuing_system_in_js@1.0.0 test
+> ./node_modules/.bin/mocha --require @babel/register --exit 8-job.test.js
+
+
+
+  createPushNotificationsJobs
+    ✓ display a error message if jobs is not an array
+    1) create two new jobs to the queue
+
+
+  1 passing (71ms)
+  1 failing
+
+  1) createPushNotificationsJobs
+       create two new jobs to the queue:
+     TypeError: Cannot read properties of undefined (reading 'id')
+      at /mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js/8-job.js:10:54
+      at Job.save (node_modules/kue/lib/queue/test_mode.js:16:28)
+      at forEach (8-job.js:8:64)
+      at Array.forEach (<anonymous>)
+      at createPushNotificationsJobs (8-job.js:7:8)
+      at Context.<anonymous> (8-job.test.js:37:32)
+      at processImmediate (node:internal/timers:483:21)
+
+
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js#
+```
+![alt text](image-14.png)
+
+```bash
+Fix 8-job.js
+
+Use the outer job variable; don’t shadow it in the callback. This works both normally and in test mode:
+
+// 8-job.js
+export default function createPushNotificationsJobs(jobs, queue) {
+  if (!Array.isArray(jobs)) {
+    throw new Error('Jobs is not an array');
+  }
+
+  jobs.forEach((data) => {
+    const job = queue.create('push_notification_code_3', data).save((err) => {
+      if (!err) {
+        // In test mode, job.id may be undefined; guard just in case
+        console.log(`Notification job created: ${job && job.id !== undefined ? job.id : ''}`);
+      }
+    });
+
+    job.on('complete', () => {
+      console.log(`Notification job ${job.id} completed`);
+    });
+
+    job.on('failed', (error) => {
+      console.log(`Notification job ${job.id} failed: ${error}`);
+    });
+
+    job.on('progress', (progress) => {
+      console.log(`Notification job ${job.id} ${progress}% complete`);
+    });
+  });
+}
+```
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm test 8-job.test.js
+
+> queuing_system_in_js@1.0.0 test
+> ./node_modules/.bin/mocha --require @babel/register --exit 8-job.test.js
+
+
+
+  0 passing (1ms)
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js#
+```
+![alt text](image-15.png)
+
+8-job.test.js
+```bash
+// 8-job.test.js
+import { expect } from 'chai';
+import kue from 'kue';
+import createPushNotificationsJobs from './8-job.js';
+
+describe('createPushNotificationsJobs', () => {
+  const queue = kue.createQueue();
+
+  before(() => {
+    // Enter Kue test mode (no job processing)
+    queue.testMode.enter();
+  });
+
+  afterEach(() => {
+    // Clear jobs between tests
+    queue.testMode.clear();
+  });
+
+  after(() => {
+    // Exit test mode
+    queue.testMode.exit();
+  });
+
+  it('display a error message if jobs is not an array', () => {
+    expect(() => createPushNotificationsJobs({}, queue)).to.throw('Jobs is not an array');
+    expect(() => createPushNotificationsJobs('nope', queue)).to.throw('Jobs is not an array');
+    expect(() => createPushNotificationsJobs(42, queue)).to.throw('Jobs is not an array');
+    expect(() => createPushNotificationsJobs(null, queue)).to.throw('Jobs is not an array');
+  });
+
+  it('create two new jobs to the queue', () => {
+    const list = [
+      { phoneNumber: '4153518780', message: 'This is the code 1234 to verify your account' },
+      { phoneNumber: '4153518781', message: 'This is the code 4562 to verify your account' },
+    ];
+
+    createPushNotificationsJobs(list, queue);
+
+    const jobs = queue.testMode.jobs;
+    expect(jobs).to.have.lengthOf(2);
+
+    expect(jobs[0].type).to.equal('push_notification_code_3');
+    expect(jobs[0].data).to.deep.equal(list[0]);
+
+    expect(jobs[1].type).to.equal('push_notification_code_3');
+    expect(jobs[1].data).to.deep.equal(list[1]);
+  });
+});
+```
+
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm test 8-job.test.js
+
+> queuing_system_in_js@1.0.0 test
+> ./node_modules/.bin/mocha --require @babel/register --exit 8-job.test.js
+
+
+
+  createPushNotificationsJobs
+    ✓ display a error message if jobs is not an array
+    1) create two new jobs to the queue
+
+
+  1 passing (65ms)
+  1 failing
+
+  1) createPushNotificationsJobs
+       create two new jobs to the queue:
+     TypeError: Cannot read properties of undefined (reading 'id')
+      at /mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js/8-job.js:10:54
+      at Job.save (node_modules/kue/lib/queue/test_mode.js:16:28)
+      at forEach (8-job.js:8:64)
+      at Array.forEach (<anonymous>)
+      at createPushNotificationsJobs (8-job.js:7:8)
+      at Context.<anonymous> (8-job.test.js:37:32)
+      at processImmediate (node:internal/timers:483:21)
+
+
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js#
+```
+![alt text](image-16.png)
 
 # Task 12
 
