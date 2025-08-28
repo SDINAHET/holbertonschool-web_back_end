@@ -1383,10 +1383,140 @@ root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
 ```
 ![alt text](image-16.png)
 
-# Task 12
+8-job.js (corrigé)
+```bash
+// 8-job.js
+export default function createPushNotificationsJobs(jobs, queue) {
+  if (!Array.isArray(jobs)) {
+    throw new Error('Jobs is not an array');
+  }
 
+  jobs.forEach((data) => {
+    const job = queue.create('push_notification_code_3', data);
+
+    job.save((err) => {
+      if (!err) {
+        // En test mode, job.id peut être undefined -> on protège
+        const id = (job && typeof job.id !== 'undefined') ? job.id : '';
+        console.log(`Notification job created: ${id}`);
+      }
+    });
+
+    job.on('complete', () => {
+      console.log(`Notification job ${job.id} completed`);
+    });
+
+    job.on('failed', (error) => {
+      console.log(`Notification job ${job.id} failed: ${error}`);
+    });
+
+    job.on('progress', (progress) => {
+      console.log(`Notification job ${job.id} ${progress}% complete`);
+    });
+  });
+}
+
+```
+
+✅ 8-job.test.js (référence fiable)
+```bash
+// 8-job.test.js
+import { expect } from 'chai';
+import kue from 'kue';
+import createPushNotificationsJobs from './8-job.js';
+
+describe('createPushNotificationsJobs', () => {
+  const queue = kue.createQueue();
+
+  before(() => {
+    // Entrer en test mode avant les tests
+    queue.testMode.enter();
+  });
+
+  afterEach(() => {
+    // Nettoyer entre chaque test
+    queue.testMode.clear();
+  });
+
+  after(() => {
+    // Sortir du test mode à la fin
+    queue.testMode.exit();
+  });
+
+  it('display a error message if jobs is not an array', () => {
+    expect(() => createPushNotificationsJobs({}, queue)).to.throw('Jobs is not an array');
+    expect(() => createPushNotificationsJobs('nope', queue)).to.throw('Jobs is not an array');
+    expect(() => createPushNotificationsJobs(42, queue)).to.throw('Jobs is not an array');
+    expect(() => createPushNotificationsJobs(null, queue)).to.throw('Jobs is not an array');
+  });
+
+  it('create two new jobs to the queue', () => {
+    const list = [
+      { phoneNumber: '4153518780', message: 'This is the code 1234 to verify your account' },
+      { phoneNumber: '4153518781', message: 'This is the code 4562 to verify your account' },
+    ];
+
+    createPushNotificationsJobs(list, queue);
+
+    const jobs = queue.testMode.jobs;
+    expect(jobs).to.have.lengthOf(2);
+
+    expect(jobs[0].type).to.equal('push_notification_code_3');
+    expect(jobs[0].data).to.deep.equal(list[0]);
+
+    expect(jobs[1].type).to.equal('push_notification_code_3');
+    expect(jobs[1].data).to.deep.equal(list[1]);
+  });
+});
+
+```
 
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm test 8-job.test.js
+
+> queuing_system_in_js@1.0.0 test
+> ./node_modules/.bin/mocha --require @babel/register --exit 8-job.test.js
+
+
+
+  0 passing (1ms)
+
+```
+# Task 12
+
+Terminal 1
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm run dev 9-stock.js
+
+> queuing_system_in_js@1.0.0 dev
+> nodemon --exec babel-node --presets @babel/preset-env 9-stock.js
+
+[nodemon] 2.0.22
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `babel-node --presets @babel/preset-env 9-stock.js`
+API available on localhost port 1245
+```
+![alt text](image-17.png)
+
+Terminal 2
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/list_products ; echo ""
+[{"itemId":1,"itemName":"Suitcase 250","price":50,"initialAvailableQuantity":4},{"itemId":2,"itemName":"Suitcase 450","price":100,"initialAvailableQuantity":10},{"itemId":3,"itemName":"Suitcase 650","price":350,"initialAvailableQuantity":2},{"itemId":4,"itemName":"Suitcase 1050","price":550,"initialAvailableQuantity":5}]
+[{"itemId":1,"itemName":"Suitcase 250","price":50,"initialAvailableQuantity":4},{"itemId":2,"itemName":"Suitcase 450","price":100,"initialAvailableQuantity":10},{"itemId":3,"itemName":"Suitcase 650","price":350,"initialAvailableQuantity":2},{"itemId":4,"itemName":"Suitcase 1050","price":550,"initialAvailableQuantity":5}]
+[itemId:1,itemId:2,itemId:3,itemId:4]: command not found
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/list_products ; echo ""
+[{"itemId":1,"itemName":"Suitcase 250","price":50,"initialAvailableQuantity":4},{"itemId":2,"itemName":"Suitcase 450","price":100,"initialAvailableQuantity":10},{"itemId":3,"itemName":"Suitcase 650","price":350,"initialAvailableQuantity":2},{"itemId":4,"itemName":"Suitcase 1050","price":550,"initialAvailableQuantity":5}]
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js#
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/list_products/12 ; echo ""
+{"status":"Product not found"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/reserve_product/12 ; echo ""
+{"status":"Product not found"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/reserve_product/1 ; echo ""
+{"status":"Reservation confirmed","itemId":1}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/reserve_product/1 ; echo ""
+{"status":"Reservation confirmed","itemId":1}
 
 ```
 

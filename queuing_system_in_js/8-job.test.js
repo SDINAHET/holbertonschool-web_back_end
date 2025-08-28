@@ -1,48 +1,30 @@
-// 8-job.test.js
-import { expect } from 'chai';
-import kue from 'kue';
-import createPushNotificationsJobs from './8-job.js';
+// 8-job.js
+export default function createPushNotificationsJobs(jobs, queue) {
+  if (!Array.isArray(jobs)) {
+    throw new Error('Jobs is not an array');
+  }
 
-describe('createPushNotificationsJobs', () => {
-  const queue = kue.createQueue();
+  jobs.forEach((data) => {
+    const job = queue.create('push_notification_code_3', data);
 
-  before(() => {
-    // Enter Kue test mode (no job processing)
-    queue.testMode.enter();
+    job.save((err) => {
+      if (!err) {
+        // En test mode, job.id peut être undefined -> on protège
+        const id = (job && typeof job.id !== 'undefined') ? job.id : '';
+        console.log(`Notification job created: ${id}`);
+      }
+    });
+
+    job.on('complete', () => {
+      console.log(`Notification job ${job.id} completed`);
+    });
+
+    job.on('failed', (error) => {
+      console.log(`Notification job ${job.id} failed: ${error}`);
+    });
+
+    job.on('progress', (progress) => {
+      console.log(`Notification job ${job.id} ${progress}% complete`);
+    });
   });
-
-  afterEach(() => {
-    // Clear jobs between tests
-    queue.testMode.clear();
-  });
-
-  after(() => {
-    // Exit test mode
-    queue.testMode.exit();
-  });
-
-  it('display a error message if jobs is not an array', () => {
-    expect(() => createPushNotificationsJobs({}, queue)).to.throw('Jobs is not an array');
-    expect(() => createPushNotificationsJobs('nope', queue)).to.throw('Jobs is not an array');
-    expect(() => createPushNotificationsJobs(42, queue)).to.throw('Jobs is not an array');
-    expect(() => createPushNotificationsJobs(null, queue)).to.throw('Jobs is not an array');
-  });
-
-  it('create two new jobs to the queue', () => {
-    const list = [
-      { phoneNumber: '4153518780', message: 'This is the code 1234 to verify your account' },
-      { phoneNumber: '4153518781', message: 'This is the code 4562 to verify your account' },
-    ];
-
-    createPushNotificationsJobs(list, queue);
-
-    const jobs = queue.testMode.jobs;
-    expect(jobs).to.have.lengthOf(2);
-
-    expect(jobs[0].type).to.equal('push_notification_code_3');
-    expect(jobs[0].data).to.deep.equal(list[0]);
-
-    expect(jobs[1].type).to.equal('push_notification_code_3');
-    expect(jobs[1].data).to.deep.equal(list[1]);
-  });
-});
+}
