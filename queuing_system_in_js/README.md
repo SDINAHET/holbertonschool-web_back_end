@@ -997,8 +997,30 @@ Notification job completed
 
 
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm run dev 7-job_creator.js
+
+> queuing_system_in_js@1.0.0 dev
+> nodemon --exec babel-node --presets @babel/preset-env 7-job_creator.js
+
+[nodemon] 2.0.22
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `babel-node --presets @babel/preset-env 7-job_creator.js`
+Notification job created: 4
+Notification job created: 5
+Notification job created: 6
+Notification job created: 7
+Notification job created: 8
+Notification job created: 9
+Notification job created: 10
+Notification job created: 11
+Notification job created: 12
+Notification job created: 13
+Notification job created: 14
 
 ```
+![alt text](image-9.png)
 
 # Task 9
 
@@ -1007,6 +1029,7 @@ Notification job completed
 
 ```
 
+
 # Task 10
 
 
@@ -1014,12 +1037,14 @@ Notification job completed
 
 ```
 
+
 # Task 11
 
 
 ```bash
 
 ```
+
 
 # Task 12
 
