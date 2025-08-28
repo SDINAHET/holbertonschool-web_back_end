@@ -1024,11 +1024,86 @@ Notification job created: 14
 
 # Task 9
 
-
+terminal 1
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm run dev 7-job_creator.js
 
+> queuing_system_in_js@1.0.0 dev
+> nodemon --exec babel-node --presets @babel/preset-env 7-job_creator.js
+
+[nodemon] 2.0.22
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `babel-node --presets @babel/preset-env 7-job_creator.js`
+Notification job created: 4
+Notification job created: 5
+Notification job created: 6
+Notification job created: 7
+Notification job created: 8
+Notification job created: 9
+Notification job created: 10
+Notification job created: 11
+Notification job created: 12
+Notification job created: 13
+Notification job created: 14
+Notification job 4 0% complete
+Notification job 5 0% complete
+Notification job 4 failed: Phone number 4153518780 is blacklisted
+Notification job 5 failed: Phone number 4153518781 is blacklisted
+Notification job 6 0% complete
+Notification job 6 50% complete
+Notification job 7 0% complete
+Notification job 7 50% complete
+Notification job 6 completed
+Notification job 7 completed
+Notification job 8 0% complete
+Notification job 8 50% complete
+Notification job 9 0% complete
+Notification job 9 50% complete
+Notification job 8 completed
+Notification job 9 completed
+Notification job 10 0% complete
+Notification job 10 50% complete
+Notification job 11 0% complete
+Notification job 11 50% complete
+Notification job 10 completed
+Notification job 11 completed
+Notification job 12 0% complete
+Notification job 12 50% complete
+Notification job 13 0% complete
+Notification job 13 50% complete
+Notification job 12 completed
+Notification job 13 completed
+Notification job 14 0% complete
+Notification job 14 50% complete
+Notification job 14 completed
 ```
+![alt text](image-10.png)
 
+Terminal 2
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm run dev 7-job_processor.js
+
+> queuing_system_in_js@1.0.0 dev
+> nodemon --exec babel-node --presets @babel/preset-env 7-job_processor.js
+
+[nodemon] 2.0.22
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `babel-node --presets @babel/preset-env 7-job_processor.js`
+Sending notification to 4153518743, with message: This is the code 4321 to verify your account
+Sending notification to 4153538781, with message: This is the code 4562 to verify your account
+Sending notification to 4153118782, with message: This is the code 4321 to verify your account
+Sending notification to 4153718781, with message: This is the code 4562 to verify your account
+Sending notification to 4159518782, with message: This is the code 4321 to verify your account
+Sending notification to 4158718781, with message: This is the code 4562 to verify your account
+Sending notification to 4153818782, with message: This is the code 4321 to verify your account
+Sending notification to 4154318781, with message: This is the code 4562 to verify your account
+Sending notification to 4151218782, with message: This is the code 4321 to verify your account
+```
+![alt text](image-11.png)
 
 # Task 10
 
