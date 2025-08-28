@@ -1518,6 +1518,19 @@ root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
 root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/reserve_product/1 ; echo ""
 {"status":"Reservation confirmed","itemId":1}
 
+
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/list_products/1 ; echo ""
+{"itemId":1,"itemName":"Suitcase 250","price":50,"initialAvailableQuantity":4,"currentQuantity":1}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/list_products/12 ; echo ""
+{"status":"Product not found"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/reserve_product/12 ; echo ""
+{"status":"Product not found"}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js#  curl localhost:1245/reserve_product/1 ; echo ""
+{"status":"Reservation confirmed","itemId":1}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/reserve_product/1 ; echo ""
+{"status":"Not enough stock available","itemId":1}
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js#
 ```
 
 # Task
