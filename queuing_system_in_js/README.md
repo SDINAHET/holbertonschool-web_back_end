@@ -785,6 +785,20 @@ Redis client connected to the server
 # Task 2:
 
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm run dev 1-redis_op.js
+
+> queuing_system_in_js@1.0.0 dev
+> nodemon --exec babel-node --presets @babel/preset-env 1-redis_op.js
+
+[nodemon] 2.0.22
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `babel-node --presets @babel/preset-env 1-redis_op.js`
+Redis client connected to the server
+School
+Reply: OK
+100
 
 ```
 
