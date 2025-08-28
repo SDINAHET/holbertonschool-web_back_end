@@ -1533,16 +1533,107 @@ root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back
 root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js#
 ```
 
-# Task
+# Task 13
 
-
+Terminal 1
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm run dev 100-seat.js
 
+> queuing_system_in_js@1.0.0 dev
+> nodemon --exec babel-node --presets @babel/preset-env 100-seat.js
+
+[nodemon] 2.0.22
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `babel-node --presets @babel/preset-env 100-seat.js`
+Server listening on port 1245
 ```
 
-# Task
 
-
+Terminal 2
 ```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/available_seats ; echo ""
+{"numberOfAvailableSeats":"50"}
 
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/reserve_seat ; echo ""
+{"status":"Reservation in process"}
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/process ; echo ""
+{"status":"Queue processing"}
+
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# curl localhost:1245/available_seats ; echo ""
+{"numberOfAvailableSeats":"49"}
+
+
+```
+Terminal 1  after last command
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# npm run dev 100-seat.js
+
+> queuing_system_in_js@1.0.0 dev
+> nodemon --exec babel-node --presets @babel/preset-env 100-seat.js
+
+[nodemon] 2.0.22
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `babel-node --presets @babel/preset-env 100-seat.js`
+Server listening on port 1245
+Seat reservation job 17 completed
+```
+
+Terminal 2
+```bash
+root@UID7E:/mnt/d/Users/steph/Documents/5ème_trimestre/holbertonschool-web_back_end/queuing_system_in_js# for n in {1..50}; do curl localhost:1245/reserve_seat ; echo ""; done
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation in process"}
+{"status":"Reservation are blocked"}
 ```
